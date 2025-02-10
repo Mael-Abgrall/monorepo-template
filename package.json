@@ -2,6 +2,7 @@
   "name": "monorepo",
   "private": true,
   "type": "module",
+  "license": "MIT",
   "packageManager": "yarn@4.6.0",
   "workspaces": [
     "services/**",
@@ -12,9 +13,16 @@
     "db:push": "drizzle-kit push"
   },
   "devDependencies": {
+    "@ansearch/config": "^0.1.1",
     "dotenv": "^16.4.7",
     "drizzle-kit": "^0.30.4",
+    "eslint": "^9.20.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-import-resolver-typescript": "^3.7.0",
     "postgres": "^3.4.5",
+    "prettier": "^3.5.0",
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3",
     "wrangler": "^3.107.3"
   }
 }

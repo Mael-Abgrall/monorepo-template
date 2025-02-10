@@ -1,0 +1,26 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.tabSize": 2,
+  "css.customData": [".vscode/tailwind.json"],
+  "eslint.validate": ["javascript", "typescript", "vue"],
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/.turbo/*/**": true,
+    "**/.coverage/*/**": true,
+    "**/libs/*/**": true,
+    "**/dist/*/**": true
+  },
+  "cSpell.ignorePaths": [
+    "package-lock.json",
+    "package.json",
+    "node_modules",
+    "vscode-extension",
+    ".git/objects",
+    ".vscode",
+    ".vscode-insiders"
+  ],
+  "cSpell.words": ["Nuxt"]
+}
