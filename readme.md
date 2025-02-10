@@ -9,6 +9,7 @@ This is a template to use for my work; with what I believe would cover 80% of gr
 - API is using Hono, deployed on Cloudflare workers. It should be deployed easily on container platforms by changing the index.ts.
 - Posthog for analytics and error reporting
 - Turbo to orchestrate the build, tsup for building packages
+- No need for `dist/*` (except during deployment)
 - Github actions for QA and deployment
 - a "me" flavored version of hexagonal architecture and monorepo
 
@@ -30,3 +31,10 @@ The frontends and services folders are further split in two:
 - Files are named based on the package they live in for easy search
 - Whenever possible, the code uses functional programming, and named parameters for functions.
 - Tests are written next to the original file, and the folder is split into 2: one for unit tests, and one for integration tests.
+
+## Starting the project
+
+```bash
+yarn workspace app dev
+yarn workspace api dev
+```

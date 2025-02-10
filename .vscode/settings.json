@@ -22,5 +22,13 @@
     ".vscode",
     ".vscode-insiders"
   ],
-  "cSpell.words": ["Nuxt"]
+  "cSpell.words": ["Nuxt"],
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "package.json": "postcss.config*, tailwind.config*, env.d.ts, .editorconfig*, .gitattributes*, .gitignore*, .prettierrc*, eslint.config*, LICENSE, .yarn*, tsconfig*, tsup.config*, turbo.json, yarn.lock, drizzle.config*, vite.config*"
+  },
+  "files.exclude": {
+    "**/node_modules/": true,
+    ".yarn": true
+  }
 }
