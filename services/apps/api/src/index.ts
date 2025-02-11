@@ -1,35 +1,46 @@
-import { drizzle } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
-import { Hono } from "hono";
+import { Hono } from 'hono';
+import type { Environment, Variables } from './context.js';
+import { itemRouter } from './routes/api-routes-items.js';
 
-import { createUser, deleteUser, getUsers, updateUser } from "database/test.ts";
+const app = new Hono<{ Bindings: Environment; Variables: Variables }>();
 
-export type Env = {
-  DATABASE_URL: string;
-};
+import { apiReference } from '@scalar/hono-api-reference';
+import { openAPISpecs } from 'hono-openapi';
+import { databaseMiddleware } from './middleware/api-middleware-database.js';
 
-const app = new Hono<{ Bindings: Env }>();
-
-app.get("/", async (c) => {
-  try {
-    const sql = neon(c.env.DATABASE_URL);
-    const db = drizzle(sql);
-
-    await createUser({ db });
-    const users = await getUsers({ db });
-
-    return c.json({
-      users,
-    });
-  } catch (error) {
-    console.log(error);
-    return c.json(
-      {
-        error,
+app.get(
+  '/openapi',
+  openAPISpecs(app, {
+    documentation: {
+      components: {
+        securitySchemes: {
+          bearerAuth: { bearerFormat: 'JWT', scheme: 'bearer', type: 'http' },
+        },
       },
-      400
-    );
-  }
+      info: {
+        description: 'Greeting API',
+        title: 'Hono API',
+        version: '1.0.0',
+      },
+      security: [{ bearerAuth: [] }],
+      servers: [{ description: 'Local Server', url: 'http://localhost:8787' }],
+    },
+  }),
+);
+
+// todo remove on prod
+app.get(
+  '/docs',
+  apiReference({
+    spec: { url: '/openapi' },
+  }),
+);
+
+app.use(databaseMiddleware);
+app.route('/simple', itemRouter);
+
+app.get('/', async (c) => {
+  const pgDatabase = c.get('pgDatabase');
 });
 
 export default app;

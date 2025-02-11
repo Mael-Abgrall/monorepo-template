@@ -1,0 +1,2 @@
+# this is the equivalent of .env for wrangler
+DATABASE_URL=

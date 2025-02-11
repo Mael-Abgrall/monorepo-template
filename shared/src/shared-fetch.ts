@@ -1,1 +1,1 @@
-export { ofetch } from "ofetch";
+export { ofetch } from 'ofetch';

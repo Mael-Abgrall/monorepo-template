@@ -2,7 +2,17 @@
   "name": "shared",
   "private": true,
   "type": "module",
+  "exports": {
+    "./*": {
+      "workerd": "./src/*",
+      "typescript": "./src/*",
+      "development": "./src/*",
+      "types": "./src/*",
+      "default": "./dist/*"
+    }
+  },
   "dependencies": {
+    "@sinclair/typebox": "^0.34.16",
     "ofetch": "^1.4.1"
   }
 }

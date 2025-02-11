@@ -3,12 +3,19 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./*": {
-      "workerd": "./src/*",
-      "typescript": "./src/*",
-      "development": "./src/*",
-      "types": "./src/*",
-      "default": "./dist/*"
+    "./postgresql": {
+      "workerd": "./src/database-pg.ts",
+      "typescript": "./src/database-pg.ts",
+      "development": "./src/database-pg.ts",
+      "types": "./src/database-pg.ts",
+      "default": "./dist/database-pg.js"
+    },
+    "./example": {
+      "workerd": "./src/example/database-example-interface.ts",
+      "typescript": "./src/example/database-example.ts",
+      "development": "./src/example/database-example.ts",
+      "types": "./src/example/database-example.ts",
+      "default": "./dist/example/database-example.js"
     }
   },
   "dependencies": {

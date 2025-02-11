@@ -1,8 +1,9 @@
-import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import type { InferSelectModel } from 'drizzle-orm';
+import { integer, pgTable, uuid, varchar } from 'drizzle-orm/pg-core';
 
-export const usersTable = pgTable("users", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+export const itemsTable = pgTable('items', {
+  id: uuid('id').primaryKey().defaultRandom(),
   name: varchar({ length: 255 }).notNull(),
-  age: integer().notNull(),
-  email: varchar({ length: 255 }).notNull().unique(),
+  quantity: integer().notNull().default(0),
 });
+export type Item = InferSelectModel<typeof itemsTable>;

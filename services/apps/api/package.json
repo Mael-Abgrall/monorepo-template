@@ -6,7 +6,13 @@
     "dev": "yarn w:wrangler-dev src/index.ts"
   },
   "dependencies": {
+    "@hono/typebox-validator": "^0.3.2",
     "database": "workspace:^",
-    "hono": "^4.7.0"
+    "hono": "^4.7.0",
+    "hono-openapi": "^0.4.4",
+    "shared": "workspace:^"
+  },
+  "devDependencies": {
+    "@scalar/hono-api-reference": "^0.5.172"
   }
 }
