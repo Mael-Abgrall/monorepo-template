@@ -56,6 +56,8 @@ That's it, you are good to go.
 
 ### 1. Get your credentials
 
+![credentials](./oauth_images/ms_oauth_1.png)
+
 Head to [The portal](https://portal.azure.com/), go to Entra and select "create new application", name your app and click "register".
 
 On the next screen, select "Authentication" on the side bar. If this is not already here, add the "Web" platform.
@@ -68,6 +70,8 @@ In the redirect urls, set:
 Scroll down, and select "ID token" in the implicit and hybrid flow section.
 
 ### 2. Get your secrets
+
+![credentials](./oauth_images/ms_oauth_2.png)
 
 Now head to Certificates and secrets > Client secrets > New client secret.
 
