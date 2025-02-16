@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router';
-import { ofetch } from 'shared/shared-fetch.js';
+import { ofetch } from 'shared/fetch';
 </script>
 
 <template>

@@ -1,5 +1,20 @@
 {
   "name": "oauth",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "fast-jwt": "^5.0.5",
+    "service-utils": "workspace:^",
+    "shared": "workspace:^"
+  },
+  "exports": {
+    ".": {
+      "workerd": "./src/oauth.ts",
+      "typescript": "./src/oauth.ts",
+      "development": "./src/oauth.ts",
+      "types": "./src/oauth.ts",
+      "default": "./dist/oauth.js"
+    },
+    "./package.json": "./package.json"
+  }
 }

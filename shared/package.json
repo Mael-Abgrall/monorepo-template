@@ -3,13 +3,28 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./*": {
-      "workerd": "./src/*",
-      "typescript": "./src/*",
-      "development": "./src/*",
-      "types": "./src/*",
-      "default": "./dist/*"
-    }
+    "./fetch": {
+      "workerd": "./src/shared-fetch.ts",
+      "typescript": "./src/shared-fetch.ts",
+      "development": "./src/shared-fetch.ts",
+      "types": "./src/shared-fetch.ts",
+      "default": "./dist/shared-fetch.js"
+    },
+    "./typebox": {
+      "workerd": "./src/shared-typebox.ts",
+      "typescript": "./src/shared-typebox.ts",
+      "development": "./src/shared-typebox.ts",
+      "types": "./src/shared-typebox.ts",
+      "default": "./dist/shared-typebox.js"
+    },
+    "./schemas/*": {
+      "workerd": "./src/schemas/*.ts",
+      "typescript": "./src/schemas/*.ts",
+      "development": "./src/schemas/*.ts",
+      "types": "./src/schemas/*.ts",
+      "default": "./dist/schemas/*.js"
+    },
+    "./package.json": "./package.json"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.34.16",

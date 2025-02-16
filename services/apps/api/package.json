@@ -10,6 +10,8 @@
     "database": "workspace:^",
     "hono": "^4.7.0",
     "hono-openapi": "^0.4.4",
+    "oauth": "workspace:^",
+    "service-utils": "workspace:^",
     "shared": "workspace:^"
   },
   "devDependencies": {

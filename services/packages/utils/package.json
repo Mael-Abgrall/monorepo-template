@@ -1,5 +1,15 @@
 {
-  "name": "utils",
+  "name": "service-utils",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "exports": {
+    "./environment": {
+      "workerd": "./src/environment.ts",
+      "typescript": "./src/environment.ts",
+      "development": "./src/environment.ts",
+      "types": "./src/environment.ts",
+      "default": "./dist/environment.js"
+    },
+    "./package.json": "./package.json"
+  }
 }

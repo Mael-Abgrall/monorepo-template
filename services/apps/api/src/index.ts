@@ -7,6 +7,8 @@ const app = new Hono<{ Bindings: Environment; Variables: Variables }>();
 import { apiReference } from '@scalar/hono-api-reference';
 import { openAPISpecs } from 'hono-openapi';
 import { databaseMiddleware } from './middleware/api-middleware-database.js';
+import { environmentMiddleware } from './middleware/api-middleware-environment.js';
+import { authRouter } from './routes/api-routes-auth.js';
 
 app.get(
   '/openapi',
@@ -36,11 +38,9 @@ app.get(
   }),
 );
 
+app.use(environmentMiddleware);
 app.use(databaseMiddleware);
 app.route('/simple', itemRouter);
-
-app.get('/', async (c) => {
-  const pgDatabase = c.get('pgDatabase');
-});
+app.route('/auth', authRouter);
 
 export default app;
