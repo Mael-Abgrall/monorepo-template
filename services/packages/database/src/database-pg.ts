@@ -8,13 +8,14 @@ interface Environment {
   NODE_ENV?: 'development' | 'production' | 'test';
 }
 
+export let pgDatabase: NeonHttpDatabase;
+
 /**
- * Get the PostgreSQL client
+ * Setup the PostgreSQL client
  * @param root named parameters
  * @param root.env the environment variables
- * @returns the drizzle client
  */
-export function getPostgreSQL({ env }: { env: Environment }): NeonHttpDatabase {
+export function setupPostgreSQL({ env }: { env: Environment }): void {
   /* v8 ignore start */
   if (!env.DATABASE_URL) {
     throw new Error('DATABASE_URL is not set');
@@ -23,10 +24,10 @@ export function getPostgreSQL({ env }: { env: Environment }): NeonHttpDatabase {
   if (env.NODE_ENV === 'test') {
     const url = env.DATABASE_URL_TEST ?? env.DATABASE_URL;
     const client = neon(url);
-    return drizzle(client);
+    pgDatabase = drizzle(client);
+  } else {
+    const client = neon(env.DATABASE_URL);
+    pgDatabase = drizzle(client);
   }
-
-  const client = neon(env.DATABASE_URL);
-  return drizzle(client);
 }
 /* v8 ignore end */

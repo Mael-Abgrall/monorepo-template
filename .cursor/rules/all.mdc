@@ -1,0 +1,11 @@
+---
+description: universal rules
+globs: *
+alwaysApply: false
+---
+- Avoid using libraries if possible
+- If you are not sure a syntax exists, create a comment above it to indicate you are not sure
+- Limit your response to the given instructions, if the instructions are too limited or lack context, ask the user for clarification
+- Try to do things step by step, even if it requires multiple calls, so the user has time to review your code
+- Name new files based on their folder, ignore the src (ex: `database/src/user/database-user.ts` or `api/src/routes/auth/api-routes-auth.py`)
+- Write typescript unless specifically asked to write in another language

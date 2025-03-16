@@ -1,0 +1,21 @@
+---
+description: TS best practices
+globs: *.tsx, *.vue
+alwaysApply: false
+---
+This repository is a monorepo, the way it works and how the files are agenced is explained in readme.md
+
+## Frontend and Backend
+
+- Always use named parameters and output types `async myFunction({paramA}:{paramA:string}): Promise<string>{}`.
+- Prefer functional programming when it is more legible. Avoid classes.
+- Order functions, json and object variables by name; Order import with types first, then regular imports, by name too.
+
+## Backend
+
+- Use Drizzle, do not create migrations or SQL files
+
+## Tests
+
+- Tests are located in a folder always next to the original file, with the `test/integration` and `test/unit` sub-folders.
+- Use vitest for tests, group tests by function using describe
