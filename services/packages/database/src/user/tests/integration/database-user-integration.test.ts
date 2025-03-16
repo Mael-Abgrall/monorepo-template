@@ -1,16 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { pgDatabase } from '../../../database-pg';
-import { createUser, getUserByEmail, getUserById } from '../../database-user';
+import { getUserByEmail, getUserById, insertUser } from '../../database-user';
 import { usersTable } from '../../database-user-schemas';
 
-describe('createUser', () => {
+describe('insertUser', () => {
   it('should create a user in the database, and return the created user', async () => {
     const userIn = {
       email: 'integration-test@example.com',
+      id: crypto.randomUUID(),
       userName: 'Integration Test',
     };
 
-    const createdUser = await createUser({ user: userIn });
+    const createdUser = await insertUser({ user: userIn });
 
     expect(createdUser).toHaveProperty('id');
     expect(createdUser.email).toBe(userIn.email);
@@ -27,11 +28,12 @@ describe('createUser', () => {
   it('should throw an error if the user already exists', async () => {
     const userIn = {
       email: 'integration-test@example.com',
+      id: crypto.randomUUID(),
       userName: 'Integration Test',
     };
 
-    await createUser({ user: userIn });
-    await expect(createUser({ user: userIn })).rejects.toThrow();
+    await insertUser({ user: userIn });
+    await expect(insertUser({ user: userIn })).rejects.toThrow();
   });
 });
 
@@ -39,10 +41,11 @@ describe('getUserByEmail', () => {
   it('should retrieve a user by email', async () => {
     const userData = {
       email: 'get-by-email@example.com',
+      id: crypto.randomUUID(),
       userName: 'Get By Email',
     };
 
-    await createUser({ user: userData });
+    await insertUser({ user: userData });
     const retrievedUser = await getUserByEmail({ email: userData.email });
 
     expect(retrievedUser).not.toBeUndefined();
@@ -61,10 +64,11 @@ describe('getUserById', () => {
   it('should retrieve a user by ID', async () => {
     const userData = {
       email: 'get-by-id@example.com',
+      id: crypto.randomUUID(),
       userName: 'Get By Id',
     };
 
-    const createdUser = await createUser({ user: userData });
+    const createdUser = await insertUser({ user: userData });
     const retrievedUser = await getUserById({ id: createdUser.id });
 
     expect(retrievedUser).not.toBeUndefined();

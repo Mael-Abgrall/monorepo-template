@@ -1,6 +1,6 @@
 ---
 description: TS best practices
-globs: *.tsx, *.vue
+globs:  *.vue,*.ts
 alwaysApply: false
 ---
 This repository is a monorepo, the way it works and how the files are agenced is explained in readme.md

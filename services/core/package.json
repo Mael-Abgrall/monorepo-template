@@ -1,0 +1,10 @@
+{
+  "name": "core",
+  "private": true,
+  "type": "module",
+  "exports": {},
+  "dependencies": {
+    "database": "workspace:^",
+    "oauth": "workspace:^"
+  }
+}

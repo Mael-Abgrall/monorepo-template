@@ -1,1 +1,1 @@
-export { usersTable } from './user/database-user-schemas';
+export * from './user/database-user-schemas';

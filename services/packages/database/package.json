@@ -10,12 +10,12 @@
       "types": "./src/database-pg.ts",
       "default": "./dist/database-pg.js"
     },
-    "./example": {
-      "workerd": "./src/example/database-example-interface.ts",
-      "typescript": "./src/example/database-example.ts",
-      "development": "./src/example/database-example.ts",
-      "types": "./src/example/database-example.ts",
-      "default": "./dist/example/database-example.js"
+    "./user": {
+      "workerd": "./src/user/database-user-interface.ts",
+      "typescript": "./src/user/database-user-interface.ts",
+      "development": "./src/user/database-user-interface.ts",
+      "types": "./src/user/database-user-interface.ts",
+      "default": "./dist/user/database-user-interface.js"
     }
   },
   "dependencies": {

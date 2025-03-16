@@ -22,5 +22,6 @@ export default defineConfig({
     clearMocks: true,
     env: loadEnv('', process.cwd(), ''),
     setupFiles: ['./services/packages/database/tests/database-test-setup.ts'],
+    fileParallelism: false,
   },
 });

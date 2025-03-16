@@ -1,7 +1,7 @@
 ---
-description: universal rules
-globs: *
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
 - Avoid using libraries if possible
 - If you are not sure a syntax exists, create a comment above it to indicate you are not sure

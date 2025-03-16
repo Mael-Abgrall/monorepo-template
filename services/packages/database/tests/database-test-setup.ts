@@ -1,7 +1,10 @@
 import { sql } from 'drizzle-orm';
-import { beforeAll, beforeEach } from 'vitest';
+import { beforeAll, beforeEach, vi } from 'vitest';
 import { pgDatabase, setupPostgreSQL } from '../src/database-pg';
-import { usersTable } from '../src/user/database-user-schemas';
+import {
+  usersTable,
+  verificationTokensTable,
+} from '../src/user/database-user-schemas';
 
 beforeAll(async () => {
   setupPostgreSQL({ env: process.env });
@@ -9,4 +12,6 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await pgDatabase.execute(sql`TRUNCATE TABLE ${usersTable}`);
+  await pgDatabase.execute(sql`TRUNCATE TABLE ${verificationTokensTable}`);
+  vi.clearAllMocks();
 });
