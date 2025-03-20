@@ -7,10 +7,10 @@
   },
   "dependencies": {
     "@hono/typebox-validator": "^0.3.2",
+    "core": "workspace:^",
     "database": "workspace:^",
     "hono": "^4.7.0",
     "hono-openapi": "^0.4.4",
-    "oauth": "workspace:^",
     "service-utils": "workspace:^",
     "shared": "workspace:^"
   },

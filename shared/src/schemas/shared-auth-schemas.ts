@@ -20,3 +20,13 @@ export const oauthInitQuerySchema = Type.Object({
   ]),
 });
 export type OauthInitQuery = Static<typeof oauthInitQuerySchema>;
+
+export const otpInitBodySchema = Type.Object({
+  email: Type.String(),
+});
+export type OtpInitBody = Static<typeof otpInitBodySchema>;
+
+export const otpFinishBodySchema = Type.Object({
+  token: Type.String(),
+});
+export type OtpFinishBody = Static<typeof otpFinishBodySchema>;

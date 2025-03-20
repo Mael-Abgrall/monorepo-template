@@ -10,6 +10,35 @@
       "types": "./src/environment.ts",
       "default": "./dist/environment.js"
     },
+    "./analytics": {
+      "workerd": "./src/service-utils-reporting.ts",
+      "typescript": "./src/service-utils-reporting.ts",
+      "development": "./src/service-utils-reporting.ts",
+      "types": "./src/service-utils-reporting.ts",
+      "default": "./dist/service-utils-reporting.js"
+    },
+    "./logger": {
+      "workerd": "./src/service-utils-logger.ts",
+      "typescript": "./src/service-utils-logger.ts",
+      "development": "./src/service-utils-logger.ts",
+      "types": "./src/service-utils-logger.ts",
+      "default": "./dist/service-utils-logger.js"
+    },
+    "./jwt": {
+      "workerd": "./src/service-utils-jwt.ts",
+      "typescript": "./src/service-utils-jwt.ts",
+      "development": "./src/service-utils-jwt.ts",
+      "types": "./src/service-utils-jwt.ts",
+      "default": "./dist/service-utils-jwt.js"
+    },
     "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "fast-jwt": "^5.0.6",
+    "pino": "^9.6.0",
+    "posthog-node": "^4.10.1"
+  },
+  "devDependencies": {
+    "pino-pretty": "^13.0.0"
   }
 }

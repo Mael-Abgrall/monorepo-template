@@ -1,17 +1,18 @@
 // Cloudflare workers don't have global variables like node does. This file tries to make them still available.
 
 export interface Environment {
-  APPLE_CLIENT_ID?: string;
-  APPLE_CLIENT_SECRET?: string;
   COOKIE_SECRET: string;
   DATABASE_URL: string;
   DATABASE_URL_TEST?: string;
   DOMAIN: string;
   GOOGLE_APP_ID: string;
   GOOGLE_APP_SECRET: string;
+  JWT_SECRET: string;
   MICROSOFT_CLIENT_ID: string;
   MICROSOFT_CLIENT_SECRET: string;
   NODE_ENV?: 'development' | 'production' | 'test';
+  POSTHOG_KEY: string;
+  POSTMARK_KEY: string;
 }
 export let ENVIRONMENT: Environment;
 
@@ -51,6 +52,15 @@ export function setEnvironment({ env }: { env: Environment }): void {
   }
   if (!env.COOKIE_SECRET) {
     throw new Error('COOKIE_SECRET is not set');
+  }
+  if (!env.POSTMARK_KEY) {
+    throw new Error('POSTMARK_KEY is not set');
+  }
+  if (!env.POSTHOG_KEY) {
+    throw new Error('POSTHOG_KEY is not set');
+  }
+  if (!env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not set');
   }
   ENVIRONMENT = env;
 }
