@@ -7,7 +7,6 @@ import { createUser, getUser } from '../../database-user-interface';
 const mockUser = {
   email: 'mock@example.com',
   id: '123',
-  userName: 'Mock User',
 } satisfies NewUser;
 const mockCreatedUser = {
   ...mockUser,

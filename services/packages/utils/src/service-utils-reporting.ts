@@ -1,6 +1,6 @@
 import { PostHog } from 'posthog-node';
 import type { Environment } from './environment.js';
-import { getContextLogger } from './services-utils-logger.js';
+import { getContextLogger } from './service-utils-logger.js';
 const logger = getContextLogger('services-utils-reporting.ts');
 
 export let analytics: PostHog;

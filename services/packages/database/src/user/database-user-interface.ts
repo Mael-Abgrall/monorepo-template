@@ -39,6 +39,7 @@ export async function getUser({
 export { getUserByEmail } from './database-user';
 export type { User } from './database-user-schemas';
 export {
+  asActiveTokens,
   insertVerificationToken as createVerificationToken,
   deleteAndFlushVerificationTokens,
   getVerificationToken,

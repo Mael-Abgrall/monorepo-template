@@ -1,13 +1,13 @@
+import type { Environment } from 'service-utils/environment';
 import { sql } from 'drizzle-orm';
 import { beforeAll, beforeEach, vi } from 'vitest';
-import { pgDatabase, setupPostgreSQL } from '../src/database-pg';
+import { initPostgreSQL, pgDatabase } from '../src/config/database-postgresql';
 import {
   usersTable,
   verificationTokensTable,
 } from '../src/user/database-user-schemas';
-
 beforeAll(async () => {
-  setupPostgreSQL({ env: process.env });
+  initPostgreSQL({ env: process.env as unknown as Environment });
 });
 
 beforeEach(async () => {

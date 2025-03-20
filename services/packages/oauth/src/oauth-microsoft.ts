@@ -1,4 +1,5 @@
-import { ENVIRONMENT, getFrontendUrl } from 'service-utils/environment';
+import { errorReport } from 'service-utils/analytics';
+import { environment, getFrontendUrl } from 'service-utils/environment';
 import { ofetch } from 'shared/fetch';
 import { decoder } from './oauth-jwt.js';
 
@@ -74,8 +75,8 @@ export async function exchangeCodeMicrosoft({
         },
         method: 'POST',
         params: {
-          client_id: ENVIRONMENT.MICROSOFT_CLIENT_ID,
-          client_secret: ENVIRONMENT.MICROSOFT_CLIENT_SECRET,
+          client_id: environment.MICROSOFT_CLIENT_ID,
+          client_secret: environment.MICROSOFT_CLIENT_SECRET,
           code,
           grant_type: 'authorization_code',
           redirect_uri: `${getFrontendUrl()}/auth/callback/microsoft`,
@@ -86,8 +87,7 @@ export async function exchangeCodeMicrosoft({
     return response;
   } catch (error) {
     const message = 'Error while exchanging OAuth code with Microsoft';
-    console.error(error);
-    // await errorReport({ error, message });
+    await errorReport({ error, message });
     throw new Error(message);
   }
 }
@@ -108,7 +108,7 @@ export async function generateInitUrlMicrosoft({
   const url = new URL(
     'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
   );
-  url.searchParams.append('client_id', ENVIRONMENT.MICROSOFT_CLIENT_ID);
+  url.searchParams.append('client_id', environment.MICROSOFT_CLIENT_ID);
   url.searchParams.append('response_type', 'code');
   url.searchParams.append(
     'redirect_uri',

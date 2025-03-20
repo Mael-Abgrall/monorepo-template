@@ -3607,7 +3607,6 @@ __metadata:
     "@hono/typebox-validator": "npm:^0.3.2"
     "@scalar/hono-api-reference": "npm:^0.5.172"
     core: "workspace:^"
-    database: "workspace:^"
     hono: "npm:^4.7.0"
     hono-openapi: "npm:^0.4.4"
     service-utils: "workspace:^"
@@ -4242,6 +4241,7 @@ __metadata:
   dependencies:
     database: "workspace:^"
     oauth: "workspace:^"
+    service-utils: "workspace:^"
   languageName: unknown
   linkType: soft
 
@@ -4333,6 +4333,7 @@ __metadata:
   dependencies:
     "@neondatabase/serverless": "npm:^0.10.4"
     drizzle-orm: "npm:^0.39.3"
+    service-utils: "workspace:^"
   languageName: unknown
   linkType: soft
 

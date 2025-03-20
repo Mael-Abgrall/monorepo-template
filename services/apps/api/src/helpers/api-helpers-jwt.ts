@@ -1,4 +1,4 @@
-import { ENVIRONMENT } from 'service-utils/environment';
+import { environment } from 'service-utils/environment';
 import { createSigner, createVerifier } from 'service-utils/jwt';
 
 export interface AccessToken {
@@ -11,21 +11,21 @@ export interface RefreshToken {
 const verify = createVerifier({
   cache: true,
   key: async () => {
-    return ENVIRONMENT.JWT_SECRET;
+    return environment.JWT_SECRET;
   },
 });
 const signAccess = createSigner({
   // algorithm: "EdDSA",
   expiresIn: '10h',
   key: async () => {
-    return ENVIRONMENT.JWT_SECRET;
+    return environment.JWT_SECRET;
   },
 });
 const signRefresh = createSigner({
   // algorithm: "EdDSA",
   expiresIn: '2w',
   key: async () => {
-    return ENVIRONMENT.JWT_SECRET;
+    return environment.JWT_SECRET;
   },
 });
 

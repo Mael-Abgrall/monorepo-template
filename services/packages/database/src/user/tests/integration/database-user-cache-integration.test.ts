@@ -12,7 +12,6 @@ const user = {
   id: '1',
   lastActivity: new Date(),
   updatedAt: new Date(),
-  userName: 'test',
 } satisfies User;
 
 describe('setUserInCache', () => {

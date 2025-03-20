@@ -1,3 +1,4 @@
+import { getContextLogger } from 'service-utils/logger';
 import {
   decodeTokenGoogle,
   exchangeCodeGoogle,
@@ -8,6 +9,8 @@ import {
   exchangeCodeMicrosoft,
   generateInitUrlMicrosoft,
 } from './oauth-microsoft.js';
+
+const logger = getContextLogger('oauth.ts');
 
 /**
  * Exchange an OAuth code for an ID token
@@ -25,7 +28,7 @@ export async function exchangeCode({
 }): Promise<{ email: string; userID: string }> {
   switch (vendor) {
     case 'apple': {
-      console.log('not implemented');
+      logger.error('not implemented');
       throw new Error("no implementation for 'apple'");
     }
     case 'google': {
@@ -37,6 +40,7 @@ export async function exchangeCode({
       return decodeTokenMicrosoft({ idToken });
     }
     default: {
+      logger.error('Invalid vendor');
       throw new Error('Invalid vendor');
     }
   }
@@ -58,7 +62,7 @@ export async function generateInitUrl({
 }): Promise<string> {
   switch (vendor) {
     case 'apple': {
-      console.log('not implemented');
+      logger.error('not implemented');
       throw new Error("no implementation for 'apple'");
     }
     case 'google': {
@@ -68,6 +72,7 @@ export async function generateInitUrl({
       return generateInitUrlMicrosoft({ state });
     }
     default: {
+      logger.error('Invalid vendor');
       throw new Error('Invalid vendor');
     }
   }

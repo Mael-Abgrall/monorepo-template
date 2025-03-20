@@ -7,11 +7,10 @@ import {
   getVerificationToken,
 } from 'database/user';
 import crypto from 'node:crypto';
-import { sendEmail } from '../../../packages/utils/src/services-utils-emails';
+import { sendEmail } from '../../../packages/utils/src/service-utils-emails';
 
-export { getUserByEmail } from 'database/user';
+export { asActiveTokens, getUserByEmail } from 'database/user';
 export { exchangeCode, generateInitUrl as initOAuth } from 'oauth';
-
 /**
  * Finish the OTP flow.
  * @param root Named parameters
@@ -38,7 +37,7 @@ export async function finishOTP({
     if (user) {
       await sendEmail({
         body: 'You have successfully logged in to your account.',
-        subject: 'New Login to Ansearch',
+        subject: 'New Login to',
         to: user.email,
       });
       return user;
@@ -47,7 +46,6 @@ export async function finishOTP({
       user: {
         email: verificationToken.email,
         id: verificationToken.userID,
-        userName: verificationToken.email,
       },
     });
     return createdUserFromOAuth;
@@ -57,7 +55,6 @@ export async function finishOTP({
     user: {
       email: verificationToken.email,
       id: crypto.randomUUID(),
-      userName: verificationToken.email,
     },
   });
   return createdUserFromEmail;
@@ -83,14 +80,13 @@ export async function initOTP({
 
   const verificationToken = await createVerificationToken({
     email,
-    expiresAt: new Date(Date.now() + 1000 * 60 * 5), // 5 minutes
     token,
     userID,
   });
 
   await sendEmail({
     body: `Your one time password is ${token} it will expire in 5 minutes.`,
-    subject: 'Ansearch one time password',
+    subject: 'one time password',
     to: email,
   });
 

@@ -1,4 +1,5 @@
-import { ENVIRONMENT, getFrontendUrl } from 'service-utils/environment';
+import { errorReport } from 'service-utils/analytics';
+import { environment, getFrontendUrl } from 'service-utils/environment';
 import { ofetch } from 'shared/fetch';
 import { decoder } from './oauth-jwt.js';
 
@@ -69,8 +70,8 @@ export async function exchangeCodeGoogle({
         },
         method: 'POST',
         params: {
-          client_id: ENVIRONMENT.GOOGLE_APP_ID,
-          client_secret: ENVIRONMENT.GOOGLE_APP_SECRET,
+          client_id: environment.GOOGLE_APP_ID,
+          client_secret: environment.GOOGLE_APP_SECRET,
           code,
           grant_type: 'authorization_code',
           redirect_uri: `${getFrontendUrl()}/auth/callback/google`,
@@ -81,8 +82,7 @@ export async function exchangeCodeGoogle({
     return response;
   } catch (error) {
     const message = 'Error while exchanging OAuth code with Google';
-    console.error(error);
-    // await errorReport({ error, message });
+    await errorReport({ error, message });
     throw new Error(message);
   }
 }
@@ -99,7 +99,7 @@ export async function generateInitUrlGoogle({
   state: string;
 }): Promise<string> {
   const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-  url.searchParams.append('client_id', ENVIRONMENT.GOOGLE_APP_ID);
+  url.searchParams.append('client_id', environment.GOOGLE_APP_ID);
   url.searchParams.append(
     'redirect_uri',
     `${getFrontendUrl()}/auth/callback/google`,

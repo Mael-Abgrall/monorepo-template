@@ -3,12 +3,12 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./postgresql": {
-      "workerd": "./src/database-pg.ts",
-      "typescript": "./src/database-pg.ts",
-      "development": "./src/database-pg.ts",
-      "types": "./src/database-pg.ts",
-      "default": "./dist/database-pg.js"
+    "./config": {
+      "workerd": "./src/config/database-config-interface.ts",
+      "typescript": "./src/config/database-config-interface.ts",
+      "development": "./src/config/database-config-interface.ts",
+      "types": "./src/config/database-config-interface.ts",
+      "default": "./dist/config/database-config-interface.js"
     },
     "./user": {
       "workerd": "./src/user/database-user-interface.ts",
@@ -16,10 +16,12 @@
       "development": "./src/user/database-user-interface.ts",
       "types": "./src/user/database-user-interface.ts",
       "default": "./dist/user/database-user-interface.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
-    "drizzle-orm": "^0.39.3"
+    "drizzle-orm": "^0.39.3",
+    "service-utils": "workspace:^"
   }
 }

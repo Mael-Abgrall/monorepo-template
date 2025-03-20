@@ -47,7 +47,6 @@ export function getUserFromCache({
     id: user.id,
     lastActivity: user.lastActivity,
     updatedAt: user.updatedAt,
-    userName: user.userName,
   };
 }
 

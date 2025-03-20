@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { pgDatabase } from '../../../database-pg';
+import { pgDatabase } from '../../../config/database-postgresql';
 import { getUserByEmail, getUserById, insertUser } from '../../database-user';
 import { usersTable } from '../../database-user-schemas';
 
@@ -15,14 +15,12 @@ describe('insertUser', () => {
 
     expect(createdUser).toHaveProperty('id');
     expect(createdUser.email).toBe(userIn.email);
-    expect(createdUser.userName).toBe(userIn.userName);
     expect(createdUser).toHaveProperty('createdAt');
     expect(createdUser).toHaveProperty('updatedAt');
 
     const records = await pgDatabase.select().from(usersTable);
     expect(records).toHaveLength(1);
     expect(records[0].email).toBe(userIn.email);
-    expect(records[0].userName).toBe(userIn.userName);
   });
 
   it('should throw an error if the user already exists', async () => {

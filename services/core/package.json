@@ -10,10 +10,25 @@
       "types": "./src/auth/core-auth.ts",
       "default": "./dist/auth/core-auth.js"
     },
+    "./config": {
+      "workerd": "./src/core-config.ts",
+      "typescript": "./src/core-config.ts",
+      "development": "./src/core-config.ts",
+      "types": "./src/core-config.ts",
+      "default": "./dist/core-config.js"
+    },
+    "./user": {
+      "workerd": "./src/core-user.ts",
+      "typescript": "./src/core-user.ts",
+      "development": "./src/core-user.ts",
+      "types": "./src/core-user.ts",
+      "default": "./dist/core-user.js"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {
     "database": "workspace:^",
-    "oauth": "workspace:^"
+    "oauth": "workspace:^",
+    "service-utils": "workspace:^"
   }
 }

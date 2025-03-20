@@ -31,6 +31,13 @@
       "types": "./src/service-utils-jwt.ts",
       "default": "./dist/service-utils-jwt.js"
     },
+    "./emails": {
+      "workerd": "./src/service-utils-emails.ts",
+      "typescript": "./src/service-utils-emails.ts",
+      "development": "./src/service-utils-emails.ts",
+      "types": "./src/service-utils-emails.ts",
+      "default": "./dist/service-utils-emails.js"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {

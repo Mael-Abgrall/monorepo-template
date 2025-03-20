@@ -1,4 +1,4 @@
-import astarConfig from "@ansearch/config/linters/prettier.js";
+import astarConfig from '@ansearch/config/linters/prettier.js';
 
 /**
  * @type {import("prettier").Config}

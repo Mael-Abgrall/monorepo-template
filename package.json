@@ -13,7 +13,13 @@
     "test": "vitest --coverage --coverage.skipFull --coverage.all=false",
     "w:vite-dev": "cd $INIT_CWD && vite",
     "w:wrangler-dev": "cd $INIT_CWD && wrangler dev",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "db:push-test": "drizzle-kit push --config=drizzle-dev.config.ts",
+    "lint": "yarn lint:eslint ; yarn lint:tsc ; yarn lint:prettier",
+    "lint:eslint": "eslint .",
+    "lint:prettier": "prettier . --check --config .prettierrc.js",
+    "lint:tsc": "tsc -p ./tsconfig.json",
+    "lint:licenses": "yarn license-checker-rseidelsohn --onlyAllow 'MIT; MIT OR X11; BSD; ISC; Apache-2.0; Python-2.0; Unlicense; CC0-1.0; MPL-2.0; BlueOak-1.0.0; CC-BY-3.0; CC-BY-4.0; LGPL-3.0-or-later' --excludePackagesStartingWith '@astarlogic/;eslint-plugin-sonarjs;flatbuffers' --summary --unknown"
   },
   "devDependencies": {
     "@ansearch/config": "^0.2.0",

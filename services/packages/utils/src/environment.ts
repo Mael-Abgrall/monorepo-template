@@ -14,16 +14,17 @@ export interface Environment {
   POSTHOG_KEY: string;
   POSTMARK_KEY: string;
 }
-export let ENVIRONMENT: Environment;
+
+export let environment: Environment;
 
 /**
- * Get the frontend url based on the domain env variable
+ * Get the frontend url based on the domain environment variable
  * @returns the frontend url
  */
 export function getFrontendUrl(): string {
-  return ENVIRONMENT.DOMAIN === 'localhost'
+  return environment.DOMAIN === 'localhost'
     ? 'http://localhost:5173'
-    : `https://${ENVIRONMENT.DOMAIN}`;
+    : `https://${environment.DOMAIN}`;
 }
 
 /**
@@ -62,5 +63,5 @@ export function setEnvironment({ env }: { env: Environment }): void {
   if (!env.JWT_SECRET) {
     throw new Error('JWT_SECRET is not set');
   }
-  ENVIRONMENT = env;
+  environment = env;
 }

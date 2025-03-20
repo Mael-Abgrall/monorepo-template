@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import type { NewUser, User } from './database-user-schemas';
-import { pgDatabase } from '../database-pg';
+import { pgDatabase } from '../config/database-postgresql';
 import { usersTable } from './database-user-schemas';
 
 /**
