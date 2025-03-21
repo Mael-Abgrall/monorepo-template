@@ -1,4 +1,9 @@
 import type { Context } from 'hono';
+import type { Environment } from 'service-utils/environment';
+import type {
+  OauthFinishResponse,
+  OtpFinishResponse,
+} from 'shared/schemas/shared-auth-schemas';
 import {
   asActiveTokens,
   exchangeCode,
@@ -11,18 +16,24 @@ import { getUser } from 'core/user';
 import { Hono } from 'hono';
 import { describeRoute } from 'hono-openapi';
 import { validator } from 'hono-openapi/typebox';
-import { deleteCookie, getSignedCookie, setSignedCookie } from 'hono/cookie';
+import { deleteCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
 import { timingSafeEqual } from 'node:crypto';
-import { environment, type Environment } from 'service-utils/environment';
 import {
   oauthFinishBodySchema,
+  oauthFinishResponseSchema,
   oauthInitQuerySchema,
   otpFinishBodySchema,
+  otpFinishResponseSchema,
   otpInitBodySchema,
 } from 'shared/schemas/shared-auth-schemas';
+import { genericResponseSchema } from 'shared/schemas/shared-schemas';
 import { Type } from 'shared/typebox';
 import type { Variables } from '../context.js';
+import {
+  getSignedCookieCustom,
+  setSignedCookieCustom,
+} from '../helpers/api-helpers-cookies.js';
 import { createTokens } from '../helpers/api-helpers-jwt.js';
 
 export const authRouter = new Hono<{
@@ -44,34 +55,20 @@ export async function createAuthCookies({
   userID: string;
 }): Promise<void> {
   const { accessToken, refreshToken } = await createTokens({ userID });
-  await setSignedCookie(
+
+  await setSignedCookieCustom({
     context,
-    environment.COOKIE_SECRET,
-    'accessToken',
-    accessToken,
-    {
-      domain: environment.DOMAIN,
-      httpOnly: true,
-      maxAge: 5 * 60, // 5 minutes
-      path: '/',
-      sameSite: 'Strict',
-      secure: true,
-    },
-  );
-  await setSignedCookie(
+    maxAge: 5 * 60, // 5 minutes
+    name: 'accessToken',
+    value: accessToken,
+  });
+
+  await setSignedCookieCustom({
     context,
-    environment.COOKIE_SECRET,
-    'refreshToken',
-    refreshToken,
-    {
-      domain: environment.DOMAIN,
-      httpOnly: true,
-      maxAge: 2 * 7 * 24 * 60 * 60, // 2 weeks
-      path: '/',
-      sameSite: 'Strict',
-      secure: true,
-    },
-  );
+    maxAge: 2 * 7 * 24 * 60 * 60, // 2 weeks
+    name: 'refreshToken',
+    value: refreshToken,
+  });
 }
 
 authRouter.get(
@@ -100,13 +97,10 @@ authRouter.get(
     });
     const url = await initOAuth({ state, vendor });
 
-    await setSignedCookie(context, environment.COOKIE_SECRET, 'state', state, {
-      domain: environment.DOMAIN,
-      httpOnly: true,
-      maxAge: 600, // 10 minutes
-      path: '/',
-      sameSite: 'Strict',
-      secure: true,
+    await setSignedCookieCustom({
+      context,
+      name: 'state',
+      value: state,
     });
 
     return context.json({ initUrl: url });
@@ -121,16 +115,14 @@ authRouter.post(
       200: {
         content: {
           'application/json': {
-            schema: Type.Object({
-              verified: Type.Boolean(),
-            }),
+            schema: oauthFinishResponseSchema,
           },
         },
       },
       401: {
         content: {
           'application/json': {
-            schema: Type.Object({ message: Type.String() }),
+            schema: genericResponseSchema,
           },
         },
       },
@@ -140,11 +132,10 @@ authRouter.post(
   validator('json', oauthFinishBodySchema),
   async (context) => {
     const { code, stateFromUrl, vendor } = context.req.valid('json');
-    const stateFromCookie = await getSignedCookie(
+    const stateFromCookie = await getSignedCookieCustom({
       context,
-      environment.COOKIE_SECRET,
-      'state',
-    );
+      name: 'state',
+    });
 
     if (!stateFromCookie) {
       throw new HTTPException(401, { message: 'No state cookie' });
@@ -169,7 +160,7 @@ authRouter.post(
     }
 
     await createAuthCookies({ context, userID: user.id });
-    return context.json({ verified: true });
+    return context.json({ verified: true } satisfies OauthFinishResponse);
   },
 );
 
@@ -182,16 +173,14 @@ authRouter.post(
       200: {
         content: {
           'application/json': {
-            schema: Type.Object({
-              message: Type.Literal('Ok'),
-            }),
+            schema: genericResponseSchema,
           },
         },
       },
-      409: {
+      422: {
         content: {
           'application/json': {
-            schema: Type.Object({ message: Type.String() }),
+            schema: genericResponseSchema,
           },
         },
       },
@@ -204,13 +193,18 @@ authRouter.post(
 
     const active = await asActiveTokens({ email });
     if (active) {
-      throw new HTTPException(409, {
+      throw new HTTPException(422, {
         message: 'Wait before requesting another OTP',
       });
     }
 
     const user = await getUserByEmail({ email });
-    await initOTP({ email, userID: user?.id });
+    const tokenID = await initOTP({ email, userID: user?.id });
+    await setSignedCookieCustom({
+      context,
+      name: 'tokenID',
+      value: tokenID,
+    });
     return context.json({ message: 'Ok' });
   },
 );
@@ -223,14 +217,14 @@ authRouter.post(
       200: {
         content: {
           'application/json': {
-            schema: Type.Object({ message: Type.Literal('Ok') }),
+            schema: otpFinishResponseSchema,
           },
         },
       },
       401: {
         content: {
           'application/json': {
-            schema: Type.Object({ message: Type.String() }),
+            schema: genericResponseSchema,
           },
         },
       },
@@ -240,20 +234,21 @@ authRouter.post(
   validator('json', otpFinishBodySchema),
   async (context) => {
     const { token } = context.req.valid('json');
-    const tokenID = await getSignedCookie(
+    const tokenID = await getSignedCookieCustom({
       context,
-      environment.COOKIE_SECRET,
-      'tokenID',
-    );
+      name: 'tokenID',
+    });
     if (!tokenID || typeof tokenID !== 'string') {
       throw new HTTPException(401, { message: 'No token ID cookie' });
     }
-    const user = await finishOTP({ token, tokenID });
-    if (!user) {
+
+    try {
+      const { onboardUser, user } = await finishOTP({ token, tokenID });
+      deleteCookie(context, 'tokenID');
+      await createAuthCookies({ context, userID: user.id });
+      return context.json({ onboardUser } satisfies OtpFinishResponse);
+    } catch {
       throw new HTTPException(401, { message: 'Invalid OTP' });
     }
-    deleteCookie(context, 'tokenID');
-    await createAuthCookies({ context, userID: user.id });
-    return context.json({ message: 'Ok' });
   },
 );

@@ -1,225 +1,200 @@
 <script setup lang="ts">
-// libs
-import { Icon } from '@iconify/vue';
+import type { OtpInitBody } from 'shared/schemas/shared-auth-schemas';
+import type { GenericResponse } from 'shared/schemas/shared-schemas';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import containmentButton from '../../components/containment/app-component-containment-button.vue';
+import mediaIcon from '../../components/media/app-component-media-icon.vue';
+import { apiFetch } from '../../fetch';
 
-// components
-import appPopupMessage from '../components/popup/app-popup-message.vue';
-
-// stores
-import { useAuthStore } from '../../stores/stores-auth';
-
-const auth = useAuthStore();
 const email = ref('');
+const router = useRouter();
 
-async function requestOTP() {}
-
+/**
+ *
+ */
 async function oauthInit() {}
 
-const features = [
-  'Earn points for every rental payment',
-  'Redeem rewards at partner stores',
-  'Create a strong rental history, worldwide',
-];
+/**
+ * Requests a magic link to be sent to the user's email
+ */
+async function requestOTP(): Promise<void> {
+  try {
+    await apiFetch<GenericResponse>('/auth/otp/init', {
+      body: {
+        email: email.value,
+      } satisfies OtpInitBody,
+      method: 'POST',
+    });
+    await router.push({ name: 'auth.otp' });
+  } catch (error) {
+    console.error(error);
+  }
+}
 </script>
 
 <template>
-  <appPopupMessage v-if="auth.error" :message="auth.error" type="error" />
-  <div class="login-container">
-    <div class="info">
-      <section>
-        <h1 class="title text-gray-900">Renti</h1>
-        <p class="tagline">Get rewarded for renting</p>
-        <ul>
-          <li v-for="feature of features" :key="feature" class="feature">
-            <Icon icon="mdi:check-circle" class="feature-icon" />
-            <span>{{ feature }}</span>
-          </li>
-        </ul>
-      </section>
-    </div>
+  <div class="login-page">
+    <div class="marketing-panel">
+      <h2>Brand</h2>
 
-    <div class="separator"></div>
-
-    <div class="login">
-      <section class="form-content">
-        <template v-if="!auth.loading">
-          <h2>Welcome</h2>
-          <p>Sign in or create an account</p>
-
-          <div class="oauth-buttons">
-            <button
-              type="button"
-              @click="handleOAuthLogin({ provider: 'google' })"
-              class="oauth-btn"
-            >
-              <Icon icon="logos:google-icon" />
-              <span class="oauth-btn-text">Google</span>
-            </button>
-
-            <button
-              type="button"
-              @click="handleOAuthLogin({ provider: 'apple' })"
-              class="oauth-btn"
-            >
-              <Icon icon="logos:apple" />
-              <span class="oauth-btn-text">Apple</span>
-            </button>
-
-            <button
-              type="button"
-              @click="handleOAuthLogin({ provider: 'azure' })"
-              class="oauth-btn"
-            >
-              <Icon icon="logos:microsoft-icon" />
-              <span class="oauth-btn-text">Microsoft</span>
-            </button>
-          </div>
-
-          <div class="divider">
-            <span>or</span>
-          </div>
-
-          <form @submit.prevent="emailLogin" class="email-form">
-            <label class="sr-only">Email</label>
-            <input
-              type="email"
-              v-model="email"
-              placeholder="Enter your email"
-              required
-            />
-
-            <button type="submit" class="submit-btn">
-              Send one time password
-            </button>
-          </form>
-        </template>
-
-        <div v-else class="loading">
-          <Icon icon="tdesign:load" class="loading-icon" />
+      <div class="feature">
+        <mediaIcon icon="pajamas:check-circle" />
+        <div class="feature-content">
+          <h3>Feature 1</h3>
+          <p>My feature description</p>
         </div>
-      </section>
+      </div>
+      <div class="feature">
+        <mediaIcon icon="pajamas:check-circle" />
+        <div class="feature-content">
+          <h3>Feature 2</h3>
+          <p>My feature description</p>
+        </div>
+      </div>
+      <div class="feature">
+        <mediaIcon icon="pajamas:check-circle" />
+        <div class="feature-content">
+          <h3>Feature 3</h3>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+            Praesentium quaerat voluptatum atque quod cumque eveniet eum vero,
+            laudantium nesciunt odit!
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="login-form">
+      <h1>Welcome!</h1>
+      <p class="sub-title">Sign in or create an account</p>
+      <div class="form-group">
+        <button
+          type="button"
+          @click="oauthInit({ provider: 'google' })"
+          class="oauth-btn"
+        >
+          <mediaIcon icon="logos:google-icon" />
+          <span class="oauth-btn-text">Google</span>
+        </button>
+
+        <button
+          type="button"
+          @click="oauthInit({ provider: 'microsoft' })"
+          class="oauth-btn"
+        >
+          <mediaIcon icon="logos:microsoft-icon" />
+          <span class="oauth-btn-text">Microsoft</span>
+        </button>
+      </div>
+      <div class="divider">
+        <span>or</span>
+      </div>
+      <form @submit.prevent="requestOTP" class="form-group">
+        <label class="sr-only">Email</label>
+        <input
+          type="email"
+          v-model="email"
+          placeholder="Enter your email"
+          required
+        />
+
+        <button type="submit" class="submit-btn">
+          <containmentButton type="primary">Email magic link</containmentButton>
+        </button>
+      </form>
     </div>
   </div>
 </template>
 
 <style scoped>
-.login-container {
+.sub-title {
+  text-align: center;
+}
+
+.login-page {
   display: flex;
   flex-direction: column;
+  height: 100%;
   width: 100%;
-  align-items: center;
-  @apply min-h-screen md:flex-row relative;
-}
+  justify-content: space-evenly;
+  @apply gap-8 p-8 container mx-auto md:flex-row;
 
-.info {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  @apply md:w-1/2 p-8;
-}
+  .login-form {
+    flex: 1 1 0;
+    max-width: 50ch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    @apply gap-4;
 
-section {
-  display: flex;
-  flex-direction: column;
-  @apply max-w-md gap-3;
-}
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      @apply gap-4;
 
-.form-content {
-  width: 100%;
-}
+      input,
+      .oauth-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        border: 1px solid;
+        @apply gap-3 py-3 px-4 rounded-lg bg-white border-gray-100 hover:bg-gray-50 transition-colors;
 
-.login {
-  @apply md:w-1/2 p-8 flex items-center justify-center;
-}
+        .oauth-btn-text {
+          width: 5ch;
+          text-align: left;
+        }
+      }
 
-.separator {
-  @apply hidden md:block absolute left-1/2 top-8 bottom-8 w-px bg-gray-300;
-}
+      .sr-only {
+        @apply absolute w-1 h-1 p-0 -m-1 overflow-hidden whitespace-nowrap border-0;
+      }
+    }
 
-.title {
-  @apply text-center;
-}
+    .divider {
+      @apply my-4 relative text-center;
 
-.tagline {
-  @apply text-xl;
-}
+      &::before,
+      &::after {
+        content: '';
+        @apply absolute top-1/2 w-5/12 h-px bg-gray-300;
+      }
 
-.feature {
-  @apply flex items-center gap-2 text-gray-600;
-}
+      &::before {
+        @apply left-0;
+      }
 
-.feature-icon {
-  @apply text-brand text-xl;
-}
+      &::after {
+        @apply right-0;
+      }
 
-.email-form {
-  display: flex;
-  flex-direction: column;
-  @apply gap-4;
-}
+      span {
+        @apply px-4 text-sm text-gray-500;
+      }
+    }
+  }
 
-.submit-btn {
-  @apply text-white bg-brand gap-3 py-3 px-4 rounded-lg hover:bg-brand/60 transition-colors;
-}
+  .marketing-panel {
+    flex: 1 1 0;
+    max-width: 50ch;
+    @apply mx-auto;
 
-.form-group {
-  @apply mb-6;
-}
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    @apply gap-4;
 
-.sr-only {
-  @apply absolute w-1 h-1 p-0 -m-1 overflow-hidden whitespace-nowrap border-0;
-}
+    .feature {
+      display: flex;
+      align-items: top;
+      @apply gap-2;
 
-.divider {
-  @apply my-8 relative text-center;
-}
-
-.divider::before,
-.divider::after {
-  content: '';
-  @apply absolute top-1/2 w-5/12 h-px bg-gray-300;
-}
-
-.divider::before {
-  @apply left-0;
-}
-
-.divider::after {
-  @apply right-0;
-}
-
-.divider span {
-  @apply px-4 text-sm text-gray-500;
-}
-
-.oauth-buttons {
-  @apply grid grid-cols-1 gap-4;
-}
-
-input,
-.oauth-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  border: 1px solid;
-  @apply gap-3 py-3 px-4 rounded-lg bg-white border-gray-100 hover:bg-gray-50 transition-colors;
-}
-
-.oauth-btn-text {
-  width: 5ch;
-  text-align: left;
-}
-
-.loading {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-}
-
-.loading-icon {
-  @apply animate-spin text-7xl;
+      .feature-content {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
 }
 </style>

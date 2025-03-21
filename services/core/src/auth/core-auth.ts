@@ -16,7 +16,8 @@ export { exchangeCode, generateInitUrl as initOAuth } from 'oauth';
  * @param root Named parameters
  * @param root.token The OTP token to finish.
  * @param root.tokenID The ID of the token, to verify the user is the one that requested the OTP.
- * @returns The user, or undefined if the token is invalid.
+ * @throws If the token is invalid.
+ * @returns The user, and if the user needs to be onboarded.
  */
 export async function finishOTP({
   token,
@@ -24,10 +25,10 @@ export async function finishOTP({
 }: {
   token: string;
   tokenID: string;
-}): Promise<undefined | User> {
+}): Promise<{ onboardUser: boolean; user: User }> {
   const verificationToken = await getVerificationToken({ token });
   if (!verificationToken || verificationToken.id !== tokenID) {
-    return undefined;
+    throw new Error('Invalid token');
   }
 
   await deleteAndFlushVerificationTokens({ tokenID: verificationToken.id });
@@ -40,7 +41,7 @@ export async function finishOTP({
         subject: 'New Login to',
         to: user.email,
       });
-      return user;
+      return { onboardUser: false, user };
     }
     const createdUserFromOAuth = await createUser({
       user: {
@@ -48,7 +49,7 @@ export async function finishOTP({
         id: verificationToken.userID,
       },
     });
-    return createdUserFromOAuth;
+    return { onboardUser: true, user: createdUserFromOAuth };
   }
 
   const createdUserFromEmail = await createUser({
@@ -57,7 +58,7 @@ export async function finishOTP({
       id: crypto.randomUUID(),
     },
   });
-  return createdUserFromEmail;
+  return { onboardUser: true, user: createdUserFromEmail };
 }
 
 /**

@@ -27,7 +27,7 @@ export async function sendEmail({
 }): Promise<void> {
   await ofetch<PostmarkResponse>('https://api.postmarkapp.com/email', {
     body: JSON.stringify({
-      From: 'noreply@demo.com', // todo: change this
+      From: 'noreply@ansearch.net', // todo: change this
       HtmlBody: body,
       MessageStream: 'outbound',
       Subject: subject,

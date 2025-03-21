@@ -245,7 +245,7 @@ describe('POST otp/init', () => {
       method: 'POST',
     });
 
-    expect(response.status).toBe(409);
+    expect(response.status).toBe(422);
     const text = await response.text();
     expect(text).toEqual('Wait before requesting another OTP');
   });
@@ -254,11 +254,14 @@ describe('POST otp/init', () => {
 describe('POST otp/finish', () => {
   it('should finish the OTP flow for existing user', async () => {
     authCore.finishOTP = vi.fn().mockResolvedValue({
-      createdAt: new Date(),
-      email: 'test@example.com',
-      id: 'test-user-id',
-      lastActivity: new Date(),
-      updatedAt: new Date(),
+      onboardUser: false,
+      user: {
+        createdAt: new Date(),
+        email: 'test@example.com',
+        id: 'test-user-id',
+        lastActivity: new Date(),
+        updatedAt: new Date(),
+      },
     } satisfies Awaited<ReturnType<typeof authCore.finishOTP>>);
     cookieModule.getSignedCookie = vi.fn().mockResolvedValue('token-id');
     cookieModule.deleteCookie = vi.fn().mockResolvedValue(undefined);
@@ -276,7 +279,7 @@ describe('POST otp/finish', () => {
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body).toEqual({
-      message: 'Ok',
+      onboardUser: false,
     });
 
     expect(authCore.finishOTP).toHaveBeenCalledWith({
@@ -287,8 +290,8 @@ describe('POST otp/finish', () => {
     expect(cookieModule.setSignedCookie).toHaveBeenCalledTimes(2);
   });
 
-  it('should reject invalid OTP', async () => {
-    authCore.finishOTP = vi.fn().mockResolvedValue(undefined);
+  it('throws when the OTP is invalid', async () => {
+    authCore.finishOTP = vi.fn().mockRejectedValue(new Error('Invalid token'));
 
     const response = await app.request('/auth/otp/finish', {
       body: JSON.stringify({

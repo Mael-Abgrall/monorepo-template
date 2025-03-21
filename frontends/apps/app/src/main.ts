@@ -4,7 +4,7 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
 import App from './app.vue';
-import { router } from './router/index.js';
+import { router } from './router/app-router.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- it's okay
 const app = createApp(App);
