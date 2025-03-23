@@ -9,6 +9,11 @@
       // No `ScriptHost` because Vue 3 dropped support for IE
     ],
 
-    "types": ["unplugin-icons/types/vue"]
+    "types": ["unplugin-icons/types/vue"],
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   }
 }

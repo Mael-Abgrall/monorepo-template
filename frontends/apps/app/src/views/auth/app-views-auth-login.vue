@@ -99,7 +99,7 @@ async function requestOTP(): Promise<void> {
         />
 
         <button type="submit" class="submit-btn">
-          <containmentButton type="primary">Email magic link</containmentButton>
+          <containmentButton size="max">Email magic link</containmentButton>
         </button>
       </form>
     </div>
@@ -139,7 +139,11 @@ async function requestOTP(): Promise<void> {
         justify-content: center;
         width: 100%;
         border: 1px solid;
-        @apply gap-3 py-3 px-4 rounded-lg bg-white border-brand-100 hover:bg-brand-50 transition-colors;
+        @apply gap-3 py-3 px-4 rounded-lg bg-white border-brand-100 transition-colors;
+
+        &:hover {
+          @apply border-brand-400;
+        }
 
         .oauth-btn-text {
           width: 5ch;

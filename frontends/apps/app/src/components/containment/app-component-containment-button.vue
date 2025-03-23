@@ -1,47 +1,134 @@
 <template>
-  <div class="button" :class="type ? type : ''">
+  <div
+    class="button"
+    :class="[
+      variant ? `variant-${variant}` : 'variant-primary',
+      size ? `size-${size}` : 'size-default',
+    ]"
+    :disabled="disabled"
+  >
     <slot />
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  /** The visual style variant of the button */
-  type?: 'discreet' | 'primary' | 'secondary';
+const {
+  disabled = false,
+  size = 'default',
+  variant = 'primary',
+} = defineProps<{
+  /** Whether the button is disabled (default: false). */
+  disabled?: boolean;
+  /**
+   * The size of the button
+   * - `icon` for a button with only an icon
+   * - `lg` for a large button
+   * - `sm` for a small button
+   * - `xs` for a very small button
+   * - `max` for a button that takes the full width of the container
+   */
+  size?: 'icon' | 'lg' | 'max' | 'sm' | 'xs';
+  /**
+   *
+   * The visual style variant of the button
+   * - `primary` (default) for call to actions, and important actions
+   * - `secondary` for secondary actions, less prominent but
+   * - `destructive` for destructive actions
+   * - `ghost` for a very subtle button with no background, react to hover
+   * - `link` for a link with an underline
+   * - `outline` for not important actions, or backtracking
+   */
+  variant?:
+    | 'destructive'
+    | 'ghost'
+    | 'link'
+    | 'outline'
+    | 'primary'
+    | 'secondary';
 }>();
 </script>
 
 <style scoped>
 .button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  @apply bg-white text-black py-2 px-4 rounded-md;
+  white-space: nowrap;
+  font-weight: 500;
+  @apply rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-950 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0;
 
-  &.primary {
-    font-weight: 600;
-    @apply bg-brand-500 text-white;
+  &.variant-primary {
+    border: 1px solid;
+    @apply bg-brand-500 text-brand-50 shadow border-brand-500;
 
     &:hover {
-      @apply bg-brand-600;
+      @apply bg-brand-600 border-brand-600;
     }
   }
 
-  &.secondary {
-    @apply bg-white text-brand-500;
+  &.variant-secondary {
+    border: 1px solid;
+    background-color: transparent;
+    @apply text-brand-900 border-brand-300 shadow bg-white;
 
     &:hover {
-      @apply bg-brand-50;
+      @apply bg-brand-100 text-brand-900 border-brand-400;
     }
   }
 
-  &.discreet {
-    @apply bg-transparent text-gray-700;
+  &.variant-outline {
+    border: 1px solid;
+    background-color: transparent;
+    @apply border-gray-300 shadow text-brand-900;
 
     &:hover {
-      @apply text-gray-900;
+      @apply bg-gray-100 text-gray-900 border-gray-400;
     }
+  }
+
+  &.variant-ghost {
+    &:hover {
+      @apply bg-brand-100 text-brand-900;
+    }
+  }
+
+  &.variant-destructive {
+    border: 1px solid;
+    @apply border-red-400 text-red-500 shadow-sm;
+
+    &:hover {
+      @apply bg-red-500 text-white;
+    }
+  }
+
+  &.variant-link {
+    @apply text-brand-700 underline-offset-4 hover:underline;
+  }
+
+  &.size-default {
+    @apply h-9 px-4 py-2;
+  }
+
+  &.size-icon {
+    @apply h-9 w-9;
+  }
+
+  &.size-lg {
+    @apply h-10 rounded-md px-8;
+  }
+
+  &.size-sm {
+    @apply h-8 rounded-md px-3 text-xs;
+  }
+
+  &.size-xs {
+    @apply h-7 rounded px-2;
+  }
+
+  &.size-max {
+    display: flex;
+    @apply w-full py-3 px-4;
   }
 }
 </style>
