@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 html {
-  @apply bg-slate-100;
+  @apply bg-brand-50;
 }
 
 h1 {
@@ -17,5 +17,5 @@ h2 {
 }
 
 input {
-  @apply gap-3 py-3 px-4 rounded-lg bg-white border-gray-100 hover:bg-gray-50 transition-colors;
+  @apply gap-3 py-3 px-4 rounded-lg bg-white border-brand-100 hover:bg-brand-50 transition-colors;
 }

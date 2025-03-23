@@ -21,18 +21,18 @@ defineProps<{
 
   &.primary {
     font-weight: 600;
-    @apply bg-neutral-500 text-white;
+    @apply bg-brand-500 text-white;
 
     &:hover {
-      @apply bg-neutral-600;
+      @apply bg-brand-600;
     }
   }
 
   &.secondary {
-    @apply bg-white text-blue-600;
+    @apply bg-white text-brand-500;
 
     &:hover {
-      @apply bg-blue-50;
+      @apply bg-brand-50;
     }
   }
 

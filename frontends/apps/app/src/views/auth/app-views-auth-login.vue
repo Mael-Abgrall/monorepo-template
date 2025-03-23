@@ -4,7 +4,7 @@ import type { GenericResponse } from 'shared/schemas/shared-schemas';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import containmentButton from '../../components/containment/app-component-containment-button.vue';
-import mediaIcon from '../../components/media/app-component-media-icon.vue';
+import { iconCheck, iconGoogle, iconMicrosoft } from '../../components/icons';
 import { apiFetch } from '../../fetch';
 
 const email = ref('');
@@ -39,21 +39,21 @@ async function requestOTP(): Promise<void> {
       <h2>Brand</h2>
 
       <div class="feature">
-        <mediaIcon icon="pajamas:check-circle" />
+        <iconCheck />
         <div class="feature-content">
           <h3>Feature 1</h3>
           <p>My feature description</p>
         </div>
       </div>
       <div class="feature">
-        <mediaIcon icon="pajamas:check-circle" />
+        <iconCheck />
         <div class="feature-content">
           <h3>Feature 2</h3>
           <p>My feature description</p>
         </div>
       </div>
       <div class="feature">
-        <mediaIcon icon="pajamas:check-circle" />
+        <iconCheck />
         <div class="feature-content">
           <h3>Feature 3</h3>
           <p>
@@ -73,7 +73,7 @@ async function requestOTP(): Promise<void> {
           @click="oauthInit({ provider: 'google' })"
           class="oauth-btn"
         >
-          <mediaIcon icon="logos:google-icon" />
+          <iconGoogle />
           <span class="oauth-btn-text">Google</span>
         </button>
 
@@ -82,7 +82,7 @@ async function requestOTP(): Promise<void> {
           @click="oauthInit({ provider: 'microsoft' })"
           class="oauth-btn"
         >
-          <mediaIcon icon="logos:microsoft-icon" />
+          <iconMicrosoft />
           <span class="oauth-btn-text">Microsoft</span>
         </button>
       </div>
@@ -116,8 +116,8 @@ async function requestOTP(): Promise<void> {
   flex-direction: column;
   height: 100%;
   width: 100%;
-  justify-content: space-evenly;
-  @apply gap-8 p-8 container mx-auto md:flex-row;
+  justify-content: center;
+  @apply gap-28 p-8 container mx-auto md:flex-row;
 
   .login-form {
     flex: 1 1 0;
@@ -139,7 +139,7 @@ async function requestOTP(): Promise<void> {
         justify-content: center;
         width: 100%;
         border: 1px solid;
-        @apply gap-3 py-3 px-4 rounded-lg bg-white border-gray-100 hover:bg-gray-50 transition-colors;
+        @apply gap-3 py-3 px-4 rounded-lg bg-white border-brand-100 hover:bg-brand-50 transition-colors;
 
         .oauth-btn-text {
           width: 5ch;
@@ -178,7 +178,6 @@ async function requestOTP(): Promise<void> {
   .marketing-panel {
     flex: 1 1 0;
     max-width: 50ch;
-    @apply mx-auto;
 
     display: flex;
     flex-direction: column;

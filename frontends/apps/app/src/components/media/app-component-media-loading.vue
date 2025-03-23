@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue';
+import { iconSpinner } from '../icons';
 
 defineProps<{
   /** The size of the loading spinner */
@@ -9,7 +9,7 @@ defineProps<{
 
 <template>
   <div class="loading-container">
-    <Icon icon="ei:spinner-3" class="loading-spinner" :class="size" />
+    <iconSpinner class="loading-spinner" :class="size" />
   </div>
 </template>
 

@@ -16,9 +16,11 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
-    "@iconify/vue": "^4.3.0",
+    "@iconify/json": "^2.2.319",
+    "@vue/compiler-sfc": "^3.5.13",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.2",
-    "tailwindcss": "3.4.17"
+    "tailwindcss": "3.4.17",
+    "unplugin-icons": "^22.1.0"
   }
 }
