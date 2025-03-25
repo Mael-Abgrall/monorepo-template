@@ -1,6 +1,6 @@
 {
   "extends": "../../../tsconfig.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "src/types/**/*.d.ts"],
   "compilerOptions": {
     "lib": [
       "ESNext",
@@ -11,9 +11,6 @@
 
     "types": ["unplugin-icons/types/vue"],
 
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "baseUrl": "."
   }
 }

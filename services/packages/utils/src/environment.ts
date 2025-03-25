@@ -1,3 +1,4 @@
+/* v8 ignore start */
 // Cloudflare workers don't have global variables like node does. This file tries to make them still available.
 
 export interface Environment {
@@ -65,3 +66,4 @@ export function setEnvironment({ env }: { env: Environment }): void {
   }
   environment = env;
 }
+/* v8 ignore end */

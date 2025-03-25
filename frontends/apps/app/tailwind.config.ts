@@ -6,7 +6,7 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          '50': '#f3faf8',
+          '50': '#f8fcfb',
           '100': '#d5f2e9',
           '200': '#abe4d2',
           '300': '#7aceb7',
@@ -21,5 +21,4 @@ module.exports = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
 };

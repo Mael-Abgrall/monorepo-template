@@ -88,6 +88,7 @@ export async function getVerificationToken({
       email: record[0].email,
       id: record[0].id,
       token: record[0].token,
+      // v8 ignore next line -- casting null to undefined, not needed to test
       userID: record[0].userID ?? undefined,
     } satisfies VerificationRecord;
   }

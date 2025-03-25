@@ -1,4 +1,4 @@
-import { errorReport } from 'service-utils/analytics';
+import { analytics } from 'service-utils/analytics';
 import { environment, getFrontendUrl } from 'service-utils/environment';
 import { ofetch } from 'shared/fetch';
 import { decoder } from './oauth-jwt.js';
@@ -67,28 +67,39 @@ export async function exchangeCodeMicrosoft({
   code: string;
 }): Promise<OAuthCodeResponse> {
   try {
+    const formData = new URLSearchParams({
+      client_id: environment.MICROSOFT_CLIENT_ID,
+      client_secret: environment.MICROSOFT_CLIENT_SECRET,
+      code,
+      grant_type: 'authorization_code',
+      redirect_uri: `${getFrontendUrl()}/auth/callback/microsoft`,
+    });
     const response = await ofetch<OAuthCodeResponse>(
       'https://login.microsoftonline.com/common/oauth2/v2.0/token',
       {
+        body: formData,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         method: 'POST',
-        params: {
-          client_id: environment.MICROSOFT_CLIENT_ID,
-          client_secret: environment.MICROSOFT_CLIENT_SECRET,
-          code,
-          grant_type: 'authorization_code',
-          redirect_uri: `${getFrontendUrl()}/auth/callback/microsoft`,
-        },
       },
     );
 
     return response;
   } catch (error) {
     const message = 'Error while exchanging OAuth code with Microsoft';
-    await errorReport({ error, message });
-    throw new Error(message);
+    if (error instanceof Error && 'data' in error) {
+      analytics.captureException(error, 'anonymous', {
+        data: error.data,
+        message,
+      });
+    } else {
+      analytics.captureException(error, 'anonymous', {
+        message,
+      });
+    }
+
+    throw error;
   }
 }
 

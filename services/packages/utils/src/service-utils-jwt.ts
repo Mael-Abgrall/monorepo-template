@@ -3,6 +3,8 @@
  *
  * - Signing and verifying JWT tokens should only be done by the api server, and no other microservices
  * - We still require the helper when we need to decode (but not verify) a token
+ *
+ * This reduces the number of secrets to use
  */
 import { createDecoder } from 'fast-jwt';
 

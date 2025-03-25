@@ -2,13 +2,15 @@ import type { Context } from 'hono';
 import type { Environment } from 'service-utils/environment';
 import type {
   OauthFinishResponse,
+  OauthInitResponse,
   OtpFinishResponse,
 } from 'shared/schemas/shared-auth-schemas';
+import type { GenericResponse } from 'shared/schemas/shared-schemas';
 import {
   asActiveTokens,
   exchangeCode,
   finishOTP,
-  getUserByEmail,
+  getOTPUserByEmail,
   initOAuth,
   initOTP,
 } from 'core/auth';
@@ -19,22 +21,24 @@ import { validator } from 'hono-openapi/typebox';
 import { deleteCookie } from 'hono/cookie';
 import { HTTPException } from 'hono/http-exception';
 import { timingSafeEqual } from 'node:crypto';
+import { analytics } from 'service-utils/analytics';
 import {
   oauthFinishBodySchema,
   oauthFinishResponseSchema,
   oauthInitQuerySchema,
+  oauthInitResponseSchema,
   otpFinishBodySchema,
   otpFinishResponseSchema,
   otpInitBodySchema,
 } from 'shared/schemas/shared-auth-schemas';
 import { genericResponseSchema } from 'shared/schemas/shared-schemas';
-import { Type } from 'shared/typebox';
 import type { Variables } from '../context.js';
+import type { RefreshToken } from '../helpers/api-helpers-jwt.js';
 import {
   getSignedCookieCustom,
   setSignedCookieCustom,
 } from '../helpers/api-helpers-cookies.js';
-import { createTokens } from '../helpers/api-helpers-jwt.js';
+import { createTokens, verifyToken } from '../helpers/api-helpers-jwt.js';
 
 export const authRouter = new Hono<{
   Bindings: Environment;
@@ -79,9 +83,7 @@ authRouter.get(
       200: {
         content: {
           'application/json': {
-            schema: Type.Object({
-              initUrl: Type.String(),
-            }),
+            schema: oauthInitResponseSchema,
           },
         },
       },
@@ -103,7 +105,7 @@ authRouter.get(
       value: state,
     });
 
-    return context.json({ initUrl: url });
+    return context.json({ redirectUrl: url } satisfies OauthInitResponse);
   },
 );
 
@@ -152,15 +154,41 @@ authRouter.post(
     deleteCookie(context, 'state');
 
     const { email, userID } = await exchangeCode({ code, vendor });
-
     const user = await getUser({ userID });
     if (!user) {
-      await initOTP({ email, userID });
-      return context.json({ verified: false });
+      analytics.capture({
+        distinctId: userID,
+        event: 'oauth_create_user',
+        properties: {
+          email,
+          vendor,
+        },
+      });
+      const tokenID = await initOTP({ email, userID });
+      await setSignedCookieCustom({
+        context,
+        name: 'tokenID',
+        value: tokenID,
+      });
+      return context.json({
+        email,
+        verified: false,
+      } satisfies OauthFinishResponse);
     }
 
+    analytics.capture({
+      distinctId: userID,
+      event: 'oauth_login',
+      properties: {
+        email,
+        vendor,
+      },
+    });
     await createAuthCookies({ context, userID: user.id });
-    return context.json({ verified: true } satisfies OauthFinishResponse);
+    return context.json({
+      email,
+      verified: true,
+    } satisfies OauthFinishResponse);
   },
 );
 
@@ -171,6 +199,13 @@ authRouter.post(
       'Initialize the OTP flow: save a cookie with a token ID and send the OTP',
     responses: {
       200: {
+        content: {
+          'application/json': {
+            schema: genericResponseSchema,
+          },
+        },
+      },
+      409: {
         content: {
           'application/json': {
             schema: genericResponseSchema,
@@ -198,14 +233,24 @@ authRouter.post(
       });
     }
 
-    const user = await getUserByEmail({ email });
-    const tokenID = await initOTP({ email, userID: user?.id });
-    await setSignedCookieCustom({
-      context,
-      name: 'tokenID',
-      value: tokenID,
-    });
-    return context.json({ message: 'Ok' });
+    try {
+      const user = await getOTPUserByEmail({ email });
+      const tokenID = await initOTP({ email, userID: user?.id });
+      await setSignedCookieCustom({
+        context,
+        name: 'tokenID',
+        value: tokenID,
+      });
+      return context.json({ message: 'Ok' });
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Email already in use') {
+        throw new HTTPException(409, {
+          message: 'Email already in use',
+        });
+      }
+      // v8 ignore next line
+      throw error;
+    }
   },
 );
 
@@ -245,10 +290,79 @@ authRouter.post(
     try {
       const { onboardUser, user } = await finishOTP({ token, tokenID });
       deleteCookie(context, 'tokenID');
+      analytics.capture({
+        distinctId: user.id,
+        event: onboardUser ? 'otp_create_user' : 'otp_login',
+      });
       await createAuthCookies({ context, userID: user.id });
       return context.json({ onboardUser } satisfies OtpFinishResponse);
     } catch {
       throw new HTTPException(401, { message: 'Invalid OTP' });
     }
+  },
+);
+
+authRouter.post(
+  'refresh',
+  describeRoute({
+    description: 'Refresh the auth cookie',
+    responses: {
+      200: {
+        content: {
+          'application/json': {
+            schema: genericResponseSchema,
+          },
+        },
+      },
+      401: {
+        content: {
+          'application/json': {
+            schema: genericResponseSchema,
+          },
+        },
+      },
+    },
+    tags: ['auth'],
+  }),
+  async (context) => {
+    const refreshTokenFromCookie = await getSignedCookieCustom({
+      context,
+      name: 'refreshToken',
+    });
+    if (!refreshTokenFromCookie) {
+      throw new HTTPException(401, { message: 'No refresh token' });
+    }
+
+    const tokenData = await verifyToken<RefreshToken>({
+      token: refreshTokenFromCookie,
+    });
+    if (!tokenData) {
+      throw new HTTPException(401, { message: 'Invalid refresh token' });
+    }
+    const { userID } = tokenData;
+    await createAuthCookies({ context, userID });
+    return context.json({ message: 'Ok' } satisfies GenericResponse);
+  },
+);
+
+authRouter.post(
+  'logout',
+  describeRoute({
+    description: 'Logout the user',
+    responses: {
+      200: {
+        content: {
+          'application/json': {
+            schema: genericResponseSchema,
+          },
+        },
+      },
+    },
+    tags: ['auth'],
+  }),
+  async (context) => {
+    deleteCookie(context, 'accessToken');
+    deleteCookie(context, 'refreshToken');
+    return context.json({ message: 'Ok' } satisfies GenericResponse);
   },
 );

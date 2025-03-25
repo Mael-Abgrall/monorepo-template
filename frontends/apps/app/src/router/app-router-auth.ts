@@ -1,5 +1,6 @@
 import type { Component } from 'vue';
-import type { RouteRecordRaw } from 'vue-router';
+import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
+import type { CallbackViewProperties } from '../views/auth/app-views-auth-callback.vue';
 
 const authRoutes: RouteRecordRaw[] = [
   {
@@ -20,7 +21,14 @@ const authRoutes: RouteRecordRaw[] = [
       title: 'Callback',
     },
     name: 'auth.callback',
-    path: 'callback',
+    path: 'auth/callback/:provider',
+    props: (route: RouteLocationNormalized): CallbackViewProperties => {
+      return {
+        code: route.query.code as string,
+        state: route.query.state as string,
+        vendor: route.params.provider as 'google' | 'microsoft' | undefined,
+      };
+    },
   },
   {
     component: (): Promise<Component> => {
@@ -30,7 +38,12 @@ const authRoutes: RouteRecordRaw[] = [
       title: 'One-Time Password',
     },
     name: 'auth.otp',
-    path: 'one-time-password',
+    path: 'auth/one-time-password',
+    props: (route: RouteLocationNormalized): { email: string } => {
+      return {
+        email: route.query.email as string,
+      };
+    },
   },
 ];
 

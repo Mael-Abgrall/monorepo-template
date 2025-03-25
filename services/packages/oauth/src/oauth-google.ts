@@ -1,5 +1,6 @@
-import { errorReport } from 'service-utils/analytics';
+import { analytics } from 'service-utils/analytics';
 import { environment, getFrontendUrl } from 'service-utils/environment';
+import { uuidV5 } from 'service-utils/uuid';
 import { ofetch } from 'shared/fetch';
 import { decoder } from './oauth-jwt.js';
 
@@ -15,6 +16,8 @@ export interface OAuthCodeResponse {
 
 /**
  * Decode a Google id token
+ *
+ * Doc: https://cloud.google.com/docs/authentication/token-types#id-contents
  * @param root named parameters
  * @param root.idToken the id token to decode
  * @returns the email and userID
@@ -45,7 +48,7 @@ export async function decodeTokenGoogle({
   }
   return {
     email: decoded.email,
-    userID: decoded.sub,
+    userID: uuidV5({ name: decoded.sub }),
   };
 }
 
@@ -82,7 +85,16 @@ export async function exchangeCodeGoogle({
     return response;
   } catch (error) {
     const message = 'Error while exchanging OAuth code with Google';
-    await errorReport({ error, message });
+    if (error instanceof Error && 'data' in error) {
+      analytics.captureException(error, 'anonymous', {
+        data: error.data,
+        message,
+      });
+    } else {
+      analytics.captureException(error, 'anonymous', {
+        message,
+      });
+    }
     throw new Error(message);
   }
 }

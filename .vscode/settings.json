@@ -29,6 +29,7 @@
     "Nuxt",
     "ofetch",
     "posthog",
+    "sonarjs",
     "typebox",
     "unplugin"
   ],

@@ -8,6 +8,7 @@ export const oauthFinishBodySchema = Type.Object({
 });
 export type OauthFinishBody = Static<typeof oauthFinishBodySchema>;
 export const oauthFinishResponseSchema = Type.Object({
+  email: Type.String(),
   verified: Type.Boolean(),
 });
 export type OauthFinishResponse = Static<typeof oauthFinishResponseSchema>;
@@ -16,6 +17,10 @@ export const oauthInitQuerySchema = Type.Object({
   vendor: Type.Union([Type.Literal('google'), Type.Literal('microsoft')]),
 });
 export type OauthInitQuery = Static<typeof oauthInitQuerySchema>;
+export const oauthInitResponseSchema = Type.Object({
+  redirectUrl: Type.String(),
+});
+export type OauthInitResponse = Static<typeof oauthInitResponseSchema>;
 
 export const otpInitBodySchema = Type.Object({
   email: Type.String(),

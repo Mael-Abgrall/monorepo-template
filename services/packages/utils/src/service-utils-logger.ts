@@ -1,3 +1,4 @@
+/* v8 ignore start */
 import type { DestinationStream } from 'pino';
 import { pino } from 'pino';
 
@@ -39,3 +40,4 @@ if (process.env.DEBUG) {
 export function getContextLogger(context: string): pino.Logger {
   return logger.child({ context });
 }
+/* v8 ignore end */

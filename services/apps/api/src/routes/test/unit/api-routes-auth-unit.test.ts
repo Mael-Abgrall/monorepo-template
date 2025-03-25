@@ -2,6 +2,16 @@ import type { Environment } from 'service-utils/environment';
 import { setEnvironment } from 'service-utils/environment';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import app from '../../..';
+import { createTokens } from '../../../helpers/api-helpers-jwt';
+
+vi.mock('core/auth');
+const authCore = await import('core/auth');
+vi.mock('hono/cookie');
+const cookieModule = await import('hono/cookie');
+vi.mock('core/user');
+const userCore = await import('core/user');
+vi.mock('service-utils/analytics');
+const analyticsModule = await import('service-utils/analytics');
 
 beforeAll(() => {
   setEnvironment({
@@ -13,12 +23,10 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-vi.mock('core/auth');
-const authCore = await import('core/auth');
-vi.mock('hono/cookie');
-const cookieModule = await import('hono/cookie');
-vi.mock('core/user');
-const userCore = await import('core/user');
+// @ts-expect-error -- we are mocking the analytics module
+analyticsModule.analytics = {
+  capture: vi.fn().mockResolvedValue(undefined),
+};
 
 describe('GET oauth/init', () => {
   it('should generate OAuth URL and set state cookie', async () => {
@@ -34,7 +42,7 @@ describe('GET oauth/init', () => {
     const body = await response.json();
     expect(response.status).toBe(200);
     expect(body).toEqual({
-      initUrl: 'https://mock-oauth-url.com',
+      redirectUrl: 'https://mock-oauth-url.com',
     });
 
     expect(cookieModule.setSignedCookie).toHaveBeenCalled();
@@ -71,6 +79,7 @@ describe('POST oauth/finish', () => {
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body).toEqual({
+      email: 'test@example.com',
       verified: true,
     });
 
@@ -104,6 +113,7 @@ describe('POST oauth/finish', () => {
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body).toEqual({
+      email: 'test@example.com',
       verified: false,
     });
 
@@ -166,13 +176,13 @@ describe('POST oauth/finish', () => {
 
 describe('POST otp/init', () => {
   it('should initialize OTP for existing user', async () => {
-    authCore.getUserByEmail = vi.fn().mockResolvedValue({
+    authCore.getOTPUserByEmail = vi.fn().mockResolvedValue({
       createdAt: new Date(),
       email: 'test@example.com',
       id: 'test-user-id',
       lastActivity: new Date(),
       updatedAt: new Date(),
-    } satisfies Awaited<ReturnType<typeof authCore.getUserByEmail>>);
+    } satisfies Awaited<ReturnType<typeof authCore.getOTPUserByEmail>>);
 
     authCore.initOTP = vi.fn().mockResolvedValue(undefined);
 
@@ -192,7 +202,7 @@ describe('POST otp/init', () => {
       message: 'Ok',
     });
 
-    expect(authCore.getUserByEmail).toHaveBeenCalledWith({
+    expect(authCore.getOTPUserByEmail).toHaveBeenCalledWith({
       email: 'test@example.com',
     });
     expect(authCore.initOTP).toHaveBeenCalledWith({
@@ -202,7 +212,7 @@ describe('POST otp/init', () => {
   });
 
   it('should initialize OTP for non-existing user', async () => {
-    authCore.getUserByEmail = vi.fn().mockResolvedValue(undefined);
+    authCore.getOTPUserByEmail = vi.fn().mockResolvedValue(undefined);
     authCore.initOTP = vi.fn().mockResolvedValue(undefined);
 
     const response = await app.request('/auth/otp/init', {
@@ -221,7 +231,7 @@ describe('POST otp/init', () => {
       message: 'Ok',
     });
 
-    expect(authCore.getUserByEmail).toHaveBeenCalledWith({
+    expect(authCore.getOTPUserByEmail).toHaveBeenCalledWith({
       email: 'test@example.com',
     });
     expect(authCore.initOTP).toHaveBeenCalledWith({
@@ -231,7 +241,7 @@ describe('POST otp/init', () => {
   });
 
   it('should prevent spam', async () => {
-    authCore.getUserByEmail = vi.fn().mockResolvedValue(undefined);
+    authCore.getOTPUserByEmail = vi.fn().mockResolvedValue(undefined);
     authCore.initOTP = vi.fn().mockResolvedValue(undefined);
     authCore.asActiveTokens = vi.fn().mockResolvedValue(true);
 
@@ -248,6 +258,27 @@ describe('POST otp/init', () => {
     expect(response.status).toBe(422);
     const text = await response.text();
     expect(text).toEqual('Wait before requesting another OTP');
+  });
+
+  it('should reject when the email is already in use', async () => {
+    authCore.asActiveTokens = vi.fn().mockResolvedValue(false);
+    authCore.getOTPUserByEmail = vi
+      .fn()
+      .mockRejectedValue(new Error('Email already in use'));
+
+    const response = await app.request('/auth/otp/init', {
+      body: JSON.stringify({
+        email: 'test@example.com',
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(409);
+    const text = await response.text();
+    expect(text).toEqual('Email already in use');
   });
 });
 
@@ -326,5 +357,88 @@ describe('POST otp/finish', () => {
     expect(text).toEqual('No token ID cookie');
 
     expect(authCore.finishOTP).not.toHaveBeenCalled();
+  });
+});
+
+describe('POST /refresh', () => {
+  it('should return 401 if no refresh token cookie exists', async () => {
+    cookieModule.getSignedCookie = vi
+      .fn()
+      .mockResolvedValue(
+        undefined satisfies Awaited<
+          ReturnType<typeof cookieModule.getSignedCookie>
+        >,
+      );
+
+    const response = await app.request('/auth/refresh', {
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(401);
+    const body = await response.text();
+    expect(body).toEqual('No refresh token');
+  });
+
+  it('should return 401 if refresh token is invalid', async () => {
+    cookieModule.getSignedCookie = vi
+      .fn()
+      .mockResolvedValue(
+        'invalid-token' satisfies Awaited<
+          ReturnType<typeof cookieModule.getSignedCookie>
+        >,
+      );
+
+    const response = await app.request('/auth/refresh', {
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(401);
+    const body = await response.text();
+    expect(body).toEqual('Invalid refresh token');
+  });
+
+  it('should refresh auth cookies if token is valid', async () => {
+    const validToken = await createTokens({ userID: 'test' });
+    cookieModule.getSignedCookie = vi
+      .fn()
+      .mockResolvedValue(validToken.refreshToken);
+
+    const response = await app.request('/auth/refresh', {
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body).toEqual({ message: 'Ok' });
+    expect(cookieModule.setSignedCookie).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('POST /logout', () => {
+  it('should clear auth cookies and return success', async () => {
+    cookieModule.deleteCookie = vi
+      .fn()
+      .mockResolvedValue(
+        undefined satisfies Awaited<
+          ReturnType<typeof cookieModule.deleteCookie>
+        >,
+      );
+
+    const response = await app.request('/auth/logout', {
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body).toEqual({ message: 'Ok' });
+    expect(cookieModule.deleteCookie).toHaveBeenCalledTimes(2);
+    expect(cookieModule.deleteCookie).toHaveBeenCalledWith(
+      expect.anything(),
+      'accessToken',
+    );
+    expect(cookieModule.deleteCookie).toHaveBeenCalledWith(
+      expect.anything(),
+      'refreshToken',
+    );
   });
 });

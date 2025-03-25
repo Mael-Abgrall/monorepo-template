@@ -1,3 +1,4 @@
+/* v8 ignore start */
 import { apiReference } from '@scalar/hono-api-reference';
 import { Hono } from 'hono';
 import { openAPISpecs } from 'hono-openapi';
@@ -62,3 +63,4 @@ app.route('/auth', authRouter);
 
 // eslint-disable-next-line import-x/no-default-export -- needed for CF workers
 export default app;
+/* v8 ignore end */

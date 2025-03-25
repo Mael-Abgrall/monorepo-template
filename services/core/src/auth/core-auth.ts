@@ -4,12 +4,14 @@ import {
   createVerificationToken,
   deleteAndFlushVerificationTokens,
   getUser,
+  getUserByEmail,
   getVerificationToken,
 } from 'database/user';
 import crypto from 'node:crypto';
+import { uuidV5 } from 'service-utils/uuid';
 import { sendEmail } from '../../../packages/utils/src/service-utils-emails';
 
-export { asActiveTokens, getUserByEmail } from 'database/user';
+export { asActiveTokens } from 'database/user';
 export { exchangeCode, generateInitUrl as initOAuth } from 'oauth';
 /**
  * Finish the OTP flow.
@@ -59,6 +61,31 @@ export async function finishOTP({
     },
   });
   return { onboardUser: true, user: createdUserFromEmail };
+}
+
+/**
+ * Get a user by email, and verify this user logged in with OTP.
+ *
+ * This function is important, as a user that signed up with OAuth will be rejected when using OTP with the same email.
+ * @param root Named parameters
+ * @param root.email The email of the user to get.
+ * @throws If the email is already in use, but not created with OTP.
+ * @returns The user, or undefined if the user does not exist.
+ */
+export async function getOTPUserByEmail({
+  email,
+}: {
+  email: string;
+}): Promise<undefined | User> {
+  const user = await getUserByEmail({ email });
+  const uuid = uuidV5({ name: email });
+  if (!user) {
+    return undefined;
+  }
+  if (user.id === uuid) {
+    return user;
+  }
+  throw new Error('Email already in use');
 }
 
 /**

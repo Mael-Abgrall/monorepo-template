@@ -18,4 +18,7 @@ export default tseslint.config(
       'import-x/no-unresolved': [2, { ignore: ['~icons/*'] }],
     },
   },
+  {
+    ignores: ['**/.wrangler/**', '**/env.d.ts'],
+  },
 );

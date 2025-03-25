@@ -11,9 +11,4 @@ export default defineConfig({
       compiler: 'vue3',
     }),
   ],
-  resolve: {
-    alias: {
-      '@': '/src',
-    },
-  },
 });

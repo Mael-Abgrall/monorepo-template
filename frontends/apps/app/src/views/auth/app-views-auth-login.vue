@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import type { OtpInitBody } from 'shared/schemas/shared-auth-schemas';
+import type {
+  OauthInitQuery,
+  OauthInitResponse,
+  OtpInitBody,
+} from 'shared/schemas/shared-auth-schemas';
 import type { GenericResponse } from 'shared/schemas/shared-schemas';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import containmentAlert from '../../components/containment/app-component-containment-alert.vue';
 import containmentButton from '../../components/containment/app-component-containment-button.vue';
 import { iconCheck, iconGoogle, iconMicrosoft } from '../../components/icons';
 import { apiFetch } from '../../fetch';
@@ -10,10 +15,35 @@ import { apiFetch } from '../../fetch';
 const email = ref('');
 const router = useRouter();
 
+const errorMessage = ref<string | undefined>();
+const errorVisible = ref(false);
+
 /**
- *
+ * Requests a redirect to the OAuth provider
+ * @param root named parameters
+ * @param root.provider The provider to redirect to
  */
-async function oauthInit() {}
+async function oauthInit({
+  provider,
+}: {
+  provider: 'google' | 'microsoft';
+}): Promise<void> {
+  try {
+    const { redirectUrl } = await apiFetch<OauthInitResponse>(
+      '/auth/oauth/init',
+      {
+        method: 'GET',
+        query: { vendor: provider } satisfies OauthInitQuery,
+      },
+    );
+    // this url is safe!
+    globalThis.location.href = redirectUrl;
+  } catch (error) {
+    console.error(error);
+    errorMessage.value = 'Failed to request OAuth';
+    errorVisible.value = true;
+  }
+}
 
 /**
  * Requests a magic link to be sent to the user's email
@@ -26,34 +56,42 @@ async function requestOTP(): Promise<void> {
       } satisfies OtpInitBody,
       method: 'POST',
     });
-    await router.push({ name: 'auth.otp' });
+    await router.push({
+      name: 'auth.otp',
+      query: { email: email.value },
+    });
   } catch (error) {
     console.error(error);
+    errorMessage.value = 'Failed to request OTP';
+    errorVisible.value = true;
   }
 }
 </script>
 
 <template>
+  <containmentAlert variant="danger" v-model="errorVisible">
+    {{ errorMessage }}
+  </containmentAlert>
   <div class="login-page">
     <div class="marketing-panel">
       <h2>Brand</h2>
 
       <div class="feature">
-        <iconCheck />
+        <iconCheck class="feature-icon" />
         <div class="feature-content">
           <h3>Feature 1</h3>
           <p>My feature description</p>
         </div>
       </div>
       <div class="feature">
-        <iconCheck />
+        <iconCheck class="feature-icon" />
         <div class="feature-content">
           <h3>Feature 2</h3>
           <p>My feature description</p>
         </div>
       </div>
       <div class="feature">
-        <iconCheck />
+        <iconCheck class="feature-icon" />
         <div class="feature-content">
           <h3>Feature 3</h3>
           <p>
@@ -196,6 +234,11 @@ async function requestOTP(): Promise<void> {
       .feature-content {
         display: flex;
         flex-direction: column;
+      }
+
+      .feature-icon {
+        flex-shrink: 0;
+        @apply text-brand-600;
       }
     }
   }
