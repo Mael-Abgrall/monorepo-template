@@ -1,6 +1,6 @@
 {
   "extends": "../../../tsconfig.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "src/types/**/*.d.ts"],
+  "include": ["env.d.ts", "**/*.vue", "src/types/**/*.d.ts"],
   "compilerOptions": {
     "lib": [
       "ESNext",

@@ -1,6 +1,5 @@
 import type { Component } from 'vue';
 import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
-import type { CallbackViewProperties } from '../views/auth/app-views-auth-callback.vue';
 
 const authRoutes: RouteRecordRaw[] = [
   {
@@ -22,7 +21,13 @@ const authRoutes: RouteRecordRaw[] = [
     },
     name: 'auth.callback',
     path: 'auth/callback/:provider',
-    props: (route: RouteLocationNormalized): CallbackViewProperties => {
+    props: (
+      route: RouteLocationNormalized,
+    ): {
+      code: string;
+      state: string;
+      vendor: 'google' | 'microsoft' | undefined;
+    } => {
       return {
         code: route.query.code as string,
         state: route.query.state as string,

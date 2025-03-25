@@ -10,7 +10,7 @@ import mediaLoading from '../../components/media/app-component-media-loading.vue
 import { apiFetch } from '../../fetch';
 import { useAuthStore } from '../../stores/app-stores-auth';
 
-export interface CallbackViewProperties {
+const { code, state, vendor } = defineProps<{
   /**
    * The code from the OAuth provider
    */
@@ -23,9 +23,7 @@ export interface CallbackViewProperties {
    * The provider to finish the OAuth process for
    */
   vendor: 'google' | 'microsoft' | undefined;
-}
-
-const { code, state, vendor } = defineProps<CallbackViewProperties>();
+}>();
 
 const errorMessage = ref<string | undefined>();
 const errorVisible = ref(false);
