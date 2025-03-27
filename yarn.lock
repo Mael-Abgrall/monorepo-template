@@ -3687,6 +3687,7 @@ __metadata:
     unplugin-icons: "npm:^22.1.0"
     vue: "npm:^3.5.13"
     vue-router: "npm:^4.5.0"
+    web-utils: "workspace:^"
   languageName: unknown
   linkType: soft
 
@@ -10346,6 +10347,12 @@ __metadata:
   checksum: 10c0/4bbb5caf3f04fed933b01c100804f3693ff902984a3152ea1359a972264fa3240f6551d32f0163a79c64df3715b4d6691818c9f652cdd41b2473c69e2b0a373d
   languageName: node
   linkType: hard
+
+"web-utils@workspace:^, web-utils@workspace:frontends/packages/utils":
+  version: 0.0.0-use.local
+  resolution: "web-utils@workspace:frontends/packages/utils"
+  languageName: unknown
+  linkType: soft
 
 "webidl-conversions@npm:^4.0.2":
   version: 4.0.2

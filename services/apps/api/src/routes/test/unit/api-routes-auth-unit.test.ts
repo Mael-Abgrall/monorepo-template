@@ -280,10 +280,57 @@ describe('POST otp/init', () => {
     const text = await response.text();
     expect(text).toEqual('Email already in use');
   });
+
+  it('should reject 500 when the error is not an email error', async () => {
+    authCore.asActiveTokens = vi.fn().mockResolvedValue(false);
+    authCore.getOTPUserByEmail = vi
+      .fn()
+      .mockRejectedValue(new Error('undefined'));
+    analyticsModule.analytics.captureException = vi
+      .fn()
+      .mockResolvedValue(undefined);
+
+    const response = await app.request('/auth/otp/init', {
+      body: JSON.stringify({
+        email: 'test@example.com',
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(500);
+    const text = await response.text();
+    expect(text).toEqual('Internal Server Error');
+  });
+
+  it('should reject when the email is not valid', async () => {
+    authCore.asActiveTokens = vi.fn().mockResolvedValue(false);
+    authCore.getOTPUserByEmail = vi
+      .fn()
+      .mockRejectedValue(
+        new Error('Fetch error: 422 [POST] https://api.postmarkapp.com/email'),
+      );
+
+    const response = await app.request('/auth/otp/init', {
+      body: JSON.stringify({
+        email: 'test@example.com',
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(422);
+    const text = await response.text();
+    expect(text).toEqual('Email is not valid');
+  });
 });
 
 describe('POST otp/finish', () => {
-  it('should finish the OTP flow for existing user', async () => {
+  it('should finish the OTP flow for existing user, and send an analytics event', async () => {
     authCore.finishOTP = vi.fn().mockResolvedValue({
       onboardUser: false,
       user: {
@@ -319,6 +366,52 @@ describe('POST otp/finish', () => {
     });
     expect(cookieModule.deleteCookie).toHaveBeenCalled();
     expect(cookieModule.setSignedCookie).toHaveBeenCalledTimes(2);
+    expect(analyticsModule.analytics.capture).toHaveBeenCalledWith({
+      distinctId: 'test-user-id',
+      event: 'otp_login',
+    });
+  });
+
+  it('should finish the OTP flow for new user, and send an analytics event', async () => {
+    authCore.finishOTP = vi.fn().mockResolvedValue({
+      onboardUser: true,
+      user: {
+        createdAt: new Date(),
+        email: 'test@example.com',
+        id: 'test-user-id',
+        lastActivity: new Date(),
+        updatedAt: new Date(),
+      },
+    } satisfies Awaited<ReturnType<typeof authCore.finishOTP>>);
+    cookieModule.getSignedCookie = vi.fn().mockResolvedValue('token-id');
+    cookieModule.deleteCookie = vi.fn().mockResolvedValue(undefined);
+    cookieModule.setSignedCookie = vi.fn().mockResolvedValue(undefined);
+    const response = await app.request('/auth/otp/finish', {
+      body: JSON.stringify({
+        token: 'test-token',
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    });
+
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body).toEqual({
+      onboardUser: true,
+    });
+
+    expect(authCore.finishOTP).toHaveBeenCalledWith({
+      token: 'test-token',
+      tokenID: 'token-id',
+    });
+    expect(cookieModule.deleteCookie).toHaveBeenCalled();
+    expect(cookieModule.setSignedCookie).toHaveBeenCalledTimes(2);
+    expect(analyticsModule.analytics.capture).toHaveBeenCalledWith({
+      distinctId: 'test-user-id',
+      event: 'otp_create_user',
+    });
   });
 
   it('throws when the OTP is invalid', async () => {

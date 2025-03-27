@@ -7,6 +7,7 @@ import type {
 import type { GenericResponse } from 'shared/schemas/shared-schemas';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { logger } from 'web-utils/reporting';
 import containmentAlert from '../../components/containment/app-component-containment-alert.vue';
 import containmentButton from '../../components/containment/app-component-containment-button.vue';
 import { iconCheck, iconGoogle, iconMicrosoft } from '../../components/icons';
@@ -39,7 +40,7 @@ async function oauthInit({
     // this url is safe!
     globalThis.location.href = redirectUrl;
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     errorMessage.value = 'Failed to request OAuth';
     errorVisible.value = true;
   }
@@ -61,7 +62,7 @@ async function requestOTP(): Promise<void> {
       query: { email: email.value },
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     errorMessage.value = 'Failed to request OTP';
     errorVisible.value = true;
   }

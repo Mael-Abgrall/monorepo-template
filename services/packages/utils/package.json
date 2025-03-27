@@ -45,6 +45,13 @@
       "types": "./src/service-utils-emails.ts",
       "default": "./dist/service-utils-emails.js"
     },
+    "./fetch": {
+      "workerd": "./src/service-utils-fetch.ts",
+      "typescript": "./src/service-utils-fetch.ts",
+      "development": "./src/service-utils-fetch.ts",
+      "types": "./src/service-utils-fetch.ts",
+      "default": "./dist/service-utils-fetch.js"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {

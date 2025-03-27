@@ -1,5 +1,6 @@
 import type { Component } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import { logger } from 'web-utils/reporting';
 import withNav from '../layout/app-layout-with-nav.vue';
 import withoutNav from '../layout/app-layout-without-nav.vue';
 import { useAuthStore } from '../stores/app-stores-auth';
@@ -38,7 +39,9 @@ export const router = createRouter({
 router.beforeEach((to) => {
   const authStore = useAuthStore();
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- No idea why ESLint is complaining, but authStore.isAuth.value will NOT work
   if (to.meta.requiresAuth && !authStore.isAuth) {
+    logger.info('Not authenticated, redirecting to login');
     return { name: 'auth.login' };
   }
 });

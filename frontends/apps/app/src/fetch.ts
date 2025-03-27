@@ -12,10 +12,6 @@ export const apiFetch = ofetch.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  onRequestError: async (error) => {
-    console.log('onRequestError');
-    console.error(error);
-  },
   onResponseError: async (error) => {
     const authStore = useAuthStore();
 

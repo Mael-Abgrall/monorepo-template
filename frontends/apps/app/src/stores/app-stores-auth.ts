@@ -2,6 +2,7 @@ import type { GenericResponse } from 'shared/schemas/shared-schemas';
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { logger } from 'web-utils/reporting';
 import { apiFetch } from '../fetch';
 
 const initialIsAuth = JSON.parse(
@@ -33,7 +34,7 @@ export const useAuthStore = defineStore('auth', () => {
       isAuth.value = false;
       await router.push({ name: 'auth.login' });
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       authError.value = 'Logging out failed';
     }
   }
@@ -55,7 +56,7 @@ export const useAuthStore = defineStore('auth', () => {
         method: 'POST',
       });
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       isAuth.value = false;
       authError.value = 'Failed you have been logged out';
       await router.push({ name: 'auth.login' });

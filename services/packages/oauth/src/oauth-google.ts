@@ -1,7 +1,6 @@
-import { analytics } from 'service-utils/analytics';
 import { environment, getFrontendUrl } from 'service-utils/environment';
+import { serverFetch } from 'service-utils/fetch';
 import { uuidV5 } from 'service-utils/uuid';
-import { ofetch } from 'shared/fetch';
 import { decoder } from './oauth-jwt.js';
 
 /**
@@ -64,39 +63,24 @@ export async function exchangeCodeGoogle({
 }: {
   code: string;
 }): Promise<OAuthCodeResponse> {
-  try {
-    const response = await ofetch<OAuthCodeResponse>(
-      'https://oauth2.googleapis.com/token',
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        method: 'POST',
-        params: {
-          client_id: environment.GOOGLE_APP_ID,
-          client_secret: environment.GOOGLE_APP_SECRET,
-          code,
-          grant_type: 'authorization_code',
-          redirect_uri: `${getFrontendUrl()}/auth/callback/google`,
-        },
+  const response = await serverFetch<OAuthCodeResponse>(
+    'https://oauth2.googleapis.com/token',
+    {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-    );
+      method: 'POST',
+      params: {
+        client_id: environment.GOOGLE_APP_ID,
+        client_secret: environment.GOOGLE_APP_SECRET,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: `${getFrontendUrl()}/auth/callback/google`,
+      },
+    },
+  );
 
-    return response;
-  } catch (error) {
-    const message = 'Error while exchanging OAuth code with Google';
-    if (error instanceof Error && 'data' in error) {
-      analytics.captureException(error, 'anonymous', {
-        data: error.data,
-        message,
-      });
-    } else {
-      analytics.captureException(error, 'anonymous', {
-        message,
-      });
-    }
-    throw new Error(message);
-  }
+  return response;
 }
 
 /**

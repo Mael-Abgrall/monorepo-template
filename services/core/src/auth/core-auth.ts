@@ -57,7 +57,7 @@ export async function finishOTP({
   const createdUserFromEmail = await createUser({
     user: {
       email: verificationToken.email,
-      id: crypto.randomUUID(),
+      id: uuidV5({ name: verificationToken.email }),
     },
   });
   return { onboardUser: true, user: createdUserFromEmail };

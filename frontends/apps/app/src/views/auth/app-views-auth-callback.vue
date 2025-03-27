@@ -5,6 +5,7 @@ import type {
 } from 'shared/schemas/shared-auth-schemas';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { logger } from 'web-utils/reporting';
 import containmentAlert from '../../components/containment/app-component-containment-alert.vue';
 import mediaLoading from '../../components/media/app-component-media-loading.vue';
 import { apiFetch } from '../../fetch';
@@ -54,7 +55,7 @@ onMounted(async () => {
     await authStore.saveLogin();
     await router.push({ name: 'home' });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     errorMessage.value = 'Failed to finish OAuth';
     errorVisible.value = true;
   }

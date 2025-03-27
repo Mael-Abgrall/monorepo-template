@@ -1,5 +1,5 @@
-import { ofetch } from 'shared/fetch';
 import { environment } from './environment';
+import { serverFetch } from './service-utils-fetch';
 
 interface PostmarkResponse {
   ErrorCode: number;
@@ -25,7 +25,7 @@ export async function sendEmail({
   subject: string;
   to: string;
 }): Promise<void> {
-  await ofetch<PostmarkResponse>('https://api.postmarkapp.com/email', {
+  await serverFetch<PostmarkResponse>('https://api.postmarkapp.com/email', {
     body: JSON.stringify({
       From: 'noreply@ansearch.net', // todo: change this
       HtmlBody: body,

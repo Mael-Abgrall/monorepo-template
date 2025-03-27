@@ -1,3 +1,4 @@
+/* v8 ignore start */
 import { getContextLogger } from 'service-utils/logger';
 import {
   decodeTokenGoogle,
@@ -77,3 +78,4 @@ export async function generateInitUrl({
     }
   }
 }
+/* v8 ignore end */

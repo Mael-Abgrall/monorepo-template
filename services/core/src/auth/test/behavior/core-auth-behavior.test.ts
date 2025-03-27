@@ -140,7 +140,8 @@ describe('finishOTP', () => {
     });
   });
 
-  it('create a new user when token has no userID (user from OTP), and indicate user needs onboarding', async () => {
+  it('create a new user with uuidV5 when token has no userID (user from OTP), and indicate user needs onboarding', async () => {
+    const uuidSpy = vi.spyOn(await import('service-utils/uuid'), 'uuidV5');
     const testTokenRecordWithNoUserID = {
       createdAt: new Date(),
       email: testUser.email,
@@ -153,7 +154,7 @@ describe('finishOTP', () => {
     );
     vi.mocked(createUser).mockResolvedValue({
       ...testUser,
-      id: crypto.randomUUID(),
+      id: '123',
     });
 
     const result = await finishOTP({
@@ -170,6 +171,9 @@ describe('finishOTP', () => {
     });
     expect(getUser).not.toHaveBeenCalled();
     expect(sendEmail).not.toHaveBeenCalled();
+    expect(uuidSpy).toHaveBeenCalledWith({ name: testUser.email });
+
+    uuidSpy.mockRestore();
   });
 
   it('create a new user when token has a userID (user from OAuth), and indicate user needs onboarding', async () => {

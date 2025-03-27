@@ -7,10 +7,12 @@ import type {
 import type { GenericResponse } from 'shared/schemas/shared-schemas';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { logger } from 'web-utils/reporting';
 import containmentAlert from '../../components/containment/app-component-containment-alert.vue';
 import containmentButton from '../../components/containment/app-component-containment-button.vue';
 import { apiFetch } from '../../fetch';
 import { useAuthStore } from '../../stores/app-stores-auth';
+
 const { email } = defineProps<{
   /**
    * The email address of the user
@@ -27,6 +29,10 @@ const authStore = useAuthStore();
  * Requests a magic link to be sent to the user's email
  */
 async function requestOTP(): Promise<void> {
+  if (!email) {
+    await router.push({ name: 'auth.login' });
+    return;
+  }
   try {
     await apiFetch<GenericResponse>('/auth/otp/init', {
       body: {
@@ -35,7 +41,7 @@ async function requestOTP(): Promise<void> {
       method: 'POST',
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     errorMessage.value = 'Failed to request OTP. Please try again in a minute';
     errorVisible.value = true;
   }
@@ -55,7 +61,7 @@ async function verifyOTP(): Promise<void> {
     await authStore.saveLogin();
     await router.push({ name: 'home' });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     errorMessage.value = 'Failed to verify OTP. Please try again';
     errorVisible.value = true;
   }

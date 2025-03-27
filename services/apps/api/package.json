@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "yarn w:wrangler-dev src/index.ts"
+    "dev": "yarn w:wrangler-dev src/development.ts"
   },
   "dependencies": {
     "@hono/typebox-validator": "^0.3.2",

@@ -21,4 +21,10 @@ export default tseslint.config(
   {
     ignores: ['**/.wrangler/**', '**/env.d.ts'],
   },
+  {
+    files: ['**/*.test.ts'],
+    rules: {
+      'fp/no-mutating-assign': 'off',
+    },
+  },
 );

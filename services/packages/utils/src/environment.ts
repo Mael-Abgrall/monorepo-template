@@ -25,7 +25,7 @@ export let environment: Environment;
 export function getFrontendUrl(): string {
   return environment.DOMAIN === 'localhost'
     ? 'http://localhost:5173'
-    : `https://${environment.DOMAIN}`;
+    : `https://${environment.DOMAIN}.com`; // todo: replace the TLD depending on the actual domain
 }
 
 /**

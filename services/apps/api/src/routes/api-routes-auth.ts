@@ -248,7 +248,16 @@ authRouter.post(
           message: 'Email already in use',
         });
       }
-      // v8 ignore next line
+      if (
+        error instanceof Error &&
+        error.message.includes(
+          'Fetch error: 422 [POST] https://api.postmarkapp.com/email',
+        )
+      ) {
+        throw new HTTPException(422, {
+          message: 'Email is not valid',
+        });
+      }
       throw error;
     }
   },
