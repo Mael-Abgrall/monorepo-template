@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
+import { navigationSidebarNavbar } from '../components/navigation/sidebar/app-navigation-sidebar';
 </script>
 
 <template>
   <div class="authenticated-layout">
-    <nav class="navbar">
-      <div>Navbar goes here</div>
-    </nav>
+    <navigationSidebarNavbar />
 
     <main>
       <RouterView />
@@ -16,10 +15,12 @@ import { RouterView } from 'vue-router';
 
 <style scoped>
 .authenticated-layout {
-  @apply min-h-screen;
+  height: 100%;
+  display: flex;
 }
 
-.navbar {
-  @apply w-full;
+main {
+  flex: 1;
+  height: 100%;
 }
 </style>

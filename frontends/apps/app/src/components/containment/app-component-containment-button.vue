@@ -89,7 +89,7 @@ const {
 
   &.variant-ghost {
     &:hover {
-      @apply bg-white/35 text-brand-900;
+      @apply bg-stone-100 text-brand-800;
     }
   }
 

@@ -138,7 +138,9 @@ async function requestOTP(): Promise<void> {
         />
 
         <button type="submit" class="submit-btn">
-          <containmentButton size="max">Email magic link</containmentButton>
+          <containmentButton size="max" variant="primary">
+            Email magic link
+          </containmentButton>
         </button>
       </form>
     </div>
@@ -239,7 +241,7 @@ async function requestOTP(): Promise<void> {
 
       .feature-icon {
         flex-shrink: 0;
-        @apply text-brand-600;
+        @apply text-brand-500;
       }
     }
   }

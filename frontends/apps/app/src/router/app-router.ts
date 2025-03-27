@@ -19,6 +19,26 @@ const routes = [
         name: 'home',
         path: '',
       },
+      {
+        component: (): Promise<Component> => {
+          return import('../views/settings/app-views-settings.vue');
+        },
+        meta: {
+          title: 'Settings',
+        },
+        name: 'settings',
+        path: 'settings',
+      },
+      {
+        component: (): Promise<Component> => {
+          return import('../views/app-views-support.vue');
+        },
+        meta: {
+          title: 'Help & feedback',
+        },
+        name: 'support',
+        path: 'support',
+      },
     ],
     component: withNav as Component,
     meta: { requiresAuth: true },

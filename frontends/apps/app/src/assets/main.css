@@ -3,7 +3,12 @@
 @tailwind utilities;
 
 html {
-  @apply bg-brand-50;
+  @apply bg-stone-50;
+}
+html,
+body,
+#app {
+  height: 100%;
 }
 
 h1 {
