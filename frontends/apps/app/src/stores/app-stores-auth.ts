@@ -4,6 +4,7 @@ import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { logger } from 'web-utils/reporting';
 import { apiFetch } from '../fetch';
+import { useUserStore } from './app-stores-user';
 
 const initialIsAuth = JSON.parse(
   localStorage.getItem('isAuth') ?? 'false',
@@ -14,6 +15,7 @@ const initialIsAuth = JSON.parse(
  */
 export const useAuthStore = defineStore('auth', () => {
   const router = useRouter();
+  const userStore = useUserStore();
 
   const loading = ref(false);
   const authError = ref<string | undefined>();
@@ -32,6 +34,7 @@ export const useAuthStore = defineStore('auth', () => {
         method: 'POST',
       });
       isAuth.value = false;
+      await userStore.removeUser();
       await router.push({ name: 'auth.login' });
     } catch (error) {
       logger.error(error);
@@ -45,6 +48,7 @@ export const useAuthStore = defineStore('auth', () => {
    */
   async function saveLogin(): Promise<void> {
     isAuth.value = true;
+    await userStore.fetchUser();
   }
 
   /**
@@ -58,6 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (error) {
       logger.error(error);
       isAuth.value = false;
+      await userStore.removeUser();
       authError.value = 'Failed you have been logged out';
       await router.push({ name: 'auth.login' });
     }

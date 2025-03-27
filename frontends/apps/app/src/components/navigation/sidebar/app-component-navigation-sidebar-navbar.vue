@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { useUserStore } from '../../../stores/app-stores-user';
 import { iconHelp, iconHome, iconUserDefault } from '../../icons';
 import {
   navigationSidebarButton,
   navigationSidebarGroup,
   navigationSidebarHeader,
 } from './app-navigation-sidebar';
+
+const userStore = useUserStore();
 </script>
 
 <template>
@@ -67,7 +70,7 @@ import {
             <iconUserDefault />
           </template>
           <div class="setting-button">
-            <span>test@demo.com</span>
+            <span v-if="userStore.user">{{ userStore.user.email }}</span>
             Settings
           </div>
         </navigationSidebarButton>
