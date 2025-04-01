@@ -28,6 +28,7 @@
     "neondatabase",
     "Nuxt",
     "ofetch",
+    "pinia",
     "posthog",
     "sonarjs",
     "tabler",

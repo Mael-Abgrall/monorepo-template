@@ -6,6 +6,7 @@ import type { Variables } from './context.js';
 import { environmentMiddleware } from './middleware/api-middleware-environment.js';
 import { errorHandler } from './middleware/api-middleware-errors.js';
 import { authRouter } from './routes/api-routes-auth.js';
+import { chatRouter } from './routes/api-routes-chat.js';
 import { userRouter } from './routes/api-routes-user.js';
 
 const app = new Hono<{ Bindings: Environment; Variables: Variables }>();
@@ -27,6 +28,7 @@ app.use('*', async (context, next) => {
 
 app.route('/auth', authRouter);
 app.route('/user', userRouter);
+app.route('/chat', chatRouter);
 
 // eslint-disable-next-line import-x/no-default-export -- needed for CF workers
 export default app;

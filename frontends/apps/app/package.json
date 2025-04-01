@@ -10,6 +10,7 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
+    "event-source-plus": "^0.1.8",
     "pinia": "^3.0.0",
     "shared": "workspace:^",
     "vue": "^3.5.13",

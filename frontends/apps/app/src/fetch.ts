@@ -7,7 +7,7 @@ export const apiFetch = ofetch.create({
   baseURL:
     import.meta.env.MODE === 'development'
       ? 'http://localhost:8787'
-      : 'https://api.example.com',
+      : 'https://api.example.com', // todo: change to the actual API URL
   credentials: 'include',
   headers: {
     'Content-Type': 'application/json',

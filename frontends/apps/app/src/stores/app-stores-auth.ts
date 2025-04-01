@@ -53,18 +53,22 @@ export const useAuthStore = defineStore('auth', () => {
 
   /**
    * Request a new cookie/token from the server
+   * @returns true if the user is logged in, false if the user is kicked out
    */
-  async function refreshToken(): Promise<void> {
+  async function refreshToken(): Promise<boolean> {
+    // todo: prevent race condition (especially with the SSE)
     try {
-      await apiFetch<GenericResponse>('/api/auth/refresh', {
+      await apiFetch<GenericResponse>('/auth/refresh', {
         method: 'POST',
       });
+      return true;
     } catch (error) {
       logger.error(error);
       isAuth.value = false;
       await userStore.removeUser();
       authError.value = 'Failed you have been logged out';
       await router.push({ name: 'auth.login' });
+      return false;
     }
   }
 
