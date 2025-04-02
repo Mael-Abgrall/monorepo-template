@@ -219,12 +219,6 @@ chatRouter.post(
     return streamSSE(
       context,
       async (stream) => {
-        stream.onAbort(async () => {
-          logger.info('stream aborted');
-          await stream.close();
-        });
-        logger.info('new stream');
-
         await simulateProcessing({
           conversationID: undefined,
           prompt: 'test prompt',

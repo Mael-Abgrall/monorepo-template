@@ -5,11 +5,21 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
   ...astarEslint,
   {
-    files: ['services/packages/oauth/src/**/*.ts'],
+    files: ['**/*.ts'],
     rules: {
       camelcase: [
         'error',
-        { allow: ['client_id', 'client_secret', 'redirect_uri', 'grant_type'] },
+        {
+          allow: [
+            'client_id',
+            'client_secret',
+            'redirect_uri',
+            'grant_type',
+            '$ai_latency',
+            '$ai_span_name',
+            '$ai_trace_id',
+          ],
+        },
       ],
     },
   },

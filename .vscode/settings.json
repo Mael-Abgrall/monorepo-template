@@ -30,7 +30,9 @@
     "ofetch",
     "pinia",
     "posthog",
+    "schemaname",
     "sonarjs",
+    "tablename",
     "tabler",
     "typebox",
     "unplugin"

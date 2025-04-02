@@ -1,27 +1,34 @@
 {
-  "name": "database",
-  "private": true,
-  "type": "module",
-  "exports": {
-    "./config": {
-      "workerd": "./src/config/database-config-interface.ts",
-      "typescript": "./src/config/database-config-interface.ts",
-      "development": "./src/config/database-config-interface.ts",
-      "types": "./src/config/database-config-interface.ts",
-      "default": "./dist/config/database-config-interface.js"
-    },
-    "./user": {
-      "workerd": "./src/user/database-user-interface.ts",
-      "typescript": "./src/user/database-user-interface.ts",
-      "development": "./src/user/database-user-interface.ts",
-      "types": "./src/user/database-user-interface.ts",
-      "default": "./dist/user/database-user-interface.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "dependencies": {
-    "@neondatabase/serverless": "^0.10.4",
-    "drizzle-orm": "^0.39.3",
-    "service-utils": "workspace:^"
-  }
+	"name": "database",
+	"private": true,
+	"type": "module",
+	"exports": {
+		"./config": {
+			"workerd": "./src/config/database-config-interface.ts",
+			"typescript": "./src/config/database-config-interface.ts",
+			"development": "./src/config/database-config-interface.ts",
+			"types": "./src/config/database-config-interface.ts",
+			"default": "./dist/config/database-config-interface.js"
+		},
+		"./user": {
+			"workerd": "./src/user/database-user-interface.ts",
+			"typescript": "./src/user/database-user-interface.ts",
+			"development": "./src/user/database-user-interface.ts",
+			"types": "./src/user/database-user-interface.ts",
+			"default": "./dist/user/database-user-interface.js"
+		},
+		"./conversation": {
+			"workerd": "./src/chat/database-chat-interface.ts",
+			"typescript": "./src/chat/database-chat-interface.ts",
+			"development": "./src/chat/database-chat-interface.ts",
+			"types": "./src/chat/database-chat-interface.ts",
+			"default": "./dist/chat/database-chat-interface.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"dependencies": {
+		"@neondatabase/serverless": "^0.10.4",
+		"drizzle-orm": "^0.39.3",
+		"service-utils": "workspace:^"
+	}
 }

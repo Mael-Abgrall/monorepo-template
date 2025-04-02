@@ -1,6 +1,6 @@
 ---
 description: TS best practices
-globs:  *.vue,*.ts
+globs: *.vue,*.ts
 alwaysApply: false
 ---
 This repository is a monorepo, the way it works and how the files are agenced is explained in readme.md
@@ -10,6 +10,7 @@ This repository is a monorepo, the way it works and how the files are agenced is
 - Always use named parameters and output types `async myFunction({paramA}:{paramA:string}): Promise<string>{}`.
 - Prefer functional programming when it is more legible. Avoid classes.
 - Order functions, json and object variables by name; Order import with types first, then regular imports, by name too.
+- When using optional parameters, prefer writing them like this: `myParam: string | undefined` because it has better DX, and avoid `myParam?: string` unless asked to.
 
 ## Backend
 

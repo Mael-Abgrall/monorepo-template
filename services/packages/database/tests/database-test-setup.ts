@@ -1,7 +1,10 @@
 import type { Environment } from 'service-utils/environment';
 import { sql } from 'drizzle-orm';
 import { beforeAll, beforeEach, vi } from 'vitest';
-import { conversationsTable } from '../src/chat/database-chat-schemas';
+import {
+  conversationsTable,
+  messagesTable,
+} from '../src/chat/database-chat-schemas';
 import { initPostgreSQL, pgDatabase } from '../src/config/database-postgresql';
 import {
   usersTable,
@@ -13,8 +16,14 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  await pgDatabase.execute(sql`TRUNCATE TABLE ${usersTable}`);
-  await pgDatabase.execute(sql`TRUNCATE TABLE ${verificationTokensTable}`);
-  await pgDatabase.execute(sql`TRUNCATE TABLE ${conversationsTable}`);
+  await pgDatabase.execute(
+    sql`
+TRUNCATE TABLE 
+  ${conversationsTable}, 
+  ${messagesTable}, 
+  ${usersTable}, 
+  ${verificationTokensTable} 
+CASCADE`,
+  );
   vi.clearAllMocks();
 });
