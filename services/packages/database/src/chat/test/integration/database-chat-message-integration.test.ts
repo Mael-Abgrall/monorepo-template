@@ -41,6 +41,16 @@ describe('createMessage', () => {
     expect(pulledMessages.length).toBe(2);
     expect(pulledMessages[1].messageID).toBe(message.messageID);
   });
+
+  it('should fail if the conversation does not exist', async () => {
+    await expect(
+      createMessage({
+        conversationID: crypto.randomUUID(),
+        prompt: 'What is the capital of the moon?',
+        userID: crypto.randomUUID(),
+      }),
+    ).rejects.toThrow();
+  });
 });
 
 describe('deleteMessage', () => {

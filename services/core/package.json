@@ -24,11 +24,22 @@
       "types": "./src/core-user.ts",
       "default": "./dist/core-user.js"
     },
+    "./chat": {
+      "workerd": "./src/chat/core-chat.ts",
+      "typescript": "./src/chat/core-chat.ts",
+      "development": "./src/chat/core-chat.ts",
+      "types": "./src/chat/core-chat.ts",
+      "default": "./dist/chat/core-chat.js"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {
+    "ai": "workspace:^",
     "database": "workspace:^",
     "oauth": "workspace:^",
     "service-utils": "workspace:^"
+  },
+  "devDependencies": {
+    "hono": "^4.7.5"
   }
 }

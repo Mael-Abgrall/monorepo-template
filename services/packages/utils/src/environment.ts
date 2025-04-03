@@ -2,6 +2,8 @@
 // Cloudflare workers don't have global variables like node does. This file tries to make them still available.
 
 export interface Environment {
+  AWS_ACCESS_KEY_ID: string;
+  AWS_SECRET_ACCESS_KEY: string;
   COOKIE_SECRET: string;
   DATABASE_URL: string;
   DATABASE_URL_TEST?: string;
@@ -63,6 +65,12 @@ export function setEnvironment({ env }: { env: Environment }): void {
   }
   if (!env.JWT_SECRET) {
     throw new Error('JWT_SECRET is not set');
+  }
+  if (!env.AWS_ACCESS_KEY_ID) {
+    throw new Error('AWS_ACCESS_KEY_ID is not set');
+  }
+  if (!env.AWS_SECRET_ACCESS_KEY) {
+    throw new Error('AWS_SECRET_ACCESS_KEY is not set');
   }
   environment = env;
 }

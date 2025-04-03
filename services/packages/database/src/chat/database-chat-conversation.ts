@@ -143,11 +143,12 @@ export async function listConversations({
 }
 
 /**
- * Update a conversation, only the title and visibility can be updated
+ * Update a conversation, leave a field undefined to keep the current value.
  * @param root named parameters
  * @param root.conversationID The ID of the conversation to update
  * @param root.title The title of the conversation
  * @param root.visibility The visibility of the conversation
+ * @throws if both title and visibility are undefined
  */
 export async function updateConversation({
   conversationID,

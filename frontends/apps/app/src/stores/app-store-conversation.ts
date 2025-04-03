@@ -38,10 +38,9 @@ export const useConversationStore = defineStore('conversation', () => {
       }
       case 'completion': {
         const conversationID = message.data.conversationID;
-        const completion = message.data.completion.trim();
+        const completion = message.data.completion;
         if (conversations.value[conversationID].messages.response) {
-          conversations.value[conversationID].messages.response +=
-            ` ${completion}`;
+          conversations.value[conversationID].messages += completion;
         } else {
           conversations.value[conversationID].messages.response = completion;
         }

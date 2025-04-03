@@ -1,5 +1,17 @@
 {
   "name": "ai",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.779.0"
+  },
+  "exports": {
+    "./*": {
+      "workerd": "./src/*.ts",
+      "typescript": "./src/*.ts",
+      "development": "./src/*.ts",
+      "types": "./src/*.ts",
+      "default": "./dist/*.js"
+    }
+  }
 }

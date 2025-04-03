@@ -1,19 +1,30 @@
-import type { SSEMessage, SSEStreamingApi } from 'hono/streaming';
 import type { Environment } from 'service-utils/environment';
 import type {
-  PostConversationCloseEvent,
-  PostConversationCompletionEvent,
-  PostConversationCreateEvent,
+  Conversation,
+  ListConversationsResponse,
   PostConversationErrorEvent,
-  PostConversationEvent,
-  PostConversationSourcesEvent,
-  PostConversationThinkingEvent,
-} from 'shared/schemas/shared-schemas-conversation';
+} from 'shared/schemas/shared-schemas-chat';
+import {
+  completeNewConversation,
+  completeNewMessage,
+  getConversation,
+  listConversations,
+} from 'core/chat';
 import { Hono } from 'hono';
 import { describeRoute } from 'hono-openapi';
+import { validator } from 'hono-openapi/typebox';
+import { HTTPException } from 'hono/http-exception';
 import { streamSSE } from 'hono/streaming';
 import { getContextLogger } from 'service-utils/logger';
+import { genericResponseSchema } from 'shared/schemas/shared-schemas';
+import {
+  ConversationSchema,
+  getConversationParametersSchema,
+  listConversationsResponseSchema,
+  PostConversationBodySchema,
+} from 'shared/schemas/shared-schemas-chat';
 import type { Variables } from '../context';
+import { validateResponse } from '../helpers/api-helpers-response-validator';
 import { authMiddleware } from '../middleware/api-middleware-auth';
 
 const logger = getContextLogger('api-routes-chat.ts');
@@ -25,170 +36,19 @@ const chatRouter = new Hono<{
 
 chatRouter.use(authMiddleware);
 
-/**
- * A simple wrapper to help with the typing of the event.
- * @param root named parameters
- * @param root.event the event to send
- * @param root.data the data to send
- * @returns the event to send to the client
- */
-function createEvent({ data, event }: PostConversationEvent): SSEMessage {
-  return {
-    data: JSON.stringify(data),
-    event,
-  };
-}
-
-/**
- * Simulate the processing of a conversation.
- * @param root named parameters
- * @param root.conversationID (optional) the conversation ID to use
- * @param root.prompt the prompt to send to the conversation
- * @param root.stream the stream to write to
- */
-async function simulateProcessing({
-  conversationID,
-  prompt,
-  stream,
-}: {
-  conversationID: string | undefined;
-  prompt: string;
-  stream: SSEStreamingApi;
-}): Promise<void> {
-  // simulate creation
-  await stream.writeSSE(
-    createEvent({
-      data: {
-        conversationID: conversationID ?? '123',
-        messages: {
-          createdAt: '2021-01-01',
-          prompt,
-          response: undefined,
-          sources: undefined,
-          thinkingSteps: undefined,
-        },
-        title: 'test title',
-      },
-      event: 'create',
-    } satisfies PostConversationCreateEvent),
-  );
-  await stream.sleep(1000);
-
-  // simulate thinking
-  await stream.writeSSE(
-    createEvent({
-      data: {
-        conversationID: '123',
-        thinkingSteps: ['thinking step 1', 'thinking step 2'],
-      },
-      event: 'thinking',
-    } satisfies PostConversationThinkingEvent),
-  );
-  await stream.sleep(1000);
-
-  // simulate sources
-  await stream.writeSSE(
-    createEvent({
-      data: {
-        conversationID: '123',
-        sources: [
-          {
-            chunk: 'source chunk',
-            chunkID: 'source chunk ID',
-            documentID: 'source document ID',
-            origin: 'source origin',
-            title: 'source title',
-            url: 'source url',
-          },
-          {
-            chunk: 'source chunk 2',
-            chunkID: 'source chunk ID 2',
-            documentID: 'source document ID 2',
-            origin: 'source origin 2',
-            title: 'source title 2',
-            url: 'source url 2',
-          },
-          {
-            chunk: 'source chunk 3',
-            chunkID: 'source chunk ID 3',
-            documentID: 'source document ID 3',
-            origin: 'source origin 3',
-            title: 'source title 3',
-            url: 'source url 3',
-          },
-        ],
-      },
-      event: 'sources',
-    } satisfies PostConversationSourcesEvent),
-  );
-  await stream.sleep(1000);
-
-  // simulate completion
-  await stream.writeSSE(
-    createEvent({
-      data: {
-        completion: 'This',
-        conversationID: '123',
-      },
-      event: 'completion',
-    } satisfies PostConversationCompletionEvent),
-  );
-  await stream.sleep(100);
-  await stream.writeSSE(
-    createEvent({
-      data: {
-        completion: 'is',
-        conversationID: '123',
-      },
-      event: 'completion',
-    } satisfies PostConversationCompletionEvent),
-  );
-  await stream.sleep(500);
-  await stream.writeSSE(
-    createEvent({
-      data: {
-        completion: 'a',
-        conversationID: '123',
-      },
-      event: 'completion',
-    } satisfies PostConversationCompletionEvent),
-  );
-  await stream.sleep(200);
-  await stream.writeSSE(
-    createEvent({
-      data: {
-        completion: 'test, to show ',
-        conversationID: '123',
-      },
-      event: 'completion',
-    } satisfies PostConversationCompletionEvent),
-  );
-  await stream.sleep(400);
-  await stream.writeSSE(
-    createEvent({
-      data: {
-        completion: 'the completion ',
-        conversationID: '123',
-      },
-      event: 'completion',
-    } satisfies PostConversationCompletionEvent),
-  );
-  await stream.sleep(400);
-
-  // Send a close event to the stream
-  await stream.writeSSE(
-    createEvent({
-      data: 'close',
-      event: 'close',
-    } satisfies PostConversationCloseEvent),
-  );
-}
-
 chatRouter.post(
   '',
   describeRoute({
-    description:
-      'Establishes a Server-Sent Events (SSE) connection for receiving real-time updates.',
+    description: `
+Answer the user prompt, and stream the response to the user.
+
+The stream is done using SSE, and will send back various events defined in the shared schemas.
+
+The API will behave differently depending on the input parameters:
+
+- If the conversationID is undefined, a new conversation will be created, and a "create" event will be sent.
+- If the conversationID is provided, the API will append the new message to the conversation.
+`,
     responses: {
       200: {
         description: 'SSE stream established',
@@ -197,9 +57,10 @@ chatRouter.post(
         description: 'Unauthorized - User is not authenticated',
       },
     },
-    summary: 'Server-Sent Events endpoint for real-time updates',
+    summary: 'Answer the user prompt, and stream the response to the user.',
     tags: ['Chat'],
   }),
+  validator('json', PostConversationBodySchema),
   async (context) => {
     /*
 
@@ -216,16 +77,24 @@ chatRouter.post(
   - The client could decide at any time to abort the processing (=/= an error or a close from the stream)
 
 */
+    const { conversationID, prompt } = context.req.valid('json');
     return streamSSE(
       context,
       async (stream) => {
-        await simulateProcessing({
-          conversationID: undefined,
-          prompt: 'test prompt',
-          stream,
+        if (!conversationID) {
+          await completeNewConversation({
+            prompt,
+            sseStream: stream,
+            userID: context.get('userID'),
+          });
+          return;
+        }
+        await completeNewMessage({
+          conversationID,
+          prompt,
+          sseStream: stream,
+          userID: context.get('userID'),
         });
-        logger.info('closing stream');
-        await stream.close();
       },
       async (error, stream) => {
         logger.error('error while streaming');
@@ -236,6 +105,80 @@ chatRouter.post(
         } satisfies PostConversationErrorEvent);
         await stream.close();
       },
+    );
+  },
+);
+
+chatRouter.get(
+  '/list',
+  describeRoute({
+    description: 'List all conversations for the user',
+    responses: {
+      200: {
+        content: {
+          'application/json': {
+            schema: listConversationsResponseSchema,
+          },
+        },
+        description: 'The list of conversations',
+      },
+    },
+    tags: ['Chat'],
+    validateResponse: true,
+  }),
+  async (context) => {
+    const conversations = await listConversations({
+      userID: context.get('userID'),
+    });
+
+    return context.json(
+      validateResponse({
+        response: conversations satisfies ListConversationsResponse,
+        schema: listConversationsResponseSchema,
+      }),
+    );
+  },
+);
+
+chatRouter.get(
+  '/:conversationID',
+  describeRoute({
+    description: 'Get a conversation by ID',
+    responses: {
+      200: {
+        content: {
+          'application/json': {
+            schema: ConversationSchema,
+          },
+        },
+        description: 'The conversation',
+      },
+      404: {
+        content: {
+          'application/json': {
+            schema: genericResponseSchema,
+          },
+        },
+        description: 'The conversation was not found',
+      },
+    },
+    tags: ['Chat'],
+  }),
+  validator('param', getConversationParametersSchema),
+  async (context) => {
+    const { conversationID } = context.req.valid('param');
+    const conversation = await getConversation({ conversationID });
+    if (!conversation) {
+      throw new HTTPException(404, {
+        message: 'Conversation not found',
+      });
+    }
+
+    return context.json(
+      validateResponse({
+        response: conversation satisfies Conversation,
+        schema: ConversationSchema,
+      }),
     );
   },
 );

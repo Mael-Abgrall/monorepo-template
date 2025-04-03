@@ -39,6 +39,7 @@ import {
   setSignedCookieCustom,
 } from '../helpers/api-helpers-cookies.js';
 import { createTokens, verifyToken } from '../helpers/api-helpers-jwt.js';
+import { validateResponse } from '../helpers/api-helpers-response-validator.js';
 
 export const authRouter = new Hono<{
   Bindings: Environment;
@@ -105,7 +106,12 @@ authRouter.get(
       value: state,
     });
 
-    return context.json({ redirectUrl: url } satisfies OauthInitResponse);
+    return context.json(
+      validateResponse({
+        response: { redirectUrl: url } satisfies OauthInitResponse,
+        schema: oauthInitResponseSchema,
+      }),
+    );
   },
 );
 
@@ -170,10 +176,15 @@ authRouter.post(
         name: 'tokenID',
         value: tokenID,
       });
-      return context.json({
-        email,
-        verified: false,
-      } satisfies OauthFinishResponse);
+      return context.json(
+        validateResponse({
+          response: {
+            email,
+            verified: false,
+          } satisfies OauthFinishResponse,
+          schema: oauthFinishResponseSchema,
+        }),
+      );
     }
 
     analytics.capture({
@@ -185,10 +196,15 @@ authRouter.post(
       },
     });
     await createAuthCookies({ context, userID: user.id });
-    return context.json({
-      email,
-      verified: true,
-    } satisfies OauthFinishResponse);
+    return context.json(
+      validateResponse({
+        response: {
+          email,
+          verified: true,
+        } satisfies OauthFinishResponse,
+        schema: oauthFinishResponseSchema,
+      }),
+    );
   },
 );
 
@@ -241,7 +257,12 @@ authRouter.post(
         name: 'tokenID',
         value: tokenID,
       });
-      return context.json({ message: 'Ok' });
+      return context.json(
+        validateResponse({
+          response: { message: 'Ok' },
+          schema: genericResponseSchema,
+        }),
+      );
     } catch (error) {
       if (error instanceof Error && error.message === 'Email already in use') {
         throw new HTTPException(409, {
@@ -304,7 +325,12 @@ authRouter.post(
         event: onboardUser ? 'otp_create_user' : 'otp_login',
       });
       await createAuthCookies({ context, userID: user.id });
-      return context.json({ onboardUser } satisfies OtpFinishResponse);
+      return context.json(
+        validateResponse({
+          response: { onboardUser } satisfies OtpFinishResponse,
+          schema: otpFinishResponseSchema,
+        }),
+      );
     } catch {
       throw new HTTPException(401, { message: 'Invalid OTP' });
     }
@@ -350,7 +376,12 @@ authRouter.post(
     }
     const { userID } = tokenData;
     await createAuthCookies({ context, userID });
-    return context.json({ message: 'Ok' } satisfies GenericResponse);
+    return context.json(
+      validateResponse({
+        response: { message: 'Ok' } satisfies GenericResponse,
+        schema: genericResponseSchema,
+      }),
+    );
   },
 );
 
