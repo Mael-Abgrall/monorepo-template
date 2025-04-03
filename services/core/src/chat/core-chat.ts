@@ -1,6 +1,6 @@
 import type { MessageInDB } from 'database/conversation';
 import type { SSEMessage, SSEStreamingApi } from 'hono/streaming';
-import type { PostConversationEvent } from 'shared/schemas/shared-schemas-chat';
+import type { PostChatEvent } from 'shared/schemas/shared-schemas-chat';
 import { claude37SonnetStream } from 'ai/providers/lm/ai-providers-lm-aws';
 import {
   addMessageToConversation,
@@ -35,7 +35,7 @@ export async function completeNewConversation({
 }): Promise<void> {
   const conversationStart = Date.now();
   const initStart = Date.now();
-  const conversation = await initConversation({
+  const { conversation, message } = await initConversation({
     prompt,
     title: prompt.slice(0, 20),
     userID,
@@ -53,19 +53,15 @@ export async function completeNewConversation({
 
   await sseStream.writeSSE(
     createEvent({
-      data: conversation,
-      event: 'create',
+      data: {
+        conversation,
+        message,
+      },
+      event: 'create-conversation',
     }),
   );
 
-  await completeMessage({
-    message: {
-      ...conversation.messages[0],
-      conversationID: conversation.conversationID,
-      userID,
-    },
-    sseStream,
-  });
+  await completeMessage({ message, sseStream });
 
   const conversationEnd = Date.now();
   analytics.capture({
@@ -117,10 +113,14 @@ export async function completeNewMessage({
     },
   });
 
-  await completeMessage({
-    message,
-    sseStream,
-  });
+  await sseStream.writeSSE(
+    createEvent({
+      data: message,
+      event: 'create-message',
+    }),
+  );
+
+  await completeMessage({ message, sseStream });
 
   const messageEnd = Date.now();
   analytics.capture({
@@ -161,7 +161,6 @@ async function completeMessage({
       createEvent({
         data: {
           completion: textPart,
-          conversationID: message.conversationID,
           messageID: message.messageID,
         },
         event: 'completion',
@@ -184,7 +183,7 @@ async function completeMessage({
  * @param root.data the data to send
  * @returns the event to send to the client
  */
-function createEvent({ data, event }: PostConversationEvent): SSEMessage {
+function createEvent({ data, event }: PostChatEvent): SSEMessage {
   return {
     data: JSON.stringify(data),
     event,

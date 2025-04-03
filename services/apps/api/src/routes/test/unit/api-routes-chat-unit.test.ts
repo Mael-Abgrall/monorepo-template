@@ -1,7 +1,7 @@
 import type { Environment } from 'service-utils/environment';
 import type {
   ListConversationsResponse,
-  PostConversationBody,
+  PostChatBody,
 } from 'shared/schemas/shared-schemas-chat';
 import {
   completeNewConversation,
@@ -29,12 +29,12 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('GET /chat/:conversationID', () => {
+describe('GET /chat/conversation/:conversationID', () => {
   it('is protected by cookies', async () => {
     vi.mocked(getSignedCookieCustom).mockResolvedValueOnce(
       undefined satisfies Awaited<ReturnType<typeof getSignedCookieCustom>>,
     );
-    const response = await app.request('/chat/123');
+    const response = await app.request('/chat/conversation/123');
     expect(response.status).toBe(401);
   });
 
@@ -47,10 +47,16 @@ describe('GET /chat/:conversationID', () => {
     } satisfies Awaited<ReturnType<typeof verifyToken>>);
 
     const mockConversation = {
-      conversationID: '123',
-      createdAt: new Date(),
+      conversation: {
+        conversationID: 'conversationID',
+        createdAt: new Date(),
+        title: 'Test',
+        userID: 'userID',
+        visibility: 'private',
+      },
       messages: [
         {
+          conversationID: 'conversationID',
           createdAt: new Date(),
           initiatives: [
             {
@@ -70,36 +76,29 @@ describe('GET /chat/:conversationID', () => {
               url: 'https://test.com',
             },
           ],
+          userID: 'userID',
         },
       ],
-      title: 'Test',
-      userID: '123',
-      visibility: 'private',
     } satisfies Awaited<ReturnType<typeof getConversation>>;
 
     vi.mocked(getConversation).mockResolvedValueOnce(
       mockConversation satisfies Awaited<ReturnType<typeof getConversation>>,
     );
 
-    const response = await app.request('/chat/123');
+    const response = await app.request('/chat/conversation/conversationID');
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body).toEqual({
-      conversationID: mockConversation.conversationID,
-      createdAt: mockConversation.createdAt.toISOString(),
-      messages: [
-        {
-          createdAt: mockConversation.messages[0].createdAt.toISOString(),
-          initiatives: mockConversation.messages[0].initiatives,
-          messageID: mockConversation.messages[0].messageID,
-          prompt: mockConversation.messages[0].prompt,
-          response: mockConversation.messages[0].response,
-          sources: mockConversation.messages[0].sources,
-        },
-      ],
-      title: mockConversation.title,
-      userID: mockConversation.userID,
-      visibility: mockConversation.visibility,
+      conversation: {
+        ...mockConversation.conversation,
+        createdAt: mockConversation.conversation.createdAt.toISOString(),
+      },
+      messages: mockConversation.messages.map((message) => {
+        return {
+          ...message,
+          createdAt: message.createdAt.toISOString(),
+        };
+      }),
     });
   });
 
@@ -115,8 +114,12 @@ describe('GET /chat/:conversationID', () => {
       undefined satisfies Awaited<ReturnType<typeof getConversation>>,
     );
 
-    const response = await app.request('/chat/123');
+    const response = await app.request('/chat/conversation/does-not-exist');
     expect(response.status).toBe(404);
+
+    expect(getConversation).toHaveBeenCalledWith({
+      conversationID: 'does-not-exist',
+    });
   });
 });
 
@@ -158,7 +161,7 @@ describe('POST /chat', () => {
     const response = await app.request('/chat', {
       body: JSON.stringify({
         prompt: 'Hello, world!',
-      } satisfies PostConversationBody),
+      } satisfies PostChatBody),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -188,7 +191,7 @@ describe('POST /chat', () => {
       body: JSON.stringify({
         conversationID: '123',
         prompt: 'Hello, world!',
-      } satisfies PostConversationBody),
+      } satisfies PostChatBody),
       headers: {
         'Content-Type': 'application/json',
       },

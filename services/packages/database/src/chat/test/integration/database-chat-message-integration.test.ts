@@ -13,14 +13,13 @@ describe('createMessage', () => {
   it('should create a new message and return it', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
-      title: 'Moon Capital',
+      title: 'Test title',
       userID,
     });
 
     const message = await createMessage({
       conversationID: conversation.conversationID,
-      prompt: 'were in the moon',
+      prompt: 'test prompt',
       userID,
     });
 
@@ -30,7 +29,7 @@ describe('createMessage', () => {
       createdAt: expect.any(Date),
       initiatives: undefined,
       messageID: expect.any(String),
-      prompt: 'were in the moon',
+      prompt: 'test prompt',
       response: undefined,
       sources: undefined,
       userID,
@@ -38,15 +37,15 @@ describe('createMessage', () => {
 
     const pulledMessages = await pgDatabase.select().from(messagesTable);
 
-    expect(pulledMessages.length).toBe(2);
-    expect(pulledMessages[1].messageID).toBe(message.messageID);
+    expect(pulledMessages.length).toBe(1);
+    expect(pulledMessages[0].messageID).toBe(message.messageID);
   });
 
   it('should fail if the conversation does not exist', async () => {
     await expect(
       createMessage({
         conversationID: crypto.randomUUID(),
-        prompt: 'What is the capital of the moon?',
+        prompt: 'test prompt',
         userID: crypto.randomUUID(),
       }),
     ).rejects.toThrow();
@@ -57,13 +56,17 @@ describe('deleteMessage', () => {
   it('should delete a message', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
-      title: 'Moon Capital',
+      title: 'Test title',
+      userID,
+    });
+    const message = await createMessage({
+      conversationID: conversation.conversationID,
+      prompt: 'test prompt',
       userID,
     });
 
     await deleteMessage({
-      messageID: conversation.messages[0].messageID,
+      messageID: message.messageID,
       userID,
     });
 
@@ -75,22 +78,24 @@ describe('deleteMessage', () => {
   it('should not delete a message if the user ID does not match', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
-      title: 'Moon Capital',
+      title: 'Test title',
+      userID,
+    });
+    const message = await createMessage({
+      conversationID: conversation.conversationID,
+      prompt: 'test prompt',
       userID,
     });
 
     await deleteMessage({
-      messageID: conversation.messages[0].messageID,
+      messageID: message.messageID,
       userID: crypto.randomUUID(),
     });
 
     const pulledMessages = await pgDatabase.select().from(messagesTable);
 
     expect(pulledMessages.length).toBe(1);
-    expect(pulledMessages[0].messageID).toBe(
-      conversation.messages[0].messageID,
-    );
+    expect(pulledMessages[0].messageID).toBe(message.messageID);
   });
 });
 
@@ -98,14 +103,18 @@ describe('updateMessage', () => {
   it('should update a message', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
-      title: 'Moon Capital',
+      title: 'Test title',
+      userID,
+    });
+    const message = await createMessage({
+      conversationID: conversation.conversationID,
+      prompt: 'test prompt',
       userID,
     });
 
     await updateMessage({
       initiatives: [{ action: 'search' }],
-      messageID: conversation.messages[0].messageID,
+      messageID: message.messageID,
       prompt: 'updated prompt',
       response: 'updated response',
       sources: [
@@ -124,13 +133,13 @@ describe('updateMessage', () => {
     const pulledMessages = await pgDatabase
       .select()
       .from(messagesTable)
-      .where(eq(messagesTable.messageID, conversation.messages[0].messageID));
+      .where(eq(messagesTable.messageID, message.messageID));
 
     expect(pulledMessages[0]).toStrictEqual({
       conversationID: conversation.conversationID,
       createdAt: expect.any(Date),
       initiatives: [{ action: 'search' }],
-      messageID: conversation.messages[0].messageID,
+      messageID: message.messageID,
       prompt: 'updated prompt',
       response: 'updated response',
       sources: [
@@ -150,14 +159,18 @@ describe('updateMessage', () => {
   it('should not update a message if the user ID does not match', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
-      title: 'Moon Capital',
+      title: 'Test title',
+      userID,
+    });
+    const message = await createMessage({
+      conversationID: conversation.conversationID,
+      prompt: 'test prompt',
       userID,
     });
 
     await updateMessage({
       initiatives: [{ action: 'search' }],
-      messageID: conversation.messages[0].messageID,
+      messageID: message.messageID,
       prompt: 'updated prompt',
       response: 'updated response',
       sources: [
@@ -176,14 +189,14 @@ describe('updateMessage', () => {
     const pulledMessages = await pgDatabase
       .select()
       .from(messagesTable)
-      .where(eq(messagesTable.messageID, conversation.messages[0].messageID));
+      .where(eq(messagesTable.messageID, message.messageID));
 
     expect(pulledMessages[0]).toStrictEqual({
       conversationID: conversation.conversationID,
       createdAt: expect.any(Date),
       initiatives: null,
-      messageID: conversation.messages[0].messageID,
-      prompt: 'What is the capital of the moon?',
+      messageID: message.messageID,
+      prompt: 'test prompt',
       response: null,
       sources: null,
       userID,
@@ -193,13 +206,17 @@ describe('updateMessage', () => {
   it('should not update undefined fields', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
-      title: 'Moon Capital',
+      title: 'Test title',
+      userID,
+    });
+    const message = await createMessage({
+      conversationID: conversation.conversationID,
+      prompt: 'test prompt',
       userID,
     });
 
     await updateMessage({
-      messageID: conversation.messages[0].messageID,
+      messageID: message.messageID,
       prompt: 'updated prompt',
       userID,
     });
@@ -207,10 +224,10 @@ describe('updateMessage', () => {
     const pulledMessages = await pgDatabase
       .select()
       .from(messagesTable)
-      .where(eq(messagesTable.messageID, conversation.messages[0].messageID));
+      .where(eq(messagesTable.messageID, message.messageID));
 
     const expectedMessage = {
-      ...conversation.messages[0],
+      ...message,
       conversationID: conversation.conversationID,
       createdAt: expect.any(Date),
       initiatives: null,
@@ -222,7 +239,7 @@ describe('updateMessage', () => {
     expect(pulledMessages[0]).toStrictEqual(expectedMessage);
 
     await updateMessage({
-      messageID: conversation.messages[0].messageID,
+      messageID: message.messageID,
       response: 'updated response',
       userID,
     });
@@ -230,7 +247,7 @@ describe('updateMessage', () => {
     const pulledMessages1 = await pgDatabase
       .select()
       .from(messagesTable)
-      .where(eq(messagesTable.messageID, conversation.messages[0].messageID));
+      .where(eq(messagesTable.messageID, message.messageID));
 
     expect(pulledMessages1[0]).toStrictEqual({
       ...expectedMessage,
@@ -238,7 +255,7 @@ describe('updateMessage', () => {
     });
 
     await updateMessage({
-      messageID: conversation.messages[0].messageID,
+      messageID: message.messageID,
       sources: [
         {
           chunk: 'updated chunk',
@@ -255,7 +272,7 @@ describe('updateMessage', () => {
     const pulledMessages2 = await pgDatabase
       .select()
       .from(messagesTable)
-      .where(eq(messagesTable.messageID, conversation.messages[0].messageID));
+      .where(eq(messagesTable.messageID, message.messageID));
 
     expect(pulledMessages2[0]).toStrictEqual({
       ...expectedMessage,
@@ -277,14 +294,18 @@ describe('updateMessage', () => {
   it('should fail if there are no changes', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
-      title: 'Moon Capital',
+      title: 'Test title',
+      userID,
+    });
+    const message = await createMessage({
+      conversationID: conversation.conversationID,
+      prompt: 'test prompt',
       userID,
     });
 
     await expect(
       updateMessage({
-        messageID: conversation.messages[0].messageID,
+        messageID: message.messageID,
         userID,
       }),
     ).rejects.toThrow();

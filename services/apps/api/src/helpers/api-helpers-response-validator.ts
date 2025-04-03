@@ -1,5 +1,8 @@
 import { HTTPException } from 'hono/http-exception';
+import { getContextLogger } from 'service-utils/logger';
 import { Check, Value } from 'shared/typebox';
+
+const logger = getContextLogger('api-helpers-response-validator.ts');
 
 /**
  * Validate the response against the schema
@@ -18,8 +21,10 @@ export function validateResponse<T>({
 }): T {
   const result = Check(schema, response);
   if (!result) {
+    const issues = [...Value.Errors(schema, response)];
+    logger.error(issues);
     throw new HTTPException(400, {
-      cause: [...Value.Errors(schema, response)],
+      cause: issues,
       message: 'Invalid response',
     });
   }

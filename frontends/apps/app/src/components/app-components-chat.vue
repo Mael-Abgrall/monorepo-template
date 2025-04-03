@@ -4,7 +4,8 @@ import { useConversationStore } from '../stores/app-store-conversation';
 
 const conversationStore = useConversationStore();
 
-const { currentConversation } = storeToRefs(conversationStore);
+const { currentConversation, currentConversationMessages } =
+  storeToRefs(conversationStore);
 </script>
 
 <template>
@@ -12,7 +13,7 @@ const { currentConversation } = storeToRefs(conversationStore);
     <div class="title">
       {{ currentConversation.title }}
     </div>
-    <div class="metadata">
+    <!-- <div class="metadata">
       <div class="thinking">
         <div
           class="thinking-step"
@@ -24,9 +25,14 @@ const { currentConversation } = storeToRefs(conversationStore);
       <div class="sources">
         {{ currentConversation.messages.sources }}
       </div>
-    </div>
-    <div class="response">
-      {{ currentConversation.messages.response }}
+    </div> -->
+    <div class="message" v-for="message of currentConversationMessages">
+      <div class="prompt">
+        {{ message.prompt }}
+      </div>
+      <div class="response">
+        {{ message.response }}
+      </div>
     </div>
   </div>
   <div v-else></div>

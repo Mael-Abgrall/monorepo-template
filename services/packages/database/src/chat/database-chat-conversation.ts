@@ -1,59 +1,31 @@
-import { eq, sql } from 'drizzle-orm';
-import type {
-  Conversation,
-  ConversationWithMessages,
-} from './database-chat-schemas';
+import { eq } from 'drizzle-orm';
+import type { Conversation, Message } from './database-chat-schemas';
 import { pgDatabase } from '../config/database-postgresql';
 import { conversationsTable, messagesTable } from './database-chat-schemas';
 
 /**
  * Create a new conversation
  * @param root named parameters
- * @param root.prompt The prompt for the conversation
  * @param root.title The title of the conversation
  * @param root.userID The user ID of the owner of the conversation
  * @returns The created conversation
  */
 export async function createConversation({
-  prompt,
   title,
   userID,
 }: {
-  prompt: string;
   title: string;
   userID: string;
-}): Promise<ConversationWithMessages> {
-  const result = await pgDatabase.execute<ConversationWithMessages>(sql`
-    WITH new_conversation AS (
-      INSERT INTO conversations (title, user_id)
-      VALUES (${title}, ${userID})
-      RETURNING *
-    ),
-    new_message AS (
-      INSERT INTO messages (conversation_id, prompt, user_id)
-      SELECT conversation_id, ${prompt}, ${userID}
-      FROM new_conversation
-      RETURNING *
-    )
-    SELECT 
-      nc.conversation_id AS "conversationID",
-      nc.created_at AS "createdAt",
-      nc.title,
-      nc.user_id AS "userID",
-      nc.visibility,
-      json_agg(
-        json_build_object(
-          'messageID', nm.message_id,
-          'prompt', nm.prompt,
-          'createdAt', nm.created_at
-        )
-      ) AS messages
-    FROM new_conversation nc
-    JOIN new_message nm ON nc.conversation_id = nm.conversation_id
-    GROUP BY nc.conversation_id, nc.created_at, nc.title, nc.user_id, nc.visibility;
-  `);
+}): Promise<Conversation> {
+  const result = await pgDatabase
+    .insert(conversationsTable)
+    .values({
+      title,
+      userID,
+    })
+    .returning();
 
-  return result.rows[0];
+  return result[0];
 }
 
 /**
@@ -81,7 +53,7 @@ export async function getConversation({
   conversationID,
 }: {
   conversationID: string;
-}): Promise<ConversationWithMessages | undefined> {
+}): Promise<undefined | { conversation: Conversation; messages: Message[] }> {
   const records = await pgDatabase
     .select()
     .from(conversationsTable)
@@ -110,17 +82,19 @@ export async function getConversation({
     // replace null by undefined
     .map((record) => {
       return {
+        conversationID: record.conversations.conversationID,
         createdAt: record.messages.createdAt,
         initiatives: record.messages.initiatives ?? undefined,
         messageID: record.messages.messageID,
         prompt: record.messages.prompt,
         response: record.messages.response ?? undefined,
         sources: record.messages.sources ?? undefined,
-      } satisfies ConversationWithMessages['messages'][number];
+        userID: record.conversations.userID,
+      } satisfies Message;
     });
 
   return {
-    ...conversation,
+    conversation,
     messages,
   };
 }

@@ -50,9 +50,6 @@ export const messagesTable = pgTable('messages', {
 export type Conversation = NullToUndefined<
   typeof conversationsTable.$inferSelect
 >;
-export type ConversationWithMessages = Conversation & {
-  messages: Omit<Message, 'conversationID' | 'userID'>[];
-};
 export type Message = NullToUndefined<typeof messagesTable.$inferSelect>;
 export type NewConversation = InferInsertModel<typeof conversationsTable>;
 export type NewMessage = InferInsertModel<typeof messagesTable>;

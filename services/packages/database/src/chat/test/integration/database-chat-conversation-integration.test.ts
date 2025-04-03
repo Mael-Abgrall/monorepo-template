@@ -14,7 +14,6 @@ describe('createConversation', () => {
   it('should create a new conversation, and return it and the first message', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
       title: 'Moon Capital',
       userID,
     });
@@ -22,11 +21,6 @@ describe('createConversation', () => {
     expect(conversation).toBeDefined();
     expect(conversation.conversationID).toBeDefined();
     expect(conversation.createdAt).toBeDefined();
-    expect(conversation.messages).toBeDefined();
-    expect(conversation.messages.length).toBe(1);
-    expect(conversation.messages[0].prompt).toBe(
-      'What is the capital of the moon?',
-    );
     expect(conversation.userID).toBe(userID);
     expect(conversation.visibility).toBe('private');
   });
@@ -36,8 +30,13 @@ describe('getConversation', () => {
   it('should get a conversation by ID, with all the associated messages', async () => {
     const userID = crypto.randomUUID();
     const createdConversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
-      title: 'Moon Capital',
+      title: 'Test title',
+      userID,
+    });
+
+    await createMessage({
+      conversationID: createdConversation.conversationID,
+      prompt: 'A message',
       userID,
     });
     await createMessage({
@@ -52,9 +51,7 @@ describe('getConversation', () => {
     expect(pulledConversation).toBeDefined();
     expect(pulledConversation?.messages).toBeDefined();
     expect(pulledConversation?.messages.length).toBe(2);
-    expect(pulledConversation?.messages[0].prompt).toBe(
-      'What is the capital of the moon?',
-    );
+    expect(pulledConversation?.messages[0].prompt).toBe('A message');
     expect(pulledConversation?.messages[1].prompt).toBe('Another message');
   });
 });
@@ -63,8 +60,12 @@ describe('deleteConversation', () => {
   it('should delete a conversation by ID, and all the messages in it', async () => {
     const userID = crypto.randomUUID();
     const createdConversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
-      title: 'Moon Capital',
+      title: 'test title',
+      userID,
+    });
+    await createMessage({
+      conversationID: createdConversation.conversationID,
+      prompt: 'A message',
       userID,
     });
     await createMessage({
@@ -94,15 +95,12 @@ describe('deleteConversation', () => {
 describe('listConversations', () => {
   it('should list conversations by user ID', async () => {
     const userID = crypto.randomUUID();
-    const createdConversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
-      title: 'Moon Capital',
+    await createConversation({
+      title: 'Test title',
       userID,
     });
-
-    const createdConversation2 = await createConversation({
-      prompt: 'What time is it?',
-      title: 'Time',
+    await createConversation({
+      title: 'Test second conversation',
       userID,
     });
 
@@ -112,22 +110,15 @@ describe('listConversations', () => {
 
     expect(conversations).toBeDefined();
     expect(conversations.length).toBe(2);
-    expect(conversations[0].conversationID).toBe(
-      createdConversation.conversationID,
-    );
-    expect(conversations[1].conversationID).toBe(
-      createdConversation2.conversationID,
-    );
-    expect(conversations[0].title).toBe('Moon Capital');
-    expect(conversations[1].title).toBe('Time');
+    expect(conversations[0].title).toBe('Test title');
+    expect(conversations[1].title).toBe('Test second conversation');
   });
 
   it('should not return conversations for other users', async () => {
     const userID = crypto.randomUUID();
     const userID2 = crypto.randomUUID();
-    const createdConversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
-      title: 'Moon Capital',
+    const user1Conversation = await createConversation({
+      title: 'Test title',
       userID,
     });
 
@@ -135,7 +126,7 @@ describe('listConversations', () => {
       userID: userID2,
     });
     const pulledConversation = await getConversation({
-      conversationID: createdConversation.conversationID,
+      conversationID: user1Conversation.conversationID,
     });
 
     expect(conversations).toBeDefined();
@@ -145,11 +136,10 @@ describe('listConversations', () => {
 });
 
 describe('updateConversation', () => {
-  it('should update a with a new title and visibility', async () => {
+  it('should update a conversation with a new title and visibility', async () => {
     const userID = crypto.randomUUID();
     const createdConversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
-      title: 'Moon Capital',
+      title: 'Test title',
       userID,
     });
 
@@ -159,8 +149,8 @@ describe('updateConversation', () => {
     if (!conversationInDB) {
       throw new Error('Conversation not found');
     }
-    expect(conversationInDB.title).toBe('Moon Capital');
-    expect(conversationInDB.visibility).toBe('private');
+    expect(conversationInDB.conversation.title).toBe('Test title');
+    expect(conversationInDB.conversation.visibility).toBe('private');
 
     await updateConversation({
       conversationID: createdConversation.conversationID,
@@ -174,15 +164,14 @@ describe('updateConversation', () => {
     if (!updatedConversation) {
       throw new Error('Conversation not found');
     }
-    expect(updatedConversation.title).toBe('New Title');
-    expect(updatedConversation.visibility).toBe('public');
+    expect(updatedConversation.conversation.title).toBe('New Title');
+    expect(updatedConversation.conversation.visibility).toBe('public');
   });
 
   it('should not update undefined values', async () => {
     const userID = crypto.randomUUID();
     const createdConversation = await createConversation({
-      prompt: 'What is the capital of the moon?',
-      title: 'Moon Capital',
+      title: 'Test title',
       userID,
     });
     const conversationInDB = await getConversation({
@@ -191,8 +180,8 @@ describe('updateConversation', () => {
     if (!conversationInDB) {
       throw new Error('Conversation not found');
     }
-    expect(conversationInDB.title).toBe('Moon Capital');
-    expect(conversationInDB.visibility).toBe('private');
+    expect(conversationInDB.conversation.title).toBe('Test title');
+    expect(conversationInDB.conversation.visibility).toBe('private');
 
     await updateConversation({
       conversationID: createdConversation.conversationID,
@@ -207,8 +196,8 @@ describe('updateConversation', () => {
       throw new Error('Conversation not found');
     }
 
-    expect(updatedConversation.title).toBe('New Title');
-    expect(updatedConversation.visibility).toBe('private');
+    expect(updatedConversation.conversation.title).toBe('New Title');
+    expect(updatedConversation.conversation.visibility).toBe('private');
 
     await updateConversation({
       conversationID: createdConversation.conversationID,
@@ -223,7 +212,7 @@ describe('updateConversation', () => {
       throw new Error('Conversation not found');
     }
 
-    expect(updatedConversation2.title).toBe('New Title');
-    expect(updatedConversation2.visibility).toBe('public');
+    expect(updatedConversation2.conversation.title).toBe('New Title');
+    expect(updatedConversation2.conversation.visibility).toBe('public');
   });
 });

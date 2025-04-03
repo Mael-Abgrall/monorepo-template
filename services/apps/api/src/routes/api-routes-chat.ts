@@ -1,8 +1,8 @@
 import type { Environment } from 'service-utils/environment';
 import type {
-  Conversation,
+  GetConversationResponse,
   ListConversationsResponse,
-  PostConversationErrorEvent,
+  PostChatErrorEvent,
 } from 'shared/schemas/shared-schemas-chat';
 import {
   completeNewConversation,
@@ -18,10 +18,10 @@ import { streamSSE } from 'hono/streaming';
 import { getContextLogger } from 'service-utils/logger';
 import { genericResponseSchema } from 'shared/schemas/shared-schemas';
 import {
-  ConversationSchema,
   getConversationParametersSchema,
+  getConversationResponseSchema,
   listConversationsResponseSchema,
-  PostConversationBodySchema,
+  postChatBodySchema,
 } from 'shared/schemas/shared-schemas-chat';
 import type { Variables } from '../context';
 import { validateResponse } from '../helpers/api-helpers-response-validator';
@@ -60,7 +60,7 @@ The API will behave differently depending on the input parameters:
     summary: 'Answer the user prompt, and stream the response to the user.',
     tags: ['Chat'],
   }),
-  validator('json', PostConversationBodySchema),
+  validator('json', postChatBodySchema),
   async (context) => {
     /*
 
@@ -102,7 +102,7 @@ The API will behave differently depending on the input parameters:
         await stream.writeSSE({
           data: 'error',
           event: 'error',
-        } satisfies PostConversationErrorEvent);
+        } satisfies PostChatErrorEvent);
         await stream.close();
       },
     );
@@ -141,14 +141,14 @@ chatRouter.get(
 );
 
 chatRouter.get(
-  '/:conversationID',
+  '/conversation/:conversationID',
   describeRoute({
     description: 'Get a conversation by ID',
     responses: {
       200: {
         content: {
           'application/json': {
-            schema: ConversationSchema,
+            schema: getConversationResponseSchema,
           },
         },
         description: 'The conversation',
@@ -167,8 +167,8 @@ chatRouter.get(
   validator('param', getConversationParametersSchema),
   async (context) => {
     const { conversationID } = context.req.valid('param');
-    const conversation = await getConversation({ conversationID });
-    if (!conversation) {
+    const conversationAndMessages = await getConversation({ conversationID });
+    if (!conversationAndMessages) {
       throw new HTTPException(404, {
         message: 'Conversation not found',
       });
@@ -176,8 +176,8 @@ chatRouter.get(
 
     return context.json(
       validateResponse({
-        response: conversation satisfies Conversation,
-        schema: ConversationSchema,
+        response: conversationAndMessages satisfies GetConversationResponse,
+        schema: getConversationResponseSchema,
       }),
     );
   },

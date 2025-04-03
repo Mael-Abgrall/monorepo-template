@@ -25,6 +25,7 @@ const conversationStore = useConversationStore();
 async function handleKeydown(event: KeyboardEvent): Promise<void> {
   // If shift + enter, allow default behavior (new line)
   if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
     await sendMessage();
   }
 }
