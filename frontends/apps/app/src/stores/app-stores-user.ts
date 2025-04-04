@@ -2,7 +2,7 @@ import type { GetMeResponse } from 'shared/schemas/shared-user-schemas';
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { logger } from 'web-utils/reporting';
-import { apiFetch } from '../fetch';
+import { apiFetch } from '../helpers/app-helpers-fetch';
 
 const userFromLocalStorage = localStorage.getItem('user');
 const userFromLocalStorageParsed = userFromLocalStorage

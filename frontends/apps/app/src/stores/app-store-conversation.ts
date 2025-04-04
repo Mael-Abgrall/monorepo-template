@@ -1,4 +1,3 @@
-import type { EventSourceController } from 'event-source-plus';
 import type {
   Conversation,
   GetConversationResponse,
@@ -7,12 +6,11 @@ import type {
   PostChatBody,
   PostChatEvent,
 } from 'shared/schemas/shared-schemas-chat';
-import { EventSourcePlus } from 'event-source-plus';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { logger } from 'web-utils/reporting';
-import { apiFetch } from '../fetch';
-import { useAuthStore } from './app-stores-auth';
+import { apiFetch } from '../helpers/app-helpers-fetch';
+import { sseStream } from '../helpers/app-helpers-stream';
 
 interface Conversations {
   [conversationID: string]: Conversation;
@@ -27,7 +25,8 @@ export const useConversationStore = defineStore('conversation', () => {
 
   const isLoading = ref(false);
   const conversationError = ref<string | undefined>(undefined);
-  const streamController = ref<EventSourceController | undefined>(undefined);
+  const streamController = ref<AbortController | undefined>(undefined);
+  /** Define which conversation the user is currently interacting with */
   const currentConversationID = ref<string | undefined>(undefined);
 
   /**
@@ -91,67 +90,39 @@ export const useConversationStore = defineStore('conversation', () => {
   /**
    * Connect to the conversation SSE endpoint.
    * @param root named parameters
-   * @param root.conversationID (optional) the conversation ID to connect to
    * @param root.prompt the prompt to send to the conversation
    */
-  async function createConversation({
-    conversationID,
-    prompt,
-  }: {
-    conversationID?: string;
-    prompt: string;
-  }): Promise<void> {
+  async function chat({ prompt }: { prompt: string }): Promise<void> {
     const baseURL =
       import.meta.env.MODE === 'development'
         ? 'http://localhost:8787'
         : 'https://api.example.com'; // todo: change to the actual API URL
 
-    const eventSource = new EventSourcePlus(`${baseURL}/chat`, {
-      body: JSON.stringify({
-        conversationID,
-        prompt,
-      } satisfies PostChatBody),
-      credentials: 'include',
-      method: 'post',
-    });
-
     isLoading.value = true;
-    streamController.value = eventSource.listen({
-      async onMessage(message) {
-        try {
-          await handleSSEEvent({
-            sseMessage: {
-              data: JSON.parse(message.data) as PostChatEvent['data'],
-              event: message.event,
-            } as PostChatEvent,
-          });
-        } catch (error) {
-          logger.error(error);
-          await abortConversation();
-          conversationError.value = 'Failed to handle SSE event';
-        }
-      },
+    try {
+      streamController.value = new AbortController();
+      const stream = sseStream<PostChatEvent>({
+        body: {
+          conversationID: currentConversationID.value,
+          prompt,
+        } satisfies PostChatBody,
+        method: 'POST',
+        signal: streamController.value.signal,
+        url: `${baseURL}/chat`,
+      });
 
-      async onRequestError({ error, options: _o, request: _r }) {
-        logger.error(error);
-        conversationError.value = 'Failed to create conversation';
-        await abortConversation();
-      },
-
-      async onResponseError({ options: _o, request: _r, response }) {
-        if (response.status !== 401) {
-          logger.error('Not a 401 error');
-          await abortConversation();
-          return;
-        }
-        const authStore = useAuthStore();
-        const isLoggedIn = await authStore.refreshToken();
-        if (!isLoggedIn) {
-          await abortConversation();
-        }
-        // automatic retry
-      },
-    });
+      for await (const event of stream) {
+        await handleSSEEvent({
+          sseMessage: event,
+        });
+      }
+    } catch (error) {
+      logger.error(error);
+      conversationError.value = 'An error occurred during the conversation';
+      await abortConversation();
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   /**
@@ -231,14 +202,15 @@ export const useConversationStore = defineStore('conversation', () => {
 
   return {
     abortConversation,
+    chat,
     conversationError,
     conversations,
-    createConversation,
     currentConversation,
     currentConversationID,
     currentConversationMessages,
     fetchConversation,
     isLoading,
     listConversations,
+    messages,
   };
 });

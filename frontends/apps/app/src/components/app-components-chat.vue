@@ -37,3 +37,16 @@ const { currentConversation, currentConversationMessages } =
   </div>
   <div v-else></div>
 </template>
+
+<style scoped>
+.title {
+  font-weight: 600;
+  @apply text-2xl;
+}
+
+.prompt {
+  display: flex;
+  border: 1px solid;
+  @apply border-stone-300;
+}
+</style>

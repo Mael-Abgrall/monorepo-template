@@ -166,7 +166,6 @@ authRouter.post(
         distinctId: userID,
         event: 'oauth_create_user',
         properties: {
-          email,
           vendor,
         },
       });
@@ -191,7 +190,6 @@ authRouter.post(
       distinctId: userID,
       event: 'oauth_login',
       properties: {
-        email,
         vendor,
       },
     });
@@ -324,6 +322,12 @@ authRouter.post(
         distinctId: user.id,
         event: onboardUser ? 'otp_create_user' : 'otp_login',
       });
+      analytics.identify({
+        distinctId: user.id,
+        properties: {
+          email: user.email,
+        },
+      });
       await createAuthCookies({ context, userID: user.id });
       return context.json(
         validateResponse({
@@ -403,6 +407,11 @@ authRouter.post(
   async (context) => {
     deleteCookie(context, 'accessToken');
     deleteCookie(context, 'refreshToken');
+    analytics.capture({
+      distinctId: context.get('userID'),
+      event: 'logout',
+    });
+
     return context.json({ message: 'Ok' } satisfies GenericResponse);
   },
 );

@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { logger } from 'web-utils/reporting';
-import { apiFetch } from '../fetch';
+import { apiFetch } from '../helpers/app-helpers-fetch';
 import { useUserStore } from './app-stores-user';
 
 const initialIsAuth = JSON.parse(
@@ -56,7 +56,6 @@ export const useAuthStore = defineStore('auth', () => {
    * @returns true if the user is logged in, false if the user is kicked out
    */
   async function refreshToken(): Promise<boolean> {
-    // todo: prevent race condition (especially with the SSE)
     try {
       await apiFetch<GenericResponse>('/auth/refresh', {
         method: 'POST',

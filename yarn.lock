@@ -4703,7 +4703,6 @@ __metadata:
     "@iconify/json": "npm:^2.2.319"
     "@vue/compiler-sfc": "npm:^3.5.13"
     autoprefixer: "npm:^10.4.20"
-    event-source-plus: "npm:^0.1.8"
     pinia: "npm:^3.0.0"
     postcss: "npm:^8.5.2"
     shared: "workspace:^"
@@ -6715,15 +6714,6 @@ __metadata:
   version: 2.0.3
   resolution: "esutils@npm:2.0.3"
   checksum: 10c0/9a2fe69a41bfdade834ba7c42de4723c97ec776e40656919c62cbd13607c45e127a003f05f724a1ea55e5029a4cf2de444b13009f2af71271e42d93a637137c7
-  languageName: node
-  linkType: hard
-
-"event-source-plus@npm:^0.1.8":
-  version: 0.1.8
-  resolution: "event-source-plus@npm:0.1.8"
-  dependencies:
-    ofetch: "npm:^1.4.1"
-  checksum: 10c0/6ac3b03e1860ddba033a5ef1aaf1f872df25c3420b3e24050185c420d695c33c8b84089ccceb8edb78b5bcc513b07ff308498e5576c17b0e3b682fc72f502582
   languageName: node
   linkType: hard
 

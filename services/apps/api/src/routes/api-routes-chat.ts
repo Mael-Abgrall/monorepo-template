@@ -15,6 +15,7 @@ import { describeRoute } from 'hono-openapi';
 import { validator } from 'hono-openapi/typebox';
 import { HTTPException } from 'hono/http-exception';
 import { streamSSE } from 'hono/streaming';
+import { flushAnalytics } from 'service-utils/analytics';
 import { getContextLogger } from 'service-utils/logger';
 import { genericResponseSchema } from 'shared/schemas/shared-schemas';
 import {
@@ -87,6 +88,7 @@ The API will behave differently depending on the input parameters:
             sseStream: stream,
             userID: context.get('userID'),
           });
+          await flushAnalytics();
           return;
         }
         await completeNewMessage({
@@ -95,6 +97,7 @@ The API will behave differently depending on the input parameters:
           sseStream: stream,
           userID: context.get('userID'),
         });
+        await flushAnalytics();
       },
       async (error, stream) => {
         logger.error('error while streaming');

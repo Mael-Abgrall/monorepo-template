@@ -69,7 +69,17 @@ export async function completeNewConversation({
     event: '$ai_trace',
     properties: {
       $ai_latency: (conversationEnd - conversationStart) / 1000, // in seconds
-      $ai_span_name: 'new conversation',
+      $ai_span_name: 'conversation',
+      $ai_trace_id: conversation.conversationID,
+    },
+  });
+
+  analytics.capture({
+    distinctId: userID,
+    event: '$ai_trace',
+    properties: {
+      $ai_latency: (conversationEnd - conversationStart) / 1000, // in seconds
+      $ai_span_name: 'conversation',
       $ai_trace_id: conversation.conversationID,
     },
   });
@@ -128,7 +138,7 @@ export async function completeNewMessage({
     event: '$ai_trace',
     properties: {
       $ai_latency: (messageEnd - messageStart) / 1000, // in seconds
-      $ai_span_name: 'follow up conversation',
+      $ai_span_name: 'conversation',
       $ai_trace_id: conversationID,
     },
   });

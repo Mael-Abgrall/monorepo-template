@@ -10,7 +10,7 @@ import { useRouter } from 'vue-router';
 import { logger } from 'web-utils/reporting';
 import containmentAlert from '../../components/containment/app-component-containment-alert.vue';
 import containmentButton from '../../components/containment/app-component-containment-button.vue';
-import { apiFetch } from '../../fetch';
+import { apiFetch } from '../../helpers/app-helpers-fetch';
 import { useAuthStore } from '../../stores/app-stores-auth';
 
 const { email } = defineProps<{

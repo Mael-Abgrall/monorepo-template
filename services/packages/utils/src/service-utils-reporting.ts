@@ -1,5 +1,8 @@
 import { PostHog } from 'posthog-node';
 import type { Environment } from './environment.js';
+import { getContextLogger } from './service-utils-logger.js';
+
+const logger = getContextLogger('service-utils-reporting.ts');
 
 export let analytics: PostHog;
 
@@ -8,6 +11,7 @@ export let analytics: PostHog;
  * Shutdown the analytics client
  */
 export async function flushAnalytics(): Promise<void> {
+  logger.info('Flushing analytics');
   await analytics.shutdown();
 }
 /* v8 ignore end */

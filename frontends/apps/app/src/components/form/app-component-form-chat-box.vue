@@ -10,11 +10,6 @@ import {
   iconStop,
 } from '../icons';
 
-const { conversationID } = defineProps<{
-  /** The ID of the conversation to use (optional, leave undefined to create a new conversation) */
-  conversationID?: string;
-}>();
-
 const prompt = ref<string>('');
 const conversationStore = useConversationStore();
 
@@ -39,8 +34,7 @@ async function sendMessage(): Promise<void> {
   }
   const promptValue = globalThis.structuredClone(prompt.value.trim());
   prompt.value = '';
-  await conversationStore.createConversation({
-    conversationID: conversationID,
+  await conversationStore.chat({
     prompt: promptValue,
   });
 }

@@ -8,7 +8,7 @@ import { useRouter } from 'vue-router';
 import { logger } from 'web-utils/reporting';
 import containmentAlert from '../../components/containment/app-component-containment-alert.vue';
 import mediaLoading from '../../components/media/app-component-media-loading.vue';
-import { apiFetch } from '../../fetch';
+import { apiFetch } from '../../helpers/app-helpers-fetch';
 import { useAuthStore } from '../../stores/app-stores-auth';
 
 const { code, state, vendor } = defineProps<{

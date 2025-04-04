@@ -1,5 +1,5 @@
 import { ofetch } from 'ofetch';
-import { useAuthStore } from './stores/app-stores-auth';
+import { useAuthStore } from '../stores/app-stores-auth';
 
 let isRefreshing = false;
 
@@ -25,6 +25,7 @@ export const apiFetch = ofetch.create({
       await authStore.refreshToken();
       isRefreshing = false;
     }
+    // todo: retry the request upon success
   },
   retry: 3,
   retryDelay: 1000,
