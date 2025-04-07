@@ -1,9 +1,11 @@
+import type { LMMessage } from 'ai/lm';
 import type { MessageInDB } from 'database/conversation';
 import type { SSEMessage, SSEStreamingApi } from 'hono/streaming';
 import type { PostChatEvent } from 'shared/schemas/shared-schemas-chat';
-import { claude37SonnetStream } from 'ai/providers/lm/ai-providers-lm-aws';
+import { completeStream } from 'ai/lm';
 import {
   addMessageToConversation,
+  getConversation,
   initConversation,
   updateMessageInConversation,
 } from 'database/conversation';
@@ -61,19 +63,9 @@ export async function completeNewConversation({
     }),
   );
 
-  await completeMessage({ message, sseStream });
+  await completeMessage({ history: [], message, sseStream });
 
   const conversationEnd = Date.now();
-  analytics.capture({
-    distinctId: userID,
-    event: '$ai_trace',
-    properties: {
-      $ai_latency: (conversationEnd - conversationStart) / 1000, // in seconds
-      $ai_span_name: 'conversation',
-      $ai_trace_id: conversation.conversationID,
-    },
-  });
-
   analytics.capture({
     distinctId: userID,
     event: '$ai_trace',
@@ -105,6 +97,13 @@ export async function completeNewMessage({
   sseStream: SSEStreamingApi;
   userID: string;
 }): Promise<void> {
+  const conversationAndMessages = await getConversation({
+    conversationID,
+    userID,
+  });
+  if (!conversationAndMessages) {
+    throw new Error('Conversation not found');
+  }
   const messageStart = Date.now();
   const addMessageStart = Date.now();
   const message = await addMessageToConversation({
@@ -129,8 +128,24 @@ export async function completeNewMessage({
       event: 'create-message',
     }),
   );
+  const history = conversationAndMessages.messages.flatMap(
+    (previousMessage) => {
+      const userMessage = {
+        content: previousMessage.prompt,
+        role: 'user',
+      } satisfies LMMessage;
+      if (previousMessage.response) {
+        const assistantMessage = {
+          content: previousMessage.response,
+          role: 'assistant',
+        } satisfies LMMessage;
+        return [userMessage, assistantMessage];
+      }
+      return [userMessage];
+    },
+  );
 
-  await completeMessage({ message, sseStream });
+  await completeMessage({ history, message, sseStream });
 
   const messageEnd = Date.now();
   analytics.capture({
@@ -150,16 +165,26 @@ export async function completeNewMessage({
  * @param root named parameters
  * @param root.message The message to stream
  * @param root.sseStream The SSE stream to write to
+ * @param root.history The history of the conversation
  */
 async function completeMessage({
+  history,
   message,
   sseStream,
 }: {
+  history: LMMessage[];
   message: MessageInDB;
   sseStream: SSEStreamingApi;
 }): Promise<void> {
-  const llmStream = claude37SonnetStream({
-    prompt: message.prompt,
+  const llmStream = completeStream({
+    messages: [
+      ...history,
+      {
+        content: message.prompt,
+        role: 'user',
+      },
+    ],
+    model: 'claude-3-7-sonnet',
     traceID: message.conversationID,
     userID: message.userID,
   });

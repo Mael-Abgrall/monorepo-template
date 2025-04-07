@@ -2,7 +2,7 @@ import type { Environment } from 'service-utils/environment';
 import { analytics } from 'service-utils/analytics';
 import { setEnvironment } from 'service-utils/environment';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { claude37SonnetStream } from '../../ai-providers-lm-aws';
+import { completeStream } from '../../ai-providers-lm';
 
 vi.mock('service-utils/analytics', () => {
   return {
@@ -32,14 +32,23 @@ beforeEach(() => {
 });
 
 describe.skipIf(!process.env.TEST_API)(
-  'claude37SonnetStream',
+  'completeStream',
   () => {
-    it('should return a stream', async () => {
-      const llmStream = claude37SonnetStream({
-        prompt: 'Who are you?',
+    it('should return a stream using Claude 3.7 Sonnet', async () => {
+      const messages = [
+        {
+          content: 'Who are you?',
+          role: 'user' as const,
+        },
+      ];
+
+      const llmStream = completeStream({
+        messages,
+        model: 'claude-3-7-sonnet',
         traceID: 'test-trace-stream',
         userID: 'test-user-id',
       });
+
       expect(llmStream).toBeDefined();
       for await (const chunk of llmStream) {
         expect(chunk).toBeDefined();

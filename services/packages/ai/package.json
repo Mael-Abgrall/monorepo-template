@@ -6,12 +6,20 @@
     "@aws-sdk/client-bedrock-runtime": "^3.779.0"
   },
   "exports": {
-    "./*": {
-      "workerd": "./src/*.ts",
-      "typescript": "./src/*.ts",
-      "development": "./src/*.ts",
-      "types": "./src/*.ts",
-      "default": "./dist/*.js"
-    }
+    "./lm": {
+      "workerd": "./src/providers/lm/ai-providers-lm.ts",
+      "typescript": "./src/providers/lm/ai-providers-lm.ts",
+      "development": "./src/providers/lm/ai-providers-lm.ts",
+      "types": "./src/providers/lm/ai-providers-lm.ts",
+      "default": "./dist/providers/lm/ai-providers-lm.js"
+    },
+    "./embeddings": {
+      "workerd": "./src/providers/ai-providers-embeddings.ts",
+      "typescript": "./src/providers/ai-providers-embeddings.ts",
+      "development": "./src/providers/ai-providers-embeddings.ts",
+      "types": "./src/providers/ai-providers-embeddings.ts",
+      "default": "./dist/providers/ai-providers-embeddings.js"
+    },
+    "./package.json": "./package.json"
   }
 }

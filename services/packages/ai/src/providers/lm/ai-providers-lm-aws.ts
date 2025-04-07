@@ -12,17 +12,17 @@ const logger = getContextLogger('ai-providers-lm-aws.ts');
 /**
  * Stream a response from the Claude 3.7 Sonnet model
  * @param root named parameters
- * @param root.prompt The prompt to send to the model
+ * @param root.messages The messages of the conversation
  * @param root.traceID The trace ID to use for the request
  * @param root.userID The user ID to use for the request
  * @yields A stream of the text response from the model
  */
 export async function* claude37SonnetStream({
-  prompt,
+  messages,
   traceID,
   userID,
 }: {
-  prompt: string;
+  messages: Message[];
   traceID: string;
   userID: string;
 }): AsyncGenerator<string> {
@@ -33,16 +33,10 @@ export async function* claude37SonnetStream({
     },
     region: 'eu-central-1',
   });
-  const conversation = [
-    {
-      content: [{ text: prompt }],
-      role: 'user',
-    },
-  ] satisfies Message[];
 
   const command = new ConverseStreamCommand({
     inferenceConfig: { maxTokens: 512, temperature: 0.5, topP: 0.9 },
-    messages: conversation,
+    messages,
     modelId: 'eu.anthropic.claude-3-7-sonnet-20250219-v1:0',
   });
   try {

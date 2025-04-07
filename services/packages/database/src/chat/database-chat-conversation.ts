@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import type { Conversation, Message } from './database-chat-schemas';
 import { pgDatabase } from '../config/database-postgresql';
 import { conversationsTable, messagesTable } from './database-chat-schemas';
@@ -32,27 +32,38 @@ export async function createConversation({
  * Delete a conversation by ID
  * @param root named parameters
  * @param root.conversationID The ID of the conversation to delete
+ * @param root.userID The user ID of the owner of the conversation
  */
 export async function deleteConversation({
   conversationID,
+  userID,
 }: {
   conversationID: string;
+  userID: string;
 }): Promise<void> {
   await pgDatabase
     .delete(conversationsTable)
-    .where(eq(conversationsTable.conversationID, conversationID));
+    .where(
+      and(
+        eq(conversationsTable.conversationID, conversationID),
+        eq(conversationsTable.userID, userID),
+      ),
+    );
 }
 
 /**
  * Get a conversation by ID
  * @param root named parameters
  * @param root.conversationID The ID of the conversation to get
+ * @param root.userID The user ID of the owner of the conversation
  * @returns The conversation
  */
 export async function getConversation({
   conversationID,
+  userID,
 }: {
   conversationID: string;
+  userID: string;
 }): Promise<undefined | { conversation: Conversation; messages: Message[] }> {
   const records = await pgDatabase
     .select()
@@ -64,6 +75,10 @@ export async function getConversation({
     .where(eq(conversationsTable.conversationID, conversationID));
 
   if (records.length === 0) {
+    return undefined;
+  }
+
+  if (records[0].conversations.userID !== userID) {
     return undefined;
   }
 
@@ -121,20 +136,28 @@ export async function listConversations({
  * @param root named parameters
  * @param root.conversationID The ID of the conversation to update
  * @param root.title The title of the conversation
+ * @param root.userID The user ID of the owner of the conversation
  * @param root.visibility The visibility of the conversation
  * @throws if both title and visibility are undefined
  */
 export async function updateConversation({
   conversationID,
   title,
+  userID,
   visibility,
 }: {
   conversationID: string;
   title: string | undefined;
+  userID: string;
   visibility: 'private' | 'public' | undefined;
 }): Promise<void> {
   await pgDatabase
     .update(conversationsTable)
     .set({ title, visibility })
-    .where(eq(conversationsTable.conversationID, conversationID));
+    .where(
+      and(
+        eq(conversationsTable.conversationID, conversationID),
+        eq(conversationsTable.userID, userID),
+      ),
+    );
 }

@@ -47,12 +47,27 @@ describe('getConversation', () => {
 
     const pulledConversation = await getConversation({
       conversationID: createdConversation.conversationID,
+      userID,
     });
     expect(pulledConversation).toBeDefined();
     expect(pulledConversation?.messages).toBeDefined();
     expect(pulledConversation?.messages.length).toBe(2);
     expect(pulledConversation?.messages[0].prompt).toBe('A message');
     expect(pulledConversation?.messages[1].prompt).toBe('Another message');
+  });
+
+  it('should return undefined when the user is not the owner, and the conversation private', async () => {
+    const userID = crypto.randomUUID();
+    const createdConversation = await createConversation({
+      title: 'Test title',
+      userID,
+    });
+
+    const pulledConversation = await getConversation({
+      conversationID: createdConversation.conversationID,
+      userID: crypto.randomUUID(),
+    });
+    expect(pulledConversation).toBeUndefined();
   });
 });
 
@@ -76,19 +91,39 @@ describe('deleteConversation', () => {
 
     const pulledConversation = await getConversation({
       conversationID: createdConversation.conversationID,
+      userID,
     });
     expect(pulledConversation).toBeDefined();
 
     await deleteConversation({
       conversationID: createdConversation.conversationID,
+      userID,
     });
     const pulledConversationAfterDelete = await getConversation({
       conversationID: createdConversation.conversationID,
+      userID,
     });
     expect(pulledConversationAfterDelete).toBeUndefined();
 
     const messagesAfterDelete = await pgDatabase.select().from(messagesTable);
     expect(messagesAfterDelete.length).toBe(0);
+  });
+
+  it('should not delete someone else conversation', async () => {
+    const userID = crypto.randomUUID();
+    const createdConversation = await createConversation({
+      title: 'test title',
+      userID,
+    });
+    await deleteConversation({
+      conversationID: createdConversation.conversationID,
+      userID: crypto.randomUUID(),
+    });
+    const pulledConversation = await getConversation({
+      conversationID: createdConversation.conversationID,
+      userID,
+    });
+    expect(pulledConversation).toBeDefined();
   });
 });
 
@@ -127,6 +162,7 @@ describe('listConversations', () => {
     });
     const pulledConversation = await getConversation({
       conversationID: user1Conversation.conversationID,
+      userID,
     });
 
     expect(conversations).toBeDefined();
@@ -145,6 +181,7 @@ describe('updateConversation', () => {
 
     const conversationInDB = await getConversation({
       conversationID: createdConversation.conversationID,
+      userID,
     });
     if (!conversationInDB) {
       throw new Error('Conversation not found');
@@ -155,11 +192,13 @@ describe('updateConversation', () => {
     await updateConversation({
       conversationID: createdConversation.conversationID,
       title: 'New Title',
+      userID,
       visibility: 'public',
     });
 
     const updatedConversation = await getConversation({
       conversationID: createdConversation.conversationID,
+      userID,
     });
     if (!updatedConversation) {
       throw new Error('Conversation not found');
@@ -176,6 +215,7 @@ describe('updateConversation', () => {
     });
     const conversationInDB = await getConversation({
       conversationID: createdConversation.conversationID,
+      userID,
     });
     if (!conversationInDB) {
       throw new Error('Conversation not found');
@@ -186,11 +226,13 @@ describe('updateConversation', () => {
     await updateConversation({
       conversationID: createdConversation.conversationID,
       title: 'New Title',
+      userID,
       visibility: undefined,
     });
 
     const updatedConversation = await getConversation({
       conversationID: createdConversation.conversationID,
+      userID,
     });
     if (!updatedConversation) {
       throw new Error('Conversation not found');
@@ -202,11 +244,13 @@ describe('updateConversation', () => {
     await updateConversation({
       conversationID: createdConversation.conversationID,
       title: undefined,
+      userID,
       visibility: 'public',
     });
 
     const updatedConversation2 = await getConversation({
       conversationID: createdConversation.conversationID,
+      userID,
     });
     if (!updatedConversation2) {
       throw new Error('Conversation not found');
@@ -214,5 +258,30 @@ describe('updateConversation', () => {
 
     expect(updatedConversation2.conversation.title).toBe('New Title');
     expect(updatedConversation2.conversation.visibility).toBe('public');
+  });
+
+  it('should not update someone else conversation', async () => {
+    const userID = crypto.randomUUID();
+    const createdConversation = await createConversation({
+      title: 'Test title',
+      userID,
+    });
+
+    await updateConversation({
+      conversationID: createdConversation.conversationID,
+      title: 'New Title',
+      userID: crypto.randomUUID(),
+      visibility: 'public',
+    });
+
+    const conversationInDB = await getConversation({
+      conversationID: createdConversation.conversationID,
+      userID,
+    });
+    if (!conversationInDB) {
+      throw new Error('Conversation not found');
+    }
+    expect(conversationInDB.conversation.title).toBe('Test title');
+    expect(conversationInDB.conversation.visibility).toBe('private');
   });
 });
