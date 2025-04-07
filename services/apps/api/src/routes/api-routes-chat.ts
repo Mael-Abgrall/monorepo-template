@@ -170,7 +170,10 @@ chatRouter.get(
   validator('param', getConversationParametersSchema),
   async (context) => {
     const { conversationID } = context.req.valid('param');
-    const conversationAndMessages = await getConversation({ conversationID });
+    const conversationAndMessages = await getConversation({
+      conversationID,
+      userID: context.get('userID'),
+    });
     if (!conversationAndMessages) {
       throw new HTTPException(404, {
         message: 'Conversation not found',

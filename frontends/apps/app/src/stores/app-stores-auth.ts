@@ -1,5 +1,5 @@
 import type { GenericResponse } from 'shared/schemas/shared-schemas';
-import { defineStore } from 'pinia';
+import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { logger } from 'web-utils/reporting';
@@ -80,3 +80,7 @@ export const useAuthStore = defineStore('auth', () => {
     saveLogin,
   };
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useAuthStore, import.meta.hot));
+}

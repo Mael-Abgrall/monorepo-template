@@ -6,8 +6,8 @@ import type {
   PostChatBody,
   PostChatEvent,
 } from 'shared/schemas/shared-schemas-chat';
-import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { acceptHMRUpdate, defineStore } from 'pinia';
+import { computed, ref, watch } from 'vue';
 import { logger } from 'web-utils/reporting';
 import { apiFetch } from '../helpers/app-helpers-fetch';
 import { sseStream } from '../helpers/app-helpers-stream';
@@ -28,6 +28,12 @@ export const useConversationStore = defineStore('conversation', () => {
   const streamController = ref<AbortController | undefined>(undefined);
   /** Define which conversation the user is currently interacting with */
   const currentConversationID = ref<string | undefined>(undefined);
+
+  watch(currentConversationID, async (conversationID) => {
+    if (conversationID) {
+      await fetchConversation({ conversationID });
+    }
+  });
 
   /**
    * Handle the SSE events.
@@ -142,9 +148,7 @@ export const useConversationStore = defineStore('conversation', () => {
       return;
     }
     try {
-      const response = await apiFetch<ListConversationsResponse>(
-        '/chat/conversations',
-      );
+      const response = await apiFetch<ListConversationsResponse>('/chat/list');
       for (const conversation of response) {
         conversations.value[conversation.conversationID] = {
           ...conversation,
@@ -161,12 +165,26 @@ export const useConversationStore = defineStore('conversation', () => {
    * Fetch a conversation from the server.
    * @param root named parameters
    * @param root.conversationID the conversation ID to fetch
+   * @param root.force If true, the conversation will be fetched from the server even if it is already in the store
    */
   async function fetchConversation({
     conversationID,
+    force = false,
   }: {
     conversationID: string;
+    force?: boolean;
   }): Promise<void> {
+    if (
+      !force &&
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- false positive
+      conversations.value[conversationID] &&
+      Object.values(messages.value).some((message) => {
+        return message.conversationID === conversationID;
+      })
+    ) {
+      return;
+    }
+
     isLoading.value = true;
     try {
       const response = await apiFetch<GetConversationResponse>(
@@ -214,3 +232,9 @@ export const useConversationStore = defineStore('conversation', () => {
     messages,
   };
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(
+    acceptHMRUpdate(useConversationStore, import.meta.hot),
+  );
+}

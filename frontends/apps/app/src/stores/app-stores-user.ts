@@ -1,5 +1,5 @@
 import type { GetMeResponse } from 'shared/schemas/shared-user-schemas';
-import { defineStore } from 'pinia';
+import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { logger } from 'web-utils/reporting';
 import { apiFetch } from '../helpers/app-helpers-fetch';
@@ -59,3 +59,7 @@ export const useUserStore = defineStore('user', () => {
     userLoading,
   };
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useUserStore, import.meta.hot));
+}

@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import componentsChat from '../components/app-components-chat.vue';
-import componentFormChatBox from '../components/form/app-component-form-chat-box.vue';
+import componentChat from '../components/chat/app-components-chat.vue';
 </script>
 
 <template>
   <h1>Home</h1>
-  <componentsChat />
-  <componentFormChatBox />
+  <componentChat />
 </template>
 
 <style scoped></style>
