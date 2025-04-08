@@ -22,11 +22,15 @@ export const apiFetch = ofetch.create({
       !isRefreshing
     ) {
       isRefreshing = true;
-      await authStore.refreshToken();
+      const success = await authStore.refreshToken();
       isRefreshing = false;
+      if (!success) {
+        error.options.retry = 0;
+        throw new Error('Could not authenticate the user');
+      }
     }
-    // todo: retry the request upon success
   },
   retry: 3,
-  retryDelay: 1000,
+  retryDelay: 500,
+  retryStatusCodes: [401, 408, 409, 425, 429, 500, 502, 503, 504],
 });
