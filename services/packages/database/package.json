@@ -24,6 +24,13 @@
       "types": "./src/chat/database-chat-interface.ts",
       "default": "./dist/chat/database-chat-interface.js"
     },
+    "./space": {
+      "workerd": "./src/space/database-space-interface.ts",
+      "typescript": "./src/space/database-space-interface.ts",
+      "development": "./src/space/database-space-interface.ts",
+      "types": "./src/space/database-space-interface.ts",
+      "default": "./dist/space/database-space-interface.js"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {

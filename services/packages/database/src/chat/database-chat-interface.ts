@@ -17,8 +17,6 @@ export type {
   Message as MessageInDB,
 } from './database-chat-schemas';
 
-// todo: get Message from Conversation
-
 /**
  * Initialize a new conversation with a prompt
  * @param root named parameters

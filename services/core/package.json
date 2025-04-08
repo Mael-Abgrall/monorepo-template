@@ -31,6 +31,13 @@
       "types": "./src/chat/core-chat.ts",
       "default": "./dist/chat/core-chat.js"
     },
+    "./space": {
+      "workerd": "./src/space/core-space.ts",
+      "typescript": "./src/space/core-space.ts",
+      "development": "./src/space/core-space.ts",
+      "types": "./src/space/core-space.ts",
+      "default": "./dist/space/core-space.js"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {

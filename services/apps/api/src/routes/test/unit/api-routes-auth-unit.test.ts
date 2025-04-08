@@ -26,6 +26,8 @@ beforeEach(() => {
 // @ts-expect-error -- we are mocking the analytics module
 analyticsModule.analytics = {
   capture: vi.fn().mockResolvedValue(undefined),
+  captureException: vi.fn().mockResolvedValue(undefined),
+  identify: vi.fn().mockResolvedValue(undefined),
 };
 
 describe('GET oauth/init', () => {

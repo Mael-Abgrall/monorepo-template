@@ -3,6 +3,7 @@ import { jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import type { NullToUndefined } from '../database-drizzle-null';
 import { spaceTable } from '../space/database-space-schemas';
 
+/* v8 ignore start -- The onDelete is not picked up, but this doesn't need to be tested */
 export const conversationsTable = pgTable('conversations', {
   conversationID: uuid('conversation_id').primaryKey().defaultRandom(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -28,7 +29,6 @@ type ChatSources =
       url: string;
     }[];
 
-/* v8 ignore start -- The onDelete is not picked up, but this doesn't need to be tested */
 export const messagesTable = pgTable('messages', {
   conversationID: uuid('conversation_id')
     .references(

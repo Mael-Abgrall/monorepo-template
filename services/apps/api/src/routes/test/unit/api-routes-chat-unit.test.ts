@@ -118,6 +118,7 @@ describe('GET /chat/conversation/:conversationID', () => {
 
     expect(getConversation).toHaveBeenCalledWith({
       conversationID: 'does-not-exist',
+      userID: 'test-user-id',
     });
   });
 });
