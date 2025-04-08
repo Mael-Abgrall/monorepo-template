@@ -27,6 +27,7 @@ export default tseslint.config(
           ],
         },
       ],
+      'sonarjs/todo-tag': 0, // already taken care of by "no-warning-comments"
     },
   },
   {

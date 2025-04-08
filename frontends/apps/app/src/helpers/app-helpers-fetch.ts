@@ -12,25 +12,30 @@ export const apiFetch = ofetch.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // todo: add onRequest to verify the user is auth; if not, refresh, if yes, continue + skip /auth endpoints
   onResponseError: async (error) => {
     const authStore = useAuthStore();
 
     if (
       error.response.status === 401 &&
       authStore.isAuth &&
-      !error.response.url.includes('/api/auth') &&
+      !error.response.url.includes('/auth') &&
       !isRefreshing
     ) {
       isRefreshing = true;
       const success = await authStore.refreshToken();
       isRefreshing = false;
       if (!success) {
-        error.options.retry = 0;
+        error.options.retry = false;
         throw new Error('Could not authenticate the user');
       }
     }
+    if (error.response.status === 401 && !authStore.isAuth) {
+      error.options.retry = false;
+      throw new Error('User is not authenticated');
+    }
   },
-  retry: 3,
+  retry: 1,
   retryDelay: 500,
   retryStatusCodes: [401, 408, 409, 425, 429, 500, 502, 503, 504],
 });

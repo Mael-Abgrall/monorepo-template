@@ -50,9 +50,8 @@ describe('GET /chat/conversation/:conversationID', () => {
       conversation: {
         conversationID: 'conversationID',
         createdAt: new Date(),
-        title: 'Test',
+        spaceID: undefined,
         userID: 'userID',
-        visibility: 'private',
       },
       messages: [
         {
@@ -229,16 +228,14 @@ describe('GET /chat/list', () => {
       {
         conversationID: '123',
         createdAt: new Date(),
-        title: 'Test',
+        spaceID: undefined,
         userID: 'test-user-id',
-        visibility: 'private',
       },
       {
         conversationID: '456',
         createdAt: new Date(),
-        title: 'Test 2',
+        spaceID: undefined,
         userID: 'test-user-id',
-        visibility: 'public',
       },
     ] satisfies Awaited<ReturnType<typeof listConversations>>);
 

@@ -47,9 +47,8 @@ describe('completeNewConversation', () => {
       conversation: {
         conversationID: 'conversationID',
         createdAt: new Date(),
-        title: 'Test',
+        spaceID: undefined,
         userID: 'userID',
-        visibility: 'private',
       },
       message: {
         conversationID: 'conversationID',
@@ -133,9 +132,8 @@ describe('completeNewMessage', () => {
       conversation: {
         conversationID: 'conversationID',
         createdAt: new Date(),
-        title: 'Test',
+        spaceID: undefined,
         userID: 'userID',
-        visibility: 'private',
       },
       messages: [
         {
@@ -247,9 +245,8 @@ describe('completeNewMessage', () => {
       conversation: {
         conversationID: 'conversationID',
         createdAt: new Date(),
-        title: 'Test',
+        spaceID: undefined,
         userID: 'userID',
-        visibility: 'private',
       },
       messages: [
         {

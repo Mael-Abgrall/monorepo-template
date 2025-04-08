@@ -1,16 +1,17 @@
 import type { InferInsertModel } from 'drizzle-orm';
 import { jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import type { NullToUndefined } from '../database-drizzle-null';
+import { spaceTable } from '../space/database-space-schemas';
 
 export const conversationsTable = pgTable('conversations', {
   conversationID: uuid('conversation_id').primaryKey().defaultRandom(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
-  title: text('title').notNull(),
+  spaceID: uuid('space_id').references(() => {
+    return spaceTable.spaceID;
+  }),
   userID: uuid('user_id').notNull(),
-  visibility: text('visibility', { enum: ['private', 'public'] })
-    .notNull()
-    .default('private'),
 });
+
 type ChatInitiative =
   | undefined
   | {

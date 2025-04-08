@@ -13,7 +13,6 @@ describe('createMessage', () => {
   it('should create a new message and return it', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      title: 'Test title',
       userID,
     });
 
@@ -56,7 +55,6 @@ describe('deleteMessage', () => {
   it('should delete a message', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      title: 'Test title',
       userID,
     });
     const message = await createMessage({
@@ -78,7 +76,6 @@ describe('deleteMessage', () => {
   it('should not delete a message if the user ID does not match', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      title: 'Test title',
       userID,
     });
     const message = await createMessage({
@@ -103,7 +100,6 @@ describe('updateMessage', () => {
   it('should update a message', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      title: 'Test title',
       userID,
     });
     const message = await createMessage({
@@ -159,7 +155,6 @@ describe('updateMessage', () => {
   it('should not update a message if the user ID does not match', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      title: 'Test title',
       userID,
     });
     const message = await createMessage({
@@ -206,7 +201,6 @@ describe('updateMessage', () => {
   it('should not update undefined fields', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      title: 'Test title',
       userID,
     });
     const message = await createMessage({
@@ -294,7 +288,6 @@ describe('updateMessage', () => {
   it('should fail if there are no changes', async () => {
     const userID = crypto.randomUUID();
     const conversation = await createConversation({
-      title: 'Test title',
       userID,
     });
     const message = await createMessage({

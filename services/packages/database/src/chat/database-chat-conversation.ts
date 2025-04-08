@@ -6,26 +6,29 @@ import { conversationsTable, messagesTable } from './database-chat-schemas';
 /**
  * Create a new conversation
  * @param root named parameters
- * @param root.title The title of the conversation
+ * @param root.spaceID (optional) The ID of the space the conversation belongs to
  * @param root.userID The user ID of the owner of the conversation
  * @returns The created conversation
  */
 export async function createConversation({
-  title,
+  spaceID,
   userID,
 }: {
-  title: string;
+  spaceID?: string;
   userID: string;
 }): Promise<Conversation> {
   const result = await pgDatabase
     .insert(conversationsTable)
     .values({
-      title,
+      spaceID,
       userID,
     })
     .returning();
 
-  return result[0];
+  return {
+    ...result[0],
+    spaceID: result[0].spaceID ?? undefined,
+  };
 }
 
 /**
@@ -82,7 +85,10 @@ export async function getConversation({
     return undefined;
   }
 
-  const conversation = records[0].conversations;
+  const conversation = {
+    ...records[0].conversations,
+    spaceID: records[0].conversations.spaceID ?? undefined,
+  };
   const messages = records
     // filter out records with null messages (eg: a conversation with no messages)
     .filter(
@@ -94,7 +100,6 @@ export async function getConversation({
         return record.messages !== null;
       },
     )
-    // replace null by undefined
     .map((record) => {
       return {
         conversationID: record.conversations.conversationID,
@@ -125,39 +130,15 @@ export async function listConversations({
 }: {
   userID: string;
 }): Promise<Conversation[]> {
-  return pgDatabase
+  const records = await pgDatabase
     .select()
     .from(conversationsTable)
     .where(eq(conversationsTable.userID, userID));
-}
 
-/**
- * Update a conversation, leave a field undefined to keep the current value.
- * @param root named parameters
- * @param root.conversationID The ID of the conversation to update
- * @param root.title The title of the conversation
- * @param root.userID The user ID of the owner of the conversation
- * @param root.visibility The visibility of the conversation
- * @throws if both title and visibility are undefined
- */
-export async function updateConversation({
-  conversationID,
-  title,
-  userID,
-  visibility,
-}: {
-  conversationID: string;
-  title: string | undefined;
-  userID: string;
-  visibility: 'private' | 'public' | undefined;
-}): Promise<void> {
-  await pgDatabase
-    .update(conversationsTable)
-    .set({ title, visibility })
-    .where(
-      and(
-        eq(conversationsTable.conversationID, conversationID),
-        eq(conversationsTable.userID, userID),
-      ),
-    );
+  return records.map((record) => {
+    return {
+      ...record,
+      spaceID: record.spaceID ?? undefined,
+    };
+  });
 }

@@ -6,6 +6,7 @@ import {
   messagesTable,
 } from '../src/chat/database-chat-schemas';
 import { initPostgreSQL, pgDatabase } from '../src/config/database-postgresql';
+import { spaceTable } from '../src/space/database-space-schemas';
 import {
   usersTable,
   verificationTokensTable,
@@ -21,6 +22,7 @@ beforeEach(async () => {
 TRUNCATE TABLE 
   ${conversationsTable}, 
   ${messagesTable}, 
+  ${spaceTable}, 
   ${usersTable}, 
   ${verificationTokensTable} 
 CASCADE`,

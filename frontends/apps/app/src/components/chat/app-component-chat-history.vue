@@ -21,7 +21,11 @@ const selectConversation = (conversationID: string | undefined): void => {
       :key="id"
       :value="id"
     >
-      {{ conversation.title }}
+      {{
+        Object.values(conversationStore.messages)
+          .find((message) => message.conversationID === id)
+          ?.prompt.slice(0, 50)
+      }}
     </option>
   </select>
 </template>

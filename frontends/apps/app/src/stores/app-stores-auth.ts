@@ -59,6 +59,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await apiFetch<GenericResponse>('/auth/refresh', {
         method: 'POST',
+        retry: false,
       });
       return true;
     } catch (error) {

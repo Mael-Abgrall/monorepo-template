@@ -82,13 +82,14 @@ export const conversationSchema = Type.Object(
         description: 'The date and time the conversation was created',
       }),
     ]),
-    title: Type.String({
-      description: 'The title of the conversation',
-    }),
+    spaceID: Type.Optional(
+      Type.String({
+        description: 'The ID of the space the conversation belongs to',
+      }),
+    ),
     userID: Type.String({
       description: 'The ID of the user who created the conversation',
     }),
-    visibility: Type.Union([Type.Literal('private'), Type.Literal('public')]),
   },
   {
     additionalProperties: false,

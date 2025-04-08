@@ -16,7 +16,6 @@ export {
   getConversation,
   listConversations,
   removeMessageFromConversation,
-  updateConversation,
 } from 'database/conversation';
 
 /**
@@ -39,7 +38,6 @@ export async function completeNewConversation({
   const initStart = Date.now();
   const { conversation, message } = await initConversation({
     prompt,
-    title: prompt.slice(0, 20),
     userID,
   });
   const initEnd = Date.now();
