@@ -65,7 +65,7 @@ describe('uploadBlob', () => {
       data: Buffer.from('test data'),
       documentID: 'test-doc',
       mimeType: 'text/plain',
-      ownerID: 'test-owner',
+      userID: 'test-owner',
     });
 
     expect(result).toBe(false);
@@ -103,7 +103,7 @@ describe('uploadBlob', () => {
       data: Buffer.from('test data'),
       documentID: 'test-doc',
       mimeType: 'text/plain',
-      ownerID: 'test-owner',
+      userID: 'test-owner',
     });
 
     expect(result).toBe(false);
@@ -124,7 +124,7 @@ describe('uploadBlob', () => {
 });
 
 describe('downloadBlob', () => {
-  it('should return undefined on download failure and capture exception', async () => {
+  it('should throw on download failure and capture exception', async () => {
     const { AwsClient } = await import('aws4fetch');
     const mockFetch = vi
       .fn()
@@ -137,20 +137,15 @@ describe('downloadBlob', () => {
       };
     });
 
-    const result = await downloadBlob({
-      documentID: 'test-doc',
-      ownerID: 'test-owner',
-    });
-
-    expect(result).toBeUndefined();
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('test-doc'));
-    expect(analytics.captureException).toHaveBeenCalledWith(
-      expect.any(Error),
-      'test-owner',
-    );
+    await expect(
+      downloadBlob({
+        documentID: 'test-doc',
+        userID: 'test-owner',
+      }),
+    ).rejects.toThrow('Download failed');
   });
 
-  it('should return undefined when response status is an error (response.ok is false)', async () => {
+  it('should throw when response status is an error (response.ok is false)', async () => {
     const { AwsClient } = await import('aws4fetch');
     const mockResponse = {
       ok: false,
@@ -168,24 +163,17 @@ describe('downloadBlob', () => {
       };
     });
 
-    const result = await downloadBlob({
-      documentID: 'test-doc',
-      ownerID: 'test-owner',
-    });
-
-    expect(result).toBeUndefined();
-    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('test-doc'));
-    expect(analytics.captureException).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: expect.stringContaining('403'),
+    await expect(
+      downloadBlob({
+        documentID: 'test-doc',
+        userID: 'test-owner',
       }),
-      'test-owner',
-    );
+    ).rejects.toThrow('Download failed');
   });
 });
 
 describe('deleteBlob', () => {
-  it('should return false on delete failure and capture exception', async () => {
+  it('should throw on delete failure', async () => {
     const { AwsClient } = await import('aws4fetch');
     const mockFetch = vi.fn().mockRejectedValueOnce(new Error('Delete failed'));
 
@@ -196,25 +184,15 @@ describe('deleteBlob', () => {
       };
     });
 
-    const result = await deleteBlob({
-      documentID: 'test-doc',
-      ownerID: 'test-owner',
-    });
-
-    expect(result).toBe(false);
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('test-doc'),
-      expect.objectContaining({
-        method: 'DELETE',
+    await expect(
+      deleteBlob({
+        documentID: 'test-doc',
+        userID: 'test-owner',
       }),
-    );
-    expect(analytics.captureException).toHaveBeenCalledWith(
-      expect.any(Error),
-      'test-owner',
-    );
+    ).rejects.toThrow('Delete failed');
   });
 
-  it('should return false when response status is an error but not 404 (response.ok is false)', async () => {
+  it('should throw when response status is an error but not 404 (response.ok is false)', async () => {
     const { AwsClient } = await import('aws4fetch');
     const mockResponse = {
       ok: false,
@@ -232,24 +210,11 @@ describe('deleteBlob', () => {
       };
     });
 
-    const result = await deleteBlob({
-      documentID: 'test-doc',
-      ownerID: 'test-owner',
-    });
-
-    expect(result).toBe(false);
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('test-doc'),
-      expect.objectContaining({
-        method: 'DELETE',
+    await expect(
+      deleteBlob({
+        documentID: 'test-doc',
+        userID: 'test-owner',
       }),
-    );
-    expect(mockResponse.text).toHaveBeenCalled();
-    expect(analytics.captureException).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: expect.stringContaining('403'),
-      }),
-      'test-owner',
-    );
+    ).rejects.toThrow('Delete failed');
   });
 });

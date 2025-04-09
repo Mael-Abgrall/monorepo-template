@@ -10,6 +10,13 @@
       "types": "./src/shared-fetch.ts",
       "default": "./dist/shared-fetch.js"
     },
+    "./files": {
+      "workerd": "./src/shared-files.ts",
+      "typescript": "./src/shared-files.ts",
+      "development": "./src/shared-files.ts",
+      "types": "./src/shared-files.ts",
+      "default": "./dist/shared-files.js"
+    },
     "./time": {
       "workerd": "./src/shared-time.ts",
       "typescript": "./src/shared-time.ts",

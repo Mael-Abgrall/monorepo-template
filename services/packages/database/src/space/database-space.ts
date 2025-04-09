@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { Space } from './database-space-schemas';
 import { pgDatabase } from '../config/database-postgresql';
 import { spaceTable } from './database-space-schemas';
@@ -61,6 +61,28 @@ export async function listSpaces({
     .select()
     .from(spaceTable)
     .where(eq(spaceTable.userID, userID));
+}
+
+/**
+ * Check if a space exists
+ * @param root named parameters
+ * @param root.spaceID The ID of the space to check
+ * @param root.userID The user ID of the owner of the space
+ * @returns True if the space exists, false otherwise
+ */
+export async function spaceExists({
+  spaceID,
+  userID,
+}: {
+  spaceID: string;
+  userID: string;
+}): Promise<boolean> {
+  const result = await pgDatabase.execute<{
+    exists: boolean;
+  }>(
+    sql`SELECT EXISTS (SELECT 1 FROM ${spaceTable} WHERE ${eq(spaceTable.spaceID, spaceID)} AND ${eq(spaceTable.userID, userID)}) as exists`,
+  );
+  return result.rows[0].exists;
 }
 
 /**

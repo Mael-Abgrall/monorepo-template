@@ -31,6 +31,13 @@
       "types": "./src/space/database-space-interface.ts",
       "default": "./dist/space/database-space-interface.js"
     },
+    "./documents": {
+      "workerd": "./src/documents/database-documents-interface.ts",
+      "typescript": "./src/documents/database-documents-interface.ts",
+      "development": "./src/documents/database-documents-interface.ts",
+      "types": "./src/documents/database-documents-interface.ts",
+      "default": "./dist/documents/database-documents-interface.js"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {

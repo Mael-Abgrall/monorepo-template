@@ -6,3 +6,8 @@ export const genericResponseSchema = Type.Object({
 });
 
 export type GenericResponse = Static<typeof genericResponseSchema>;
+
+export const errorSchema = Type.Object({
+  error: Type.String(),
+});
+export type ErrorSchema = Static<typeof errorSchema>;

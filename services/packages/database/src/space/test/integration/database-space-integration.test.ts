@@ -5,6 +5,7 @@ import {
   createSpace,
   deleteSpace,
   listSpaces,
+  spaceExists,
   updateSpace,
 } from '../../database-space';
 import { spaceTable } from '../../database-space-schemas';
@@ -155,5 +156,23 @@ describe('updateSpace', () => {
     expect(secondUpdate).toHaveLength(1);
     expect(secondUpdate[0].title).toBe('Updated title');
     expect(secondUpdate[0].visibility).toBe('public');
+  });
+});
+
+describe('spaceExists', () => {
+  it('should check if a space exists', async () => {
+    const userID = crypto.randomUUID();
+    const space = await createSpace({
+      title: 'Test title',
+      userID,
+    });
+    const exists = await spaceExists({ spaceID: space.spaceID, userID });
+    expect(exists).toBe(true);
+  });
+
+  it('should return false if the space does not exist', async () => {
+    const userID = crypto.randomUUID();
+    const exists = await spaceExists({ spaceID: crypto.randomUUID(), userID });
+    expect(exists).toBe(false);
   });
 });

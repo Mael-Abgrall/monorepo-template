@@ -42,6 +42,7 @@ export default tseslint.config(
     files: ['**/*.test.ts'],
     rules: {
       'fp/no-mutating-assign': 'off',
+      'security/detect-non-literal-fs-filename': 'off',
     },
   },
 );

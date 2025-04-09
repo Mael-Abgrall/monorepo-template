@@ -72,28 +72,28 @@ describe('upload/download', () => {
       data: testData,
       documentID,
       mimeType,
-      ownerID: 'test-owner',
+      userID: 'test-owner',
     });
 
     expect(uploadResult).toBe(true);
 
     const downloadResult = await downloadBlob({
       documentID,
-      ownerID: 'test-owner',
+      userID: 'test-owner',
     });
 
     expect(downloadResult).not.toBeUndefined();
-    expect(downloadResult?.data.toString()).toBe('test content');
-    expect(downloadResult?.mimeType).toBe(mimeType);
+    expect(downloadResult.data.toString()).toBe('test content');
+    expect(downloadResult.mimeType).toBe(mimeType);
   }, 30_000);
 
-  it('should return undefined when downloading a non-existent file', async () => {
-    const result = await downloadBlob({
-      documentID: 'non-existent-document',
-      ownerID: 'test-owner',
-    });
-
-    expect(result).toBeUndefined();
+  it('should throw when downloading a non-existent file', async () => {
+    await expect(
+      downloadBlob({
+        documentID: 'non-existent-document',
+        userID: 'test-owner',
+      }),
+    ).rejects.toThrow('Download failed with status: 404 Not Found');
   }, 10_000);
 
   it('Should not return another users document', async () => {
@@ -105,17 +105,17 @@ describe('upload/download', () => {
       data: testData,
       documentID,
       mimeType,
-      ownerID: 'test-owner',
+      userID: 'test-owner',
     });
 
     expect(uploadResult).toBe(true);
 
-    const result = await downloadBlob({
-      documentID,
-      ownerID: 'other-owner',
-    });
-
-    expect(result).toBeUndefined();
+    await expect(
+      downloadBlob({
+        documentID,
+        userID: 'other-owner',
+      }),
+    ).rejects.toThrow('Download failed with status: 404 Not Found');
   }, 10_000);
 });
 
@@ -124,53 +124,51 @@ describe('delete', () => {
     const testData = Buffer.from('test content');
     const documentID = 'test-document';
     const mimeType = 'text/plain';
-    const ownerID = 'test-owner';
+    const userID = 'test-owner';
 
     const uploadResult = await uploadBlob({
       data: testData,
       documentID,
       mimeType,
-      ownerID,
+      userID,
     });
 
     expect(uploadResult).toBe(true);
 
     const downloadResult = await downloadBlob({
       documentID,
-      ownerID,
+      userID,
     });
 
     expect(downloadResult).not.toBeUndefined();
 
-    const deleteResult = await deleteBlob({
+    await deleteBlob({
       documentID,
-      ownerID,
+      userID,
     });
 
-    expect(deleteResult).toBe(true);
-
-    const afterDeleteResult = await downloadBlob({
-      documentID,
-      ownerID,
-    });
-
-    expect(afterDeleteResult).toBeUndefined();
+    await expect(
+      downloadBlob({
+        documentID,
+        userID,
+      }),
+    ).rejects.toThrow('Download failed with status: 404 Not Found');
   }, 30_000);
 
   it('should return true when deleting a non-existent blob', async () => {
     const documentID = 'non-existent-document';
-    const ownerID = 'test-owner';
+    const userID = 'test-owner';
 
-    const downloadResult = await downloadBlob({
-      documentID,
-      ownerID,
-    });
-    expect(downloadResult).toBeUndefined();
+    await expect(
+      downloadBlob({
+        documentID,
+        userID,
+      }),
+    ).rejects.toThrow('Download failed with status: 404 Not Found');
 
-    const deleteResult = await deleteBlob({
+    await deleteBlob({
       documentID,
-      ownerID,
+      userID,
     });
-    expect(deleteResult).toBe(true);
   }, 10_000);
 });

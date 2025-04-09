@@ -2,22 +2,15 @@
 
 ## Now
 
-### Tuesday
-
-- upload files
-- parse files
-
-### Wednesday
-
-- Index files with a filter on the space and user
-
 ### Thursday
 
+- parse files
+- Index files with a filter on the space and user
 - Upload folders
-- CI/CD pipelines
 
 ### Friday
 
+- CI/CD pipelines
 - Branding + split projects
 - Deploy to CF
 
