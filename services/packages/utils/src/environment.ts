@@ -4,6 +4,9 @@
 export interface Environment {
   AWS_ACCESS_KEY_ID: string;
   AWS_SECRET_ACCESS_KEY: string;
+  BLOB_ACCESS_KEY_ID: string;
+  BLOB_SECRET_KEY: string;
+  BLOB_URL: string;
   COOKIE_SECRET: string;
   DATABASE_URL: string;
   DATABASE_URL_TEST?: string;
@@ -71,6 +74,15 @@ export function setEnvironment({ env }: { env: Environment }): void {
   }
   if (!env.AWS_SECRET_ACCESS_KEY) {
     throw new Error('AWS_SECRET_ACCESS_KEY is not set');
+  }
+  if (!env.BLOB_ACCESS_KEY_ID) {
+    throw new Error('BLOB_ACCESS_KEY_ID is not set');
+  }
+  if (!env.BLOB_SECRET_KEY) {
+    throw new Error('BLOB_SECRET_KEY is not set');
+  }
+  if (!env.BLOB_URL) {
+    throw new Error('BLOB_URL is not set');
   }
   environment = env;
 }

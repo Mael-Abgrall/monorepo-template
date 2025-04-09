@@ -4,7 +4,6 @@
 
 ### Tuesday
 
-- Create space API + UI
 - upload files
 - parse files
 
@@ -15,6 +14,7 @@
 ### Thursday
 
 - Upload folders
+- CI/CD pipelines
 
 ### Friday
 
