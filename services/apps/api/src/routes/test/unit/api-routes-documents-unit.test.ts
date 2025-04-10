@@ -1,5 +1,9 @@
 import type { Environment } from 'service-utils/environment';
-import { addDocument, getDocumentsBySpaceID } from 'core/documents';
+import {
+  addDocument,
+  getDocumentsBySpaceID,
+  parseAndIndexDocument,
+} from 'core/documents';
 import { spaceExists } from 'core/space';
 import { readFile } from 'node:fs/promises';
 import { setEnvironment } from 'service-utils/environment';
@@ -12,6 +16,7 @@ vi.mock('core/documents', () => {
   return {
     addDocument: vi.fn(),
     getDocumentsBySpaceID: vi.fn(),
+    parseAndIndexDocument: vi.fn(),
   };
 });
 
@@ -76,6 +81,13 @@ describe('POST /documents/upload', () => {
       userID: 'test-user-id',
     } satisfies Awaited<ReturnType<typeof addDocument>>);
     vi.mocked(spaceExists).mockResolvedValue(true);
+    vi.mocked(parseAndIndexDocument).mockResolvedValue({
+      documentID: '123',
+      spaceID: 'test-space-id',
+      status: 'indexed',
+      title: 'Test Document',
+      userID: 'test-user-id',
+    } satisfies Awaited<ReturnType<typeof parseAndIndexDocument>>);
 
     const formData = new FormData();
     formData.append('spaceID', 'test-space-id');
@@ -90,7 +102,7 @@ describe('POST /documents/upload', () => {
     expect(responseBody).toEqual({
       documentID: '123',
       spaceID: 'test-space-id',
-      status: 'pendingIndexing',
+      status: 'indexed',
       title: 'Test Document',
       userID: 'test-user-id',
     });
@@ -104,7 +116,7 @@ describe('POST /documents/upload', () => {
       userID: 'test-user-id',
     } satisfies Parameters<typeof addDocument>[0]);
 
-    // todo: expect parseDocument to be called
+    expect(parseAndIndexDocument).toHaveBeenCalledOnce();
   });
 
   it('should successfully upload a complex mime type', async () => {
@@ -123,6 +135,13 @@ describe('POST /documents/upload', () => {
       userID: 'test-user-id',
     } satisfies Awaited<ReturnType<typeof addDocument>>);
     vi.mocked(spaceExists).mockResolvedValue(true);
+    vi.mocked(parseAndIndexDocument).mockResolvedValue({
+      documentID: '123',
+      spaceID: 'test-space-id',
+      status: 'indexed',
+      title: 'Test Document',
+      userID: 'test-user-id',
+    } satisfies Awaited<ReturnType<typeof parseAndIndexDocument>>);
 
     const formData = new FormData();
     formData.append('spaceID', 'test-space-id');
@@ -137,7 +156,7 @@ describe('POST /documents/upload', () => {
     expect(responseBody).toEqual({
       documentID: '123',
       spaceID: 'test-space-id',
-      status: 'pendingIndexing',
+      status: 'indexed',
       title: 'Test Document',
       userID: 'test-user-id',
     });

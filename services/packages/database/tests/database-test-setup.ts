@@ -6,7 +6,10 @@ import {
   messagesTable,
 } from '../src/chat/database-chat-schemas';
 import { initPostgreSQL, pgDatabase } from '../src/config/database-postgresql';
-import { documentsTable } from '../src/documents/database-documents-schemas';
+import {
+  documentsTable,
+  searchChunksTable,
+} from '../src/documents/database-documents-schemas';
 import { spaceTable } from '../src/space/database-space-schemas';
 import {
   usersTable,
@@ -23,6 +26,7 @@ beforeEach(async () => {
 TRUNCATE TABLE 
   ${conversationsTable}, 
   ${documentsTable}, 
+  ${searchChunksTable},
   ${messagesTable}, 
   ${spaceTable}, 
   ${usersTable}, 

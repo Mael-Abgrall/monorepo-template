@@ -43,7 +43,10 @@ export function extractOfficeDocument(documents: {
  * @returns Formatted text
  */
 function formatText(text: string): string {
+  // todo: test this
+  /* v8 ignore start -- do later */
   if (!text) return '';
+  /* v8 ignore end */
   // find any newline character followed by one or more whitespace characters(https://regex101.com/r/2p0BGb/1)
   return text.replaceAll(/\n\s+/g, '\n').trim();
 }

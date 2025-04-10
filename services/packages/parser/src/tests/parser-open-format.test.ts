@@ -6,7 +6,7 @@ import path from 'node:path';
 import { expect, test } from 'vitest';
 
 // test functions
-import { parseStream } from '../parser.js';
+import { parseDocument } from '../parser.js';
 
 // Load OpenDocument test files
 const odtPath = path.join(import.meta.dirname, 'sampleFiles', 'test.odt');
@@ -28,7 +28,7 @@ const expectOdpOutput =
   'This is a file\nThis sentence should also be in tests\nThis is a second slide\nWith additional text\nand\nA table';
 
 test('the parser can extract information from an odt file', async () => {
-  const result = await parseStream({
+  const result = await parseDocument({
     binaryStream: odtDocument,
     mimeType: 'application/vnd.oasis.opendocument.text',
   });
@@ -36,7 +36,7 @@ test('the parser can extract information from an odt file', async () => {
 });
 
 test('the parser can extract information from an ods file', async () => {
-  const result = await parseStream({
+  const result = await parseDocument({
     binaryStream: odsDocument,
     mimeType: 'application/vnd.oasis.opendocument.spreadsheet',
   });
@@ -44,7 +44,7 @@ test('the parser can extract information from an ods file', async () => {
 });
 
 test('the parser can extract information from an odp file', async () => {
-  const result = await parseStream({
+  const result = await parseDocument({
     binaryStream: odpDocument,
     mimeType: 'application/vnd.oasis.opendocument.presentation',
   });

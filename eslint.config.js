@@ -24,6 +24,8 @@ export default tseslint.config(
             '$ai_provider',
             '$ai_error',
             '$ai_is_error',
+            'input_type',
+            'key_field',
           ],
         },
       ],

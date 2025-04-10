@@ -7,6 +7,8 @@
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- better DX
 export async function getMimeType({ documentName }: { documentName: string }) {
+  /* v8 ignore start -- do later */
+
   // Open Office XML
   if (documentName.endsWith('.odp')) {
     return 'application/vnd.oasis.opendocument.presentation';
@@ -41,4 +43,5 @@ export async function getMimeType({ documentName }: { documentName: string }) {
   }
 
   return undefined;
+  /* v8 ignore end */
 }

@@ -20,3 +20,7 @@ This repository is a monorepo, the way it works and how the files are agenced is
 
 - Tests are located in a folder always next to the original file, with the `test/integration` and `test/unit` sub-folders.
 - Use vitest for tests, group tests by function using describe
+
+## Linter errors
+
+- Ignore warnings and errors that can be auto-fixed by eslint and prettier

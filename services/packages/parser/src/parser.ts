@@ -8,7 +8,7 @@ import { unzipDocument } from './parser-unzip.js';
  * @param root.mimeType (optional) the mime type of the document
  * @returns the content of the document
  */
-export async function parseStream({
+export async function parseDocument({
   binaryStream,
   mimeType,
 }: {

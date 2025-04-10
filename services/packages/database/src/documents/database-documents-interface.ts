@@ -81,3 +81,8 @@ export {
   updateDocumentInDatabase as updateDocument,
 } from './database-documents';
 export { downloadBlob } from './database-documents-blob';
+export {
+  bulkAddChunks,
+  textSearch,
+  vectorSearch,
+} from './database-documents-search';

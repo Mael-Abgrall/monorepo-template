@@ -51,6 +51,7 @@
     "ai": "workspace:^",
     "database": "workspace:^",
     "oauth": "workspace:^",
+    "parser": "workspace:^",
     "service-utils": "workspace:^"
   },
   "devDependencies": {

@@ -14,11 +14,18 @@
       "default": "./dist/providers/lm/ai-providers-lm.js"
     },
     "./embeddings": {
-      "workerd": "./src/providers/ai-providers-embeddings.ts",
-      "typescript": "./src/providers/ai-providers-embeddings.ts",
-      "development": "./src/providers/ai-providers-embeddings.ts",
-      "types": "./src/providers/ai-providers-embeddings.ts",
-      "default": "./dist/providers/ai-providers-embeddings.js"
+      "workerd": "./src/providers/embeddings/ai-providers-embeddings.ts",
+      "typescript": "./src/providers/embeddings/ai-providers-embeddings.ts",
+      "development": "./src/providers/embeddings/ai-providers-embeddings.ts",
+      "types": "./src/providers/embeddings/ai-providers-embeddings.ts",
+      "default": "./dist/providers/embeddings/ai-providers-embeddings.js"
+    },
+    "./utils/chunking": {
+      "workerd": "./src/utils/ai-utils-chunking.ts",
+      "typescript": "./src/utils/ai-utils-chunking.ts",
+      "development": "./src/utils/ai-utils-chunking.ts",
+      "types": "./src/utils/ai-utils-chunking.ts",
+      "default": "./dist/utils/ai-utils-chunking.js"
     },
     "./package.json": "./package.json"
   }

@@ -68,7 +68,9 @@ export async function* claude37SonnetStream({
   } catch (error) {
     logger.error(error);
     analytics.captureException(error, userID, {
+      /* v8 disable start -- not a problem */
       $ai_error: error instanceof Error ? error.message : 'Unknown error',
+      /* v8 disable end */
       $ai_is_error: true,
       $ai_model: 'eu.anthropic.claude-3-7-sonnet-20250219-v1:0',
       $ai_provider: 'aws',

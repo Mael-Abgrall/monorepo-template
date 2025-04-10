@@ -6,7 +6,7 @@ import path from 'node:path';
 import { expect, test } from 'vitest';
 
 // test functions
-import { parseStream } from '../parser.js';
+import { parseDocument } from '../parser.js';
 
 // Load test documents
 const docxPath = path.join(import.meta.dirname, 'sampleFiles', 'test.docx');
@@ -28,7 +28,7 @@ const expectXlsxOutput =
   'This is a test for xlsx this is another column this sentence should also be in the tests This is a second sheet';
 
 test('the parser can extract information from a docx file', async () => {
-  const result = await parseStream({
+  const result = await parseDocument({
     binaryStream: wordDocument,
     mimeType:
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -37,7 +37,7 @@ test('the parser can extract information from a docx file', async () => {
 });
 
 test('the parser can extract information from a pptx file', async () => {
-  const result = await parseStream({
+  const result = await parseDocument({
     binaryStream: powerPointDocument,
     mimeType:
       'application/vnd.openxmlformats-officedocument.presentationml.presentation',
@@ -48,7 +48,7 @@ test('the parser can extract information from a pptx file', async () => {
 });
 
 test('the parser can extract information from an xlsx file', async () => {
-  const result = await parseStream({
+  const result = await parseDocument({
     binaryStream: excelDocument,
     mimeType:
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

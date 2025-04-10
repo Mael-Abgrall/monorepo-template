@@ -3,7 +3,11 @@ import type {
   ListDocumentsResponse,
   UploadDocumentsResponse,
 } from 'shared/schemas/shared-schemas-documents';
-import { addDocument, getDocumentsBySpaceID } from 'core/documents';
+import {
+  addDocument,
+  getDocumentsBySpaceID,
+  parseAndIndexDocument,
+} from 'core/documents';
 import { spaceExists } from 'core/space';
 import { Hono } from 'hono';
 import { describeRoute } from 'hono-openapi';
@@ -180,9 +184,14 @@ Note: do not put the headers for multipart form data, or the server will not be 
       });
     }
 
+    const updatedDocument = await parseAndIndexDocument({
+      documentID: savedDocument.documentID,
+      userID: context.get('userID'),
+    });
+
     return context.json(
       validateResponse({
-        response: savedDocument satisfies UploadDocumentsResponse,
+        response: updatedDocument satisfies UploadDocumentsResponse,
         schema: uploadDocumentsResponseSchema,
       }),
     );

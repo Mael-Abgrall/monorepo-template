@@ -1,8 +1,12 @@
+import { embedDocumentChunks } from 'ai/embeddings';
+import { chunkDocument } from 'ai/utils/chunking';
 import {
+  bulkAddChunks,
   deleteDocument as deleteDocumentFromDatabase,
   downloadBlob,
   updateDocument,
 } from 'database/documents';
+import { parseDocument } from 'parser';
 
 export {
   addDocument,
@@ -23,7 +27,6 @@ export async function deleteDocument({
   documentID: string;
   userID: string;
 }): Promise<void> {
-  // await deleteDocumentFromSearch({ documentID, userID });
   await deleteDocumentFromDatabase({ documentID, userID });
 }
 
@@ -32,6 +35,7 @@ export async function deleteDocument({
  * @param root named parameters
  * @param root.documentID the ID of the document to parse and index
  * @param root.userID the user ID
+ * @returns the updated document
  */
 export async function parseAndIndexDocument({
   documentID,
@@ -42,27 +46,44 @@ export async function parseAndIndexDocument({
 }): Promise<Awaited<ReturnType<typeof updateDocument>>> {
   const { data, mimeType } = await downloadBlob({ documentID, userID });
 
-  throw new Error('Not implemented');
-  // const traceID = crypto.randomUUID();
+  const traceID = crypto.randomUUID();
 
-  // const text = await parseDocument({
-  //   binaryStream: data,
-  //   mimeType,
-  // });
+  const text = await parseDocument({
+    binaryStream: data,
+    mimeType,
+  });
 
-  // const chunksWithEmbeddings = await embedDocumentChunks({
-  //   chunks: textChunks,
-  //   traceID,
-  // });
+  const chunks = await chunkDocument({
+    document: text,
+  });
 
-  // await addDocumentToSearch({
-  //   chunks: chunksWithEmbeddings,
-  //   documentID,
-  // });
+  const chunksWithEmbeddings = await embedDocumentChunks({
+    chunks,
+    model: 'cohere.embed-multilingual-v3',
+    traceID,
+    userID,
+  });
 
-  // await updateDocument({
-  //   documentID,
-  //   status: 'indexed',
-  //   userID,
-  // });
+  await bulkAddChunks({
+    chunks: chunksWithEmbeddings.map((chunk) => {
+      return {
+        chunkContent: chunk.chunkContent,
+        chunkID: chunk.chunkID,
+        documentID,
+        embedding: chunk.embedding,
+        spaceID: userID,
+        userID,
+      };
+    }),
+  });
+
+  const updatedDocument = await updateDocument({
+    documentID,
+    status: 'indexed',
+    userID,
+  });
+
+  // todo: analytics
+
+  return updatedDocument;
 }

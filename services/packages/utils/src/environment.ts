@@ -11,7 +11,6 @@ export interface Environment {
   DATABASE_URL: string;
   DATABASE_URL_TEST?: string;
   DOMAIN: string;
-  EMBEDDING_KEY: string;
   GOOGLE_APP_ID: string;
   GOOGLE_APP_SECRET: string;
   JWT_SECRET: string;
@@ -84,9 +83,6 @@ export function setEnvironment({ env }: { env: Environment }): void {
   }
   if (!env.BLOB_URL) {
     throw new Error('BLOB_URL is not set');
-  }
-  if (!env.EMBEDDING_KEY) {
-    throw new Error('EMBEDDING_KEY is not set');
   }
   environment = env;
 }

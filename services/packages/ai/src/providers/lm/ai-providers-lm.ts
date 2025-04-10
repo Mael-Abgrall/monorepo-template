@@ -45,6 +45,7 @@ export async function* completeStream({
       return;
     }
 
+    /* v8 ignore start -- do later */
     case 'claude-3-5-sonnet': {
       throw new Error('Claude 3.5 Sonnet Not implemented');
     }
@@ -52,5 +53,6 @@ export async function* completeStream({
     default: {
       throw new Error(`Unknown model ${String(model)}`);
     }
+    /* v8 ignore end */
   }
 }

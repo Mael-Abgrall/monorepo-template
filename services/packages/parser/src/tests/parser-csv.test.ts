@@ -6,7 +6,7 @@ import path from 'node:path';
 import { expect, test } from 'vitest';
 
 // test functions
-import { parseStream } from '../parser.js';
+import { parseDocument } from '../parser.js';
 
 const csvPath = path.join(import.meta.dirname, 'sampleFiles', 'test.csv');
 const csvDocument = await readFile(csvPath);
@@ -16,7 +16,7 @@ const expectedOutput = `text,list,region
 "sed pede. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin vel arcu eu odio tristique pharetra. Quisque ac libero nec ligula consectetuer rhoncus. Nullam velit dui, semper et, lacinia vitae, sodales at, velit. Pellentesque ultricies dignissim lacus. Aliquam rutrum lorem ac risus. Morbi metus. Vivamus euismod urna. Nullam lobortis quam a felis ullamcorper viverra. Maecenas iaculis aliquet diam. Sed diam lorem, auctor quis, tristique ac, eleifend vitae, erat. Vivamus nisi. Mauris nulla. Integer urna. Vivamus molestie dapibus ligula. Aliquam erat volutpat. Nulla dignissim. Maecenas ornare egestas ligula. Nullam feugiat placerat velit. Quisque varius. Nam porttitor",1,Maranhão`;
 
 test('the parser can extract information from a csv file', async () => {
-  const result = await parseStream({
+  const result = await parseDocument({
     binaryStream: csvDocument,
     mimeType: 'text/csv',
   });
