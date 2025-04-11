@@ -125,26 +125,26 @@ export async function embedDocumentChunks({
 }
 
 /**
- * Embed a document
+ * Embed a query
  * @param root named parameters
  * @param root.model the model to use
- * @param root.content the content to embed
+ * @param root.query the query to embed
  * @param root.traceID the trace ID
  * @param root.userID the user ID
- * @returns the embedding of the document
+ * @returns the embedding of the query
  */
 export async function embedQuery({
-  content,
   model = 'cohere.embed-multilingual-v3',
+  query,
   traceID,
   userID,
 }: {
-  content: string;
   model?: 'cohere.embed-multilingual-v3';
+  query: string;
   traceID: string;
   userID: string;
 }): Promise<number[]> {
-  if (isTooLarge({ text: content })) {
+  if (isTooLarge({ text: query })) {
     throw new Error('A query was too large to be embedded');
   }
   try {
@@ -153,7 +153,7 @@ export async function embedQuery({
     const command = new InvokeModelCommand({
       body: JSON.stringify({
         input_type: 'search_query',
-        texts: [content],
+        texts: [query],
       } satisfies CohereEmbeddingBody),
       modelId: model,
     });

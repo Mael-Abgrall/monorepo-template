@@ -24,7 +24,7 @@ describe.skipIf(!process.env.TEST_API)('Cohere embedding model', async () => {
   describe('embedQuery', () => {
     test('embedQuery will embed a query and report analytics', async () => {
       const response = await embedQuery({
-        content: testQuery,
+        query: testQuery,
         traceID: crypto.randomUUID(),
         userID: crypto.randomUUID(),
       });
@@ -36,7 +36,7 @@ describe.skipIf(!process.env.TEST_API)('Cohere embedding model', async () => {
     test('embedQuery will throw an error if the query is too large', async () => {
       await expect(
         embedQuery({
-          content: 'a'.repeat(10_000),
+          query: 'a'.repeat(10_000),
           traceID: crypto.randomUUID(),
           userID: crypto.randomUUID(),
         }),

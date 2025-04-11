@@ -46,7 +46,7 @@ describe('embedQuery', () => {
 
     await expect(
       embedQuery({
-        content: testQuery,
+        query: testQuery,
         traceID: crypto.randomUUID(),
         userID: crypto.randomUUID(),
       }),

@@ -20,6 +20,13 @@
       "types": "./src/providers/embeddings/ai-providers-embeddings.ts",
       "default": "./dist/providers/embeddings/ai-providers-embeddings.js"
     },
+    "./rerank": {
+      "workerd": "./src/providers/rerank/ai-providers-rerank.ts",
+      "typescript": "./src/providers/rerank/ai-providers-rerank.ts",
+      "development": "./src/providers/rerank/ai-providers-rerank.ts",
+      "types": "./src/providers/rerank/ai-providers-rerank.ts",
+      "default": "./dist/providers/rerank/ai-providers-rerank.js"
+    },
     "./utils/chunking": {
       "workerd": "./src/utils/ai-utils-chunking.ts",
       "typescript": "./src/utils/ai-utils-chunking.ts",
