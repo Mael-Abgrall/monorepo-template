@@ -26,6 +26,38 @@ app.get(
       openapi: '3.0.0',
       security: [{ bearerAuth: [] }],
       servers: [{ description: 'Local Server', url: 'http://localhost:8787' }],
+      tags: [
+        {
+          description: `
+The user can log in through OAuth (log in with Google / Microsoft) or with email using one time passwords.
+
+Any new user created through OAuth will also be requested to check their email through a OTP.
+          `,
+          name: 'auth',
+        },
+        {
+          description: `
+Regroup all the actions around the user, such as get profile, update profile, etc.
+          `,
+          name: 'user',
+        },
+        {
+          description: `
+The endpoints to interact with the AI, or get the history of the user's conversations
+          `,
+          name: 'chat',
+        },
+        {
+          description: `
+A space is a group of chats, files and other data that share a common context and settings.`,
+          name: 'space',
+        },
+        {
+          description: `
+Documents are files that can be uploaded and indexed for search. Documents are always tied to a space.`,
+          name: 'documents',
+        },
+      ],
     },
   }),
 );

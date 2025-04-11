@@ -156,8 +156,8 @@ export async function parseAndIndexDocument({
  * @param root.query the query to search for
  * @param root.traceID the trace ID
  * @param root.speed the speed of the search
- * @param root.maxSearchResults the maximum number of results to return
- * @param root.maxOutputResults the maximum number of results to return
+ * @param root.maxSearchResults the maximum number of results to return during the search
+ * @param root.maxOutputResults the maximum number of results to return after reranking
  * @returns the search results
  */
 export async function searchDocuments({
@@ -177,19 +177,33 @@ export async function searchDocuments({
   traceID: string;
   userID: string;
 }): Promise<SearchResultChunks> {
+  const searchSpanID = crypto.randomUUID();
+  const startTime = Date.now();
   const embeddingPromise = embedQuery({
     query,
     traceID,
     userID,
   });
+  const searchStart = Date.now();
   const keywordSearchPromise = textSearch({
     maxResults: maxSearchResults,
     query,
     spaceID,
     userID,
   });
+  const embedding = await embeddingPromise;
+  analytics.capture({
+    distinctId: userID,
+    event: '$ai_span',
+    properties: {
+      $ai_latency: (Date.now() - startTime) / 1000, // in seconds
+      $ai_parent_id: searchSpanID,
+      $ai_span_name: 'embed query',
+      $ai_trace_id: traceID,
+    },
+  });
   const vectorSearchPromise = vectorSearch({
-    embedding: await embeddingPromise,
+    embedding,
     maxResults: maxSearchResults,
     spaceID,
     userID,
@@ -198,7 +212,18 @@ export async function searchDocuments({
     keywordSearchPromise,
     vectorSearchPromise,
   ]);
+  analytics.capture({
+    distinctId: userID,
+    event: '$ai_span',
+    properties: {
+      $ai_latency: (Date.now() - searchStart) / 1000, // in seconds
+      $ai_parent_id: searchSpanID,
+      $ai_span_name: 'hybrid search',
+      $ai_trace_id: traceID,
+    },
+  });
 
+  const rerankStart = Date.now();
   const reranked = await rerank({
     keywordResults,
     maxResults: maxOutputResults,
@@ -208,6 +233,27 @@ export async function searchDocuments({
     userID,
     vectorResults,
   });
+  const endRerank = Date.now();
+  analytics.capture({
+    distinctId: userID,
+    event: '$ai_span',
+    properties: {
+      $ai_latency: (endRerank - rerankStart) / 1000, // in seconds
+      $ai_parent_id: searchSpanID,
+      $ai_span_name: 'rerank',
+      $ai_trace_id: traceID,
+    },
+  });
 
+  analytics.capture({
+    distinctId: userID,
+    event: '$ai_span',
+    properties: {
+      $ai_latency: (Date.now() - startTime) / 1000, // in seconds
+      $ai_span_id: searchSpanID,
+      $ai_span_name: 'search documents',
+      $ai_trace_id: traceID,
+    },
+  });
   return reranked;
 }

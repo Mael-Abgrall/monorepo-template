@@ -38,7 +38,7 @@ const chatRouter = new Hono<{
 chatRouter.use(authMiddleware);
 
 chatRouter.post(
-  '',
+  '/text',
   describeRoute({
     description: `
 Answer the user prompt, and stream the response to the user.
@@ -58,7 +58,6 @@ The API will behave differently depending on the input parameters:
         description: 'Unauthorized - User is not authenticated',
       },
     },
-    summary: 'Answer the user prompt, and stream the response to the user.',
     tags: ['Chat'],
   }),
   validator('json', postChatBodySchema),
@@ -146,7 +145,7 @@ chatRouter.get(
 chatRouter.get(
   '/conversation/:conversationID',
   describeRoute({
-    description: 'Get a conversation by ID',
+    description: 'Get a conversation by ID, and the associated messages',
     responses: {
       200: {
         content: {
