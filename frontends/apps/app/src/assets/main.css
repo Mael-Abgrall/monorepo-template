@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  @apply bg-stone-50;
-}
 html,
 body,
 #app {
@@ -22,5 +19,6 @@ h2 {
 }
 
 input {
-  @apply gap-3 py-3 px-4 rounded-lg bg-white border-brand-100 hover:bg-brand-50 transition-colors;
+  border: 1px solid;
+  @apply gap-3 py-1 px-3 rounded-lg bg-white border-stone-300 transition-colors shadow focus:outline-none focus:border-brand-400;
 }

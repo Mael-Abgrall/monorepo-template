@@ -109,11 +109,10 @@ async function verifyOTP(): Promise<void> {
 
   input {
     max-width: 10ch;
-    outline: 1px solid;
     display: flex;
     align-items: center;
     justify-content: center;
-    @apply outline-brand-500;
+    text-align: center;
   }
 }
 </style>

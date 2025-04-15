@@ -37,7 +37,7 @@ export const searchChunksTable = pgTable(
         },
       ),
     embedding: vector('embedding', {
-      dimensions: 1536,
+      dimensions: 1024,
     }).notNull(),
     spaceID: uuid('space_id').notNull(),
     userID: uuid('user_id').notNull(),

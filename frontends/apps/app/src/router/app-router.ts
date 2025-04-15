@@ -5,6 +5,7 @@ import withNav from '../layout/app-layout-with-nav.vue';
 import withoutNav from '../layout/app-layout-without-nav.vue';
 import { useAuthStore } from '../stores/app-stores-auth';
 import { authRoutes } from './app-router-auth';
+import { spaceRoutes } from './app-router-spaces';
 
 const routes = [
   {
@@ -39,6 +40,7 @@ const routes = [
         name: 'support',
         path: 'support',
       },
+      ...spaceRoutes,
     ],
     component: withNav as Component,
     meta: { requiresAuth: true },

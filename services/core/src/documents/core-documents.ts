@@ -223,7 +223,6 @@ export async function searchDocuments({
     },
   });
 
-  const rerankStart = Date.now();
   const reranked = await rerank({
     keywordResults,
     maxResults: maxOutputResults,
@@ -232,17 +231,6 @@ export async function searchDocuments({
     traceID,
     userID,
     vectorResults,
-  });
-  const endRerank = Date.now();
-  analytics.capture({
-    distinctId: userID,
-    event: '$ai_span',
-    properties: {
-      $ai_latency: (endRerank - rerankStart) / 1000, // in seconds
-      $ai_parent_id: searchSpanID,
-      $ai_span_name: 'rerank',
-      $ai_trace_id: traceID,
-    },
   });
 
   analytics.capture({

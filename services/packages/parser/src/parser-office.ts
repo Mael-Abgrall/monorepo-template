@@ -53,9 +53,9 @@ function formatText(text: string): string {
 
 /**
  * This function takes an unknown source, and will recursively try to extract text from it.
- * @param root0 named params
- * @param root0.accumulator a string to concatenate with the result of this function.
- * @param root0.source an object or a list to extract text from.
+ * @param root named params
+ * @param root.accumulator a string to concatenate with the result of this function.
+ * @param root.source an object or a list to extract text from.
  */
 function recursiveXMLParsedExtract({
   accumulator,
@@ -81,6 +81,19 @@ function recursiveXMLParsedExtract({
     return;
   }
   /* v8 ignore end */
+
+  // safe net to catch all other primitive types, and return them as string
+  if (
+    typeof source === 'number' ||
+    typeof source === 'boolean' ||
+    typeof source === 'bigint' ||
+    typeof source === 'symbol' ||
+    typeof source === 'function'
+  ) {
+    /* v8 ignore start -- do later */
+    accumulator.push(String(source));
+    return;
+  }
 
   // the xml parser will indicate text with #text, so we only need to seek those tags and concat them
   if (

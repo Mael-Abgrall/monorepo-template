@@ -31,3 +31,12 @@ export const listDocumentsResponseSchema = Type.Array(documentSchema, {
   description: 'The list of documents',
 });
 export type ListDocumentsResponse = Static<typeof listDocumentsResponseSchema>;
+
+export const deleteDocumentParametersSchema = Type.Object({
+  documentID: Type.String({
+    description: 'The ID of the document',
+  }),
+});
+export type DeleteDocumentParameters = Static<
+  typeof deleteDocumentParametersSchema
+>;

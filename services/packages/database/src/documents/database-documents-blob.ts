@@ -157,6 +157,11 @@ function selectBucket(): string {
   if (environment.NODE_ENV && environment.NODE_ENV === 'test') {
     return 'test';
   }
+  // Likely in dev mode
+  if (!environment.NODE_ENV && environment.DOMAIN === 'localhost') {
+    return 'dev';
+  }
+
   return 'default';
   /* v8 ignore end */
 }

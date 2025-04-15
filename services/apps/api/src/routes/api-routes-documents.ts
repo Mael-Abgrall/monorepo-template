@@ -5,6 +5,7 @@ import type {
 } from 'shared/schemas/shared-schemas-documents';
 import {
   addDocument,
+  deleteDocument,
   getDocumentsBySpaceID,
   parseAndIndexDocument,
 } from 'core/documents';
@@ -14,8 +15,12 @@ import { describeRoute } from 'hono-openapi';
 import { validator } from 'hono-openapi/typebox';
 import { HTTPException } from 'hono/http-exception';
 import { getMimeType } from 'shared/files';
-import { errorSchema } from 'shared/schemas/shared-schemas';
 import {
+  errorSchema,
+  genericResponseSchema,
+} from 'shared/schemas/shared-schemas';
+import {
+  deleteDocumentParametersSchema,
   listDocumentsParametersSchema,
   listDocumentsResponseSchema,
   uploadDocumentsResponseSchema,
@@ -227,6 +232,35 @@ documentsRouter.get(
         schema: listDocumentsResponseSchema,
       }),
     );
+  },
+);
+
+documentsRouter.delete(
+  'delete/:documentID',
+  describeRoute({
+    description: 'Delete a document',
+    responses: {
+      200: {
+        content: {
+          'application/json': {
+            schema: genericResponseSchema,
+          },
+        },
+        description: 'The document was deleted',
+      },
+    },
+    tags: ['documents'],
+  }),
+  validator('param', deleteDocumentParametersSchema),
+  async (context) => {
+    const { documentID } = context.req.valid('param');
+    await deleteDocument({
+      documentID,
+      userID: context.get('userID'),
+    });
+    return context.json({
+      message: 'Document deleted',
+    });
   },
 );
 

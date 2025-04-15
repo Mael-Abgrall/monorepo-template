@@ -35,7 +35,6 @@ describe('chunkDocument', () => {
       maxChunkSize,
       overlapSize,
     });
-    console.log(result);
 
     expect(result.length).toBeGreaterThan(1);
 

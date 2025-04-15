@@ -51,4 +51,10 @@ export default tseslint.config(
       'security/detect-non-literal-fs-filename': 'off',
     },
   },
+  {
+    files: ['**/*frontends/**', '**/*services/apps/**'],
+    rules: {
+      'drizzle/enforce-delete-with-where': 0,
+    },
+  },
 );

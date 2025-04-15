@@ -180,6 +180,7 @@ async function requestOTP(): Promise<void> {
         justify-content: center;
         width: 100%;
         border: 1px solid;
+        box-shadow: none;
         @apply gap-3 py-3 px-4 rounded-lg bg-white border-brand-100 transition-colors;
 
         &:hover {

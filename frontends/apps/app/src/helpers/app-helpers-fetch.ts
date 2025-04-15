@@ -10,10 +10,11 @@ export const apiFetch = ofetch.create({
       : 'https://api.example.com', // todo: change to the actual API URL
   credentials: 'include',
   headers: {
-    'Content-Type': 'application/json',
+    // 'Content-Type': 'application/json',
   },
   // todo: add onRequest to verify the user is auth; if not, refresh, if yes, continue + skip /auth endpoints
   onResponseError: async (error) => {
+    console.log(error);
     const authStore = useAuthStore();
 
     if (

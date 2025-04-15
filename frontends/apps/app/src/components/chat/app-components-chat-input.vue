@@ -99,7 +99,7 @@ async function sendMessage(): Promise<void> {
   display: flex;
   flex-direction: column;
   border: 1px solid;
-  @apply border-stone-300 rounded-2xl shadow;
+  @apply border-stone-300 rounded-2xl shadow bg-white;
 
   textarea {
     outline: none;

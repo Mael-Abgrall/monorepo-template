@@ -17,13 +17,15 @@ const selectConversation = (conversationID: string | undefined): void => {
     <option value="" disabled>Select a conversation</option>
     <option :value="undefined">New conversation</option>
     <option
-      v-for="(conversation, id) of conversationStore.conversations"
-      :key="id"
-      :value="id"
+      v-for="conversation of conversationStore.conversations"
+      :key="conversation.conversationID"
+      :value="conversation.conversationID"
     >
       {{
         Object.values(conversationStore.messages)
-          .find((message) => message.conversationID === id)
+          .find(
+            (message) => message.conversationID === conversation.conversationID,
+          )
           ?.prompt.slice(0, 50)
       }}
     </option>

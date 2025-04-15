@@ -1,6 +1,7 @@
 import type { Environment } from 'service-utils/environment';
 import {
   addDocument,
+  deleteDocument,
   getDocumentsBySpaceID,
   parseAndIndexDocument,
 } from 'core/documents';
@@ -15,6 +16,7 @@ import { verifyToken } from '../../../helpers/api-helpers-jwt';
 vi.mock('core/documents', () => {
   return {
     addDocument: vi.fn(),
+    deleteDocument: vi.fn(),
     getDocumentsBySpaceID: vi.fn(),
     parseAndIndexDocument: vi.fn(),
   };
@@ -351,6 +353,58 @@ describe('GET /documents/list/:spaceID', () => {
     } satisfies Awaited<ReturnType<typeof verifyToken>>);
 
     const response = await app.request('/documents/list/');
+
+    expect(response.status).toBe(404);
+  });
+});
+
+describe('DELETE /documents/delete', () => {
+  it('should be protected by cookies', async () => {
+    vi.mocked(getSignedCookieCustom).mockResolvedValueOnce(
+      undefined satisfies Awaited<ReturnType<typeof getSignedCookieCustom>>,
+    );
+
+    const response = await app.request('/documents/delete/123', {
+      method: 'DELETE',
+    });
+
+    expect(response.status).toBe(401);
+  });
+
+  it('should successfully delete a document', async () => {
+    vi.mocked(getSignedCookieCustom).mockResolvedValueOnce(
+      'testToken' satisfies Awaited<ReturnType<typeof getSignedCookieCustom>>,
+    );
+    vi.mocked(verifyToken).mockResolvedValueOnce({
+      userID: 'test-user-id',
+    } satisfies Awaited<ReturnType<typeof verifyToken>>);
+
+    vi.mocked(deleteDocument).mockResolvedValueOnce(
+      undefined satisfies Awaited<ReturnType<typeof deleteDocument>>,
+    );
+
+    const response = await app.request('/documents/delete/123', {
+      method: 'DELETE',
+    });
+
+    expect(response.status).toBe(200);
+    const responseBody = await response.json();
+    expect(responseBody).toEqual({
+      message: 'Document deleted',
+    });
+  });
+
+  it('should reject requests without documentID', async () => {
+    vi.mocked(getSignedCookieCustom).mockResolvedValueOnce(
+      'testToken' satisfies Awaited<ReturnType<typeof getSignedCookieCustom>>,
+    );
+    vi.mocked(verifyToken).mockResolvedValueOnce({
+      userID: 'test-user-id',
+    } satisfies Awaited<ReturnType<typeof verifyToken>>);
+
+    const response = await app.request('/documents/delete', {
+      method: 'DELETE',
+    });
 
     expect(response.status).toBe(404);
   });

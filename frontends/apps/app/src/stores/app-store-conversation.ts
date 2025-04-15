@@ -99,11 +99,6 @@ export const useConversationStore = defineStore('conversation', () => {
    * @param root.prompt the prompt to send to the conversation
    */
   async function chat({ prompt }: { prompt: string }): Promise<void> {
-    const baseURL =
-      import.meta.env.MODE === 'development'
-        ? 'http://localhost:8787'
-        : 'https://api.example.com'; // todo: change to the actual API URL
-
     isLoading.value = true;
     try {
       streamController.value = new AbortController();
@@ -114,7 +109,7 @@ export const useConversationStore = defineStore('conversation', () => {
         } satisfies PostChatBody,
         method: 'POST',
         signal: streamController.value.signal,
-        url: `${baseURL}/chat`,
+        url: '/chat/text',
       });
 
       for await (const event of stream) {
