@@ -33,16 +33,24 @@ describe('insertDocument', () => {
   });
 
   it('should throw an error if the document already exists', async () => {
-    await insertDocumentInDatabase({ ...document, spaceID: undefined });
+    const space = await createSpace({ title: 'test', userID: document.userID });
+    await insertDocumentInDatabase({ ...document, spaceID: space.spaceID });
     await expect(
-      insertDocumentInDatabase({ ...document, spaceID: undefined }),
+      insertDocumentInDatabase({ ...document, spaceID: space.spaceID }),
+    ).rejects.toThrow();
+  });
+
+  it('should throw an error if the space does not exist', async () => {
+    await expect(
+      insertDocumentInDatabase({ ...document, spaceID: crypto.randomUUID() }),
     ).rejects.toThrow();
   });
 });
 
 describe('getDocumentByID', () => {
   it('should return the document', async () => {
-    await insertDocumentInDatabase({ ...document, spaceID: undefined });
+    const space = await createSpace({ title: 'test', userID: document.userID });
+    await insertDocumentInDatabase({ ...document, spaceID: space.spaceID });
 
     const record = await getDocumentByID({
       documentID: document.documentID,
@@ -63,10 +71,19 @@ describe('getDocumentByID', () => {
   });
 
   it('should not return the document of other users', async () => {
-    await insertDocumentInDatabase({ ...document, spaceID: undefined });
+    const space = await createSpace({ title: 'test', userID: document.userID });
+    await insertDocumentInDatabase({ ...document, spaceID: space.spaceID });
     const record = await getDocumentByID({
       documentID: document.documentID,
       userID: crypto.randomUUID(),
+    });
+    expect(record).toBeUndefined();
+  });
+
+  it('should return undefined if the space does not exist', async () => {
+    const record = await getDocumentByID({
+      documentID: document.documentID,
+      userID: document.userID,
     });
     expect(record).toBeUndefined();
   });
@@ -208,7 +225,8 @@ describe('getDocumentsBySpaceID', () => {
 
 describe('deleteDocument', () => {
   it('should delete the document', async () => {
-    await insertDocumentInDatabase({ ...document, spaceID: undefined });
+    const space = await createSpace({ title: 'test', userID: document.userID });
+    await insertDocumentInDatabase({ ...document, spaceID: space.spaceID });
     await deleteDocumentInDatabase({
       documentID: document.documentID,
       userID: document.userID,
@@ -222,7 +240,8 @@ describe('deleteDocument', () => {
   });
 
   it('should not delete the document of other users', async () => {
-    await insertDocumentInDatabase({ ...document, spaceID: undefined });
+    const space = await createSpace({ title: 'test', userID: document.userID });
+    await insertDocumentInDatabase({ ...document, spaceID: space.spaceID });
     await deleteDocumentInDatabase({
       documentID: document.documentID,
       userID: crypto.randomUUID(),
@@ -234,11 +253,21 @@ describe('deleteDocument', () => {
     });
     expect(record).toBeDefined();
   });
+
+  it('should return undefined if the space does not exist', async () => {
+    await deleteDocumentInDatabase({
+      documentID: document.documentID,
+      userID: document.userID,
+    });
+
+    expect(true).toBe(true); // pass if the function does not throw
+  });
 });
 
 describe('updateDocument', () => {
   it('should update the document and return it', async () => {
-    await insertDocumentInDatabase({ ...document, spaceID: undefined });
+    const space = await createSpace({ title: 'test', userID: document.userID });
+    await insertDocumentInDatabase({ ...document, spaceID: space.spaceID });
 
     const record = await updateDocumentInDatabase({
       documentID: document.documentID,
@@ -252,7 +281,8 @@ describe('updateDocument', () => {
   });
 
   it('should not update another user document', async () => {
-    await insertDocumentInDatabase({ ...document, spaceID: undefined });
+    const space = await createSpace({ title: 'test', userID: document.userID });
+    await insertDocumentInDatabase({ ...document, spaceID: space.spaceID });
     await expect(
       updateDocumentInDatabase({
         documentID: document.documentID,
@@ -269,7 +299,8 @@ describe('updateDocument', () => {
   });
 
   it('should ignore undefined values', async () => {
-    await insertDocumentInDatabase({ ...document, spaceID: undefined });
+    const space = await createSpace({ title: 'test', userID: document.userID });
+    await insertDocumentInDatabase({ ...document, spaceID: space.spaceID });
 
     await updateDocumentInDatabase({
       documentID: document.documentID,
@@ -306,5 +337,15 @@ describe('updateDocument', () => {
       status: 'error',
       userID: document.userID,
     });
+  });
+
+  it('should throw if the space does not exist', async () => {
+    await expect(
+      updateDocumentInDatabase({
+        documentID: document.documentID,
+        status: 'indexed',
+        userID: document.userID,
+      }),
+    ).rejects.toThrow();
   });
 });

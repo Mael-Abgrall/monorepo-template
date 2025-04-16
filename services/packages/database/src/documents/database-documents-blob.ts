@@ -162,6 +162,6 @@ function selectBucket(): string {
     return 'dev';
   }
 
-  return 'default';
+  return 'prod';
   /* v8 ignore end */
 }

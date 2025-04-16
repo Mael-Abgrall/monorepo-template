@@ -31,6 +31,9 @@ export async function rerank({
   userID: string;
   vectorResults: SearchResultChunks;
 }): Promise<SearchResultChunks> {
+  if (keywordResults.length === 0 && vectorResults.length === 0) {
+    return [];
+  }
   switch (model) {
     case 'cohere-rerank-v3.5': {
       return rerankCohere({

@@ -1,22 +1,34 @@
 # TODO
 
-## Now
-
-### Thursday
-
-- parse files
-- Index files with a filter on the space and user
-- Upload folders
-
-### Friday
+## todo now
 
 - CI/CD pipelines
-- Branding + split projects
 - Deploy to CF
+- Branding + split projects
+
+## urgent
+
+- Use clause 3.5 instead of 3.7
+- add logs on what's happening with the orchestrator
+- Log the orchestrator output in debug
+- log in debug the messages sent to bedrock
 
 ## When done
 
-- background processing of files
+- Handle 409 errors with Claude
+- Upload folders (https://stackoverflow.com/questions/42239663/upload-folder-and-all-its-content-in-javascript)
+- parser to markdown instead of raw text
+- refactor the messages into a more raw format (use the LanguageModelMessage format, and put everything in a single jsonb)
+- better observability: https://pashpashpash.substack.com/p/why-does-my-rag-suck-and-how-do-i
+
+```
+- Questions being asked
+- Vector embeddings search for retrieval. Extra points if you also have traditional text search as well
+- Thumbs up/down feedback + checkboxes for categorising feedback
+- Reranker score for your retrieved context
+- Cosine similarity scores for retrieved embeddings
+- Average values of these metrics and how they correlate with user feedback (thumbs up/down)
+```
 
 ## Other issues
 

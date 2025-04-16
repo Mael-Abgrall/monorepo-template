@@ -40,7 +40,7 @@ async function prepareDB() {
     chunkContent: 'Document one',
     chunkID: crypto.randomUUID(),
     documentID,
-    embedding: Array.from({ length: 1536 }, () => {
+    embedding: Array.from({ length: 1024 }, () => {
       return 0.9;
     }),
     spaceID: space.spaceID,
@@ -51,7 +51,7 @@ async function prepareDB() {
     chunkContent: 'document two',
     chunkID: crypto.randomUUID(),
     documentID,
-    embedding: Array.from({ length: 1536 }, () => {
+    embedding: Array.from({ length: 1024 }, () => {
       return 0.8;
     }),
     spaceID: space.spaceID,
@@ -62,7 +62,7 @@ async function prepareDB() {
     chunkContent: 'three',
     chunkID: crypto.randomUUID(),
     documentID,
-    embedding: Array.from({ length: 1536 }, () => {
+    embedding: Array.from({ length: 1024 }, () => {
       return -0.1;
     }),
     spaceID: space.spaceID,
@@ -73,7 +73,7 @@ async function prepareDB() {
     chunkContent: 'Document from other space',
     chunkID: crypto.randomUUID(),
     documentID,
-    embedding: Array.from({ length: 1536 }, () => {
+    embedding: Array.from({ length: 1024 }, () => {
       return 0.9;
     }),
     spaceID: crypto.randomUUID(),
@@ -84,7 +84,7 @@ async function prepareDB() {
     chunkContent: 'Document from other user',
     chunkID: crypto.randomUUID(),
     documentID,
-    embedding: Array.from({ length: 1536 }, () => {
+    embedding: Array.from({ length: 1024 }, () => {
       return 0.9;
     }),
     spaceID: space.spaceID,
@@ -148,7 +148,7 @@ describe('bulkAddChunks', () => {
         chunkContent: 'This is the first chunk of content',
         chunkID,
         documentID,
-        embedding: Array.from({ length: 1536 }).fill(0.1) as number[],
+        embedding: Array.from({ length: 1024 }).fill(0.1) as number[],
         spaceID,
         userID,
       },
@@ -156,7 +156,7 @@ describe('bulkAddChunks', () => {
         chunkContent: 'This is the second chunk of content',
         chunkID,
         documentID,
-        embedding: Array.from({ length: 1536 }).fill(0.2) as number[],
+        embedding: Array.from({ length: 1024 }).fill(0.2) as number[],
         spaceID,
         userID,
       },
@@ -175,7 +175,7 @@ describe('bulkAddChunks', () => {
         chunkContent: 'This is a chunk for a non-existent document',
         chunkID: crypto.randomUUID(),
         documentID: nonExistentDocumentID,
-        embedding: Array.from({ length: 1536 }).fill(0.1) as number[],
+        embedding: Array.from({ length: 1024 }).fill(0.1) as number[],
         spaceID,
         userID,
       },
@@ -194,7 +194,7 @@ describe('Vector search', () => {
     });
 
     const result = await vectorSearch({
-      embedding: Array.from({ length: 1536 }, () => {
+      embedding: Array.from({ length: 1024 }, () => {
         return 0.9;
       }),
       maxResults: 100,
@@ -216,7 +216,7 @@ describe('Vector search', () => {
       chunks: [mockDocument1, mockDocument2, mockDocument3],
     });
     const result = await vectorSearch({
-      embedding: Array.from({ length: 1536 }, () => {
+      embedding: Array.from({ length: 1024 }, () => {
         return 0.9;
       }),
       maxResults: 1,
@@ -236,7 +236,7 @@ describe('Vector search', () => {
     });
 
     const result = await vectorSearch({
-      embedding: Array.from({ length: 1536 }, () => {
+      embedding: Array.from({ length: 1024 }, () => {
         return 0.9;
       }),
       maxResults: 100,
@@ -256,7 +256,7 @@ describe('Vector search', () => {
     });
 
     const result = await vectorSearch({
-      embedding: Array.from({ length: 1536 }, () => {
+      embedding: Array.from({ length: 1024 }, () => {
         return 0.9;
       }),
       maxResults: 100,
@@ -387,7 +387,7 @@ describe('Delete chunks', () => {
     });
     expect(searchResult).toHaveLength(2);
     const vectorSearchResult = await vectorSearch({
-      embedding: Array.from({ length: 1536 }).fill(0.1) as number[],
+      embedding: Array.from({ length: 1024 }).fill(0.1) as number[],
       maxResults: 100,
       spaceID,
       userID,
@@ -411,7 +411,7 @@ describe('Delete chunks', () => {
     });
     expect(searchResultAfterDeletion).toHaveLength(0);
     const vectorSearchResultAfterDeletion = await vectorSearch({
-      embedding: Array.from({ length: 1536 }).fill(0.1) as number[],
+      embedding: Array.from({ length: 1024 }).fill(0.1) as number[],
       maxResults: 100,
       spaceID,
       userID,

@@ -13,12 +13,19 @@ import componentChatInput from './app-components-chat-input.vue';
 import componentChatPrompt from './app-components-chat-prompt.vue';
 import componentChatResponse from './app-components-chat-response.vue';
 
+const { spaceID } = defineProps<{
+  /**
+   * The ID of the space where the chat is taking place
+   */
+  spaceID: string | undefined;
+}>();
+
 const conversationStore = useConversationStore();
 </script>
 
 <template>
   <div class="chat-container">
-    <componentChatHistory />
+    <componentChatHistory :spaceID="spaceID" />
     <div class="conversation">
       <div
         class="message"
@@ -28,7 +35,7 @@ const conversationStore = useConversationStore();
         <componentChatResponse :message="message" />
       </div>
     </div>
-    <componentChatInput />
+    <componentChatInput :spaceID="spaceID" />
   </div>
 </template>
 

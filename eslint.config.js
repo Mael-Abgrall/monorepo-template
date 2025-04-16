@@ -30,6 +30,7 @@ export default tseslint.config(
             'key_field',
             'api_version',
             'top_n',
+            'input_schema',
           ],
         },
       ],

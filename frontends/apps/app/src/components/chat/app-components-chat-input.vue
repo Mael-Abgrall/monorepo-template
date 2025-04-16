@@ -10,6 +10,13 @@ import {
   iconStop,
 } from '../icons';
 
+const { spaceID } = defineProps<{
+  /**
+   * The ID of the space where the chat is taking place
+   */
+  spaceID: string | undefined;
+}>();
+
 const prompt = ref<string>('');
 const conversationStore = useConversationStore();
 
@@ -36,6 +43,7 @@ async function sendMessage(): Promise<void> {
   prompt.value = '';
   await conversationStore.chat({
     prompt: promptValue,
+    spaceID,
   });
 }
 </script>

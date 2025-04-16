@@ -140,7 +140,7 @@ describe('POST /chat', () => {
       userID: 'test-user-id',
     } satisfies Awaited<ReturnType<typeof verifyToken>>);
 
-    const response = await app.request('/chat', {
+    const response = await app.request('/chat/text', {
       method: 'POST',
     });
     expect(response.status).toBe(400);
@@ -158,7 +158,7 @@ describe('POST /chat', () => {
       void 0 satisfies Awaited<ReturnType<typeof completeNewConversation>>,
     );
 
-    const response = await app.request('/chat', {
+    const response = await app.request('/chat/text', {
       body: JSON.stringify({
         prompt: 'Hello, world!',
       } satisfies PostChatBody),
@@ -187,7 +187,7 @@ describe('POST /chat', () => {
       void 0 satisfies Awaited<ReturnType<typeof completeNewMessage>>,
     );
 
-    const response = await app.request('/chat', {
+    const response = await app.request('/chat/text', {
       body: JSON.stringify({
         conversationID: '123',
         prompt: 'Hello, world!',

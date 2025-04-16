@@ -97,8 +97,15 @@ export const useConversationStore = defineStore('conversation', () => {
    * Connect to the conversation SSE endpoint.
    * @param root named parameters
    * @param root.prompt the prompt to send to the conversation
+   * @param root.spaceID the ID of the space where the chat is taking place
    */
-  async function chat({ prompt }: { prompt: string }): Promise<void> {
+  async function chat({
+    prompt,
+    spaceID,
+  }: {
+    prompt: string;
+    spaceID: string | undefined;
+  }): Promise<void> {
     isLoading.value = true;
     try {
       streamController.value = new AbortController();
@@ -106,6 +113,7 @@ export const useConversationStore = defineStore('conversation', () => {
         body: {
           conversationID: currentConversationID.value,
           prompt,
+          spaceID,
         } satisfies PostChatBody,
         method: 'POST',
         signal: streamController.value.signal,

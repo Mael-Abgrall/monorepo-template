@@ -15,6 +15,7 @@ import type { SearchResultChunks } from '../../../packages/ai/src/providers/rera
 export {
   addDocument,
   deleteDocument,
+  getDocumentByID,
   getDocumentsBySpaceID,
 } from 'database/documents';
 
@@ -148,7 +149,6 @@ export async function parseAndIndexDocument({
  *
  * Note: there are various "speed" options:
  * - fast: will skip Hyde and skip query expansion; use cpu reranking
- * - balanced: will skip hyde but add query expansion; use ai reranking
  * - detailed: will use Hyde, query expansion, and the best reranker available
  * @param root named parameters
  * @param root.spaceID the ID of the space to search in
@@ -173,7 +173,7 @@ export async function searchDocuments({
   maxSearchResults?: number;
   query: string;
   spaceID: string;
-  speed?: 'balanced' | 'fast'; // | 'detailed';
+  speed?: 'detailed' | 'fast';
   traceID: string;
   userID: string;
 }): Promise<SearchResultChunks> {

@@ -34,6 +34,20 @@
       "types": "./src/utils/ai-utils-chunking.ts",
       "default": "./dist/utils/ai-utils-chunking.js"
     },
+    "./agents/orchestrator": {
+      "workerd": "./src/agents/orchestrator/ai-agents-orchestrator.ts",
+      "typescript": "./src/agents/orchestrator/ai-agents-orchestrator.ts",
+      "development": "./src/agents/orchestrator/ai-agents-orchestrator.ts",
+      "types": "./src/agents/orchestrator/ai-agents-orchestrator.ts",
+      "default": "./dist/agents/orchestrator/ai-agents-orchestrator.js"
+    },
+    "./agents/document-reader": {
+      "workerd": "./src/agents/document-reader/ai-agents-document-reader.ts",
+      "typescript": "./src/agents/document-reader/ai-agents-document-reader.ts",
+      "development": "./src/agents/document-reader/ai-agents-document-reader.ts",
+      "types": "./src/agents/document-reader/ai-agents-document-reader.ts",
+      "default": "./dist/agents/document-reader/ai-agents-document-reader.js"
+    },
     "./package.json": "./package.json"
   }
 }

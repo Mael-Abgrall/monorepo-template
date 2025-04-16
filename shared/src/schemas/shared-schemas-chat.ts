@@ -110,6 +110,11 @@ export const postChatBodySchema = Type.Object(
       description: "The user's prompt to send to the conversation",
       minLength: 1,
     }),
+    spaceID: Type.Optional(
+      Type.String({
+        description: 'The ID of the space the conversation belongs to',
+      }),
+    ),
   },
   {
     additionalProperties: false,

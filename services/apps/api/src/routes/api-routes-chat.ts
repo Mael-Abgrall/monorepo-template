@@ -15,7 +15,7 @@ import { describeRoute } from 'hono-openapi';
 import { validator } from 'hono-openapi/typebox';
 import { HTTPException } from 'hono/http-exception';
 import { streamSSE } from 'hono/streaming';
-import { flushAnalytics } from 'service-utils/analytics';
+import { analytics, flushAnalytics } from 'service-utils/analytics';
 import { getContextLogger } from 'service-utils/logger';
 import { genericResponseSchema } from 'shared/schemas/shared-schemas';
 import {
@@ -74,29 +74,42 @@ The API will behave differently depending on the input parameters:
 - This mean we need to de-couple the state and processing from the API server to keep it stateless.
   - AKA, the processing should be a worker, regularly updating a state, and that would respond to an abort signal
   - The API would only connect to the state, and report the changes to the client. (figure out how to "subscribe" to the state)
-  - The client could decide at any time to abort the processing (=/= an error or a close from the stream)
+  - The client could decide at any time to abort the processing (=/= an error or a close from the stream) -> require a new endpoint
 
 */
-    const { conversationID, prompt } = context.req.valid('json');
+    const { conversationID, prompt, spaceID } = context.req.valid('json');
     return streamSSE(
       context,
       async (stream) => {
-        if (!conversationID) {
-          await completeNewConversation({
+        try {
+          if (!conversationID) {
+            await completeNewConversation({
+              prompt,
+              spaceID,
+              sseStream: stream,
+              userID: context.get('userID'),
+            });
+            await flushAnalytics();
+            return;
+          }
+          await completeNewMessage({
+            conversationID,
             prompt,
+            spaceID,
             sseStream: stream,
             userID: context.get('userID'),
           });
           await flushAnalytics();
-          return;
+        } catch (error) {
+          logger.error(error);
+          analytics.captureException(error, context.get('userID'));
+          await stream.writeSSE({
+            data: 'error',
+            event: 'error',
+          } satisfies PostChatErrorEvent);
+          await flushAnalytics();
+          await stream.close();
         }
-        await completeNewMessage({
-          conversationID,
-          prompt,
-          sseStream: stream,
-          userID: context.get('userID'),
-        });
-        await flushAnalytics();
       },
       async (error, stream) => {
         logger.error('error while streaming');
@@ -105,6 +118,7 @@ The API will behave differently depending on the input parameters:
           data: 'error',
           event: 'error',
         } satisfies PostChatErrorEvent);
+        await flushAnalytics();
         await stream.close();
       },
     );

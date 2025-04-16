@@ -54,7 +54,7 @@ export async function getDocumentByID({
     return undefined;
   }
 
-  return { ...records[0], spaceID: records[0].spaceID ?? undefined };
+  return { ...records[0], spaceID: records[0].spaceID };
 }
 
 /**
@@ -99,7 +99,7 @@ export async function insertDocumentInDatabase({
   userID,
 }: {
   documentID: string;
-  spaceID: string | undefined;
+  spaceID: string;
   title: string;
   userID: string;
 }): Promise<void> {
@@ -144,5 +144,5 @@ export async function updateDocumentInDatabase({
   if (record.length === 0) {
     throw new Error('Document not found');
   }
-  return { ...record[0], spaceID: record[0].spaceID ?? undefined };
+  return { ...record[0], spaceID: record[0].spaceID };
 }
