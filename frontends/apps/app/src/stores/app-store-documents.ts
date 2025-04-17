@@ -4,8 +4,8 @@ import type {
 } from 'shared/schemas/shared-schemas-documents';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref } from 'vue';
-import { logger } from 'web-utils/reporting';
 import { apiFetch } from '../helpers/app-helpers-fetch';
+import { logger } from '../helpers/app-helpers-reporting';
 
 export const useDocumentStore = defineStore('document', () => {
   const documents = ref<UploadDocumentsResponse[]>([]);

@@ -2,8 +2,8 @@ import type { GenericResponse } from 'shared/schemas/shared-schemas';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { logger } from 'web-utils/reporting';
 import { apiFetch } from '../helpers/app-helpers-fetch';
+import { logger } from '../helpers/app-helpers-reporting';
 import { useUserStore } from './app-stores-user';
 
 const initialIsAuth = JSON.parse(

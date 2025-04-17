@@ -8,8 +8,8 @@ import type {
 } from 'shared/schemas/shared-schemas-chat';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
-import { logger } from 'web-utils/reporting';
 import { apiFetch } from '../helpers/app-helpers-fetch';
+import { logger } from '../helpers/app-helpers-reporting';
 import { sseStream } from '../helpers/app-helpers-stream';
 
 interface Conversations {

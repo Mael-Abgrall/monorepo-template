@@ -5,7 +5,7 @@ import type {
 } from 'shared/schemas/shared-auth-schemas';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { logger } from 'web-utils/reporting';
+import { logger } from '../../helpers/app-helpers-reporting';
 import containmentAlert from '../../components/containment/app-component-containment-alert.vue';
 import mediaLoading from '../../components/media/app-component-media-loading.vue';
 import { apiFetch } from '../../helpers/app-helpers-fetch';

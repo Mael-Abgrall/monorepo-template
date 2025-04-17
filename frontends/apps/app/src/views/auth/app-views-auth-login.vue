@@ -7,7 +7,7 @@ import type {
 import type { GenericResponse } from 'shared/schemas/shared-schemas';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { logger } from 'web-utils/reporting';
+import { logger } from '../../helpers/app-helpers-reporting';
 import containmentAlert from '../../components/containment/app-component-containment-alert.vue';
 import containmentButton from '../../components/containment/app-component-containment-button.vue';
 import { iconCheck, iconGoogle, iconMicrosoft } from '../../components/icons';

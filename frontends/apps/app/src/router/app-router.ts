@@ -1,6 +1,6 @@
 import type { Component } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
-import { logger } from 'web-utils/reporting';
+import { logger } from '../helpers/app-helpers-reporting';
 import withNav from '../layout/app-layout-with-nav.vue';
 import withoutNav from '../layout/app-layout-without-nav.vue';
 import { useAuthStore } from '../stores/app-stores-auth';

@@ -1,8 +1,8 @@
 import type { GetMeResponse } from 'shared/schemas/shared-user-schemas';
 import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref, watch } from 'vue';
-import { logger } from 'web-utils/reporting';
 import { apiFetch } from '../helpers/app-helpers-fetch';
+import { logger } from '../helpers/app-helpers-reporting';
 
 const userFromLocalStorage = localStorage.getItem('user');
 const userFromLocalStorageParsed = userFromLocalStorage

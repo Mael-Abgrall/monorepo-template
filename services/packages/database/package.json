@@ -43,7 +43,7 @@
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
     "aws4fetch": "^1.0.20",
-    "drizzle-orm": "^0.39.3",
+    "drizzle-orm": "^0.42.0",
     "service-utils": "workspace:^",
     "unstorage": "^1.15.0"
   }

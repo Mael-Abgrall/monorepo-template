@@ -41,7 +41,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.34.16",
+    "@sinclair/typebox": "^0.34.33",
     "ofetch": "^1.4.1"
   }
 }

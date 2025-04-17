@@ -5,8 +5,8 @@ import type {
 } from 'shared/schemas/shared-schemas-space';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { logger } from 'web-utils/reporting';
 import { apiFetch } from '../helpers/app-helpers-fetch';
+import { logger } from '../helpers/app-helpers-reporting';
 
 export const useSpaceStore = defineStore('space', () => {
   const spaces = ref<Space[]>([]);
