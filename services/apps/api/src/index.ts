@@ -19,7 +19,7 @@ app.use('*', async (context, next) => {
   const origin =
     environment.DOMAIN === 'localhost'
       ? ['http://localhost:5173', 'http://localhost:8787']
-      : ['https://app.example.com', 'https://api.example.com'];
+      : ['https://app.example.com', 'https://api.example.com']; // todo update this url
   const corsMiddlewareHandler = cors({
     credentials: true,
     maxAge: 600,

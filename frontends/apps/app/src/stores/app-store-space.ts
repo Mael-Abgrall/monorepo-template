@@ -8,7 +8,7 @@ import { ref } from 'vue';
 import { apiFetch } from '../helpers/app-helpers-fetch';
 import { logger } from '../helpers/app-helpers-reporting';
 
-export const useSpaceStore = defineStore('space', () => {
+export const useSpacesStore = defineStore('space', () => {
   const spaces = ref<Space[]>([]);
   const spaceError = ref<string | undefined>(undefined);
   const isLoading = ref(false);

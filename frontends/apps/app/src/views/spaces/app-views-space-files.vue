@@ -21,6 +21,18 @@ const selectedFiles = ref<File[]>([]);
 async function handleFiles(files: File[]): Promise<void> {
   selectedFiles.value = files;
 
+  // push to the pending list - visual feedback to the user
+  for (const file of files) {
+    if (!documentStore.documentsPending.has(`${spaceID}-${file.name}`)) {
+      documentStore.documentsPending.set(`${spaceID}-${file.name}`, {
+        spaceID,
+        status: 'pending',
+        title: file.name,
+      });
+    }
+  }
+
+  // request upload
   for (const file of files) {
     await documentStore.uploadDocument({ file, spaceID });
   }

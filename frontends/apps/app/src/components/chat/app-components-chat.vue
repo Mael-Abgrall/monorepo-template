@@ -7,7 +7,8 @@ notes:
 
 -->
 <script setup lang="ts">
-import { useConversationStore } from '../../stores/app-store-conversation';
+import { useChatsStore } from '../../stores/app-store-chats';
+import { iconSpinner } from '../icons';
 import componentChatHistory from './app-component-chat-history.vue';
 import componentChatInput from './app-components-chat-input.vue';
 import componentChatPrompt from './app-components-chat-prompt.vue';
@@ -20,19 +21,34 @@ const { spaceID } = defineProps<{
   spaceID: string | undefined;
 }>();
 
-const conversationStore = useConversationStore();
+const chatStore = useChatsStore();
 </script>
 
 <template>
   <div class="chat-container">
     <componentChatHistory :spaceID="spaceID" />
-    <div class="conversation">
-      <div
-        class="message"
-        v-for="message of conversationStore.currentConversationMessages"
-      >
-        <componentChatPrompt :message="message" />
-        <componentChatResponse :message="message" />
+    <div class="chat">
+      <div class="message" v-for="message of chatStore.currentChat?.messages">
+        <template v-for="content of message.content">
+          <componentChatPrompt
+            v-if="message.role === 'user' && content.text"
+            :text="content.text"
+          />
+          <componentChatResponse
+            v-else-if="message.role === 'assistant' && content.text"
+            :text="content.text"
+          />
+          <div v-else>
+            unknown content block
+            {{ content }}
+          </div>
+        </template>
+      </div>
+      <div class="loading" v-if="chatStore.isLoading">
+        <iconSpinner />
+      </div>
+      <div class="error" v-if="chatStore.chatError">
+        {{ chatStore.chatError }}
       </div>
     </div>
     <componentChatInput :spaceID="spaceID" />
@@ -47,7 +63,7 @@ const conversationStore = useConversationStore();
   @apply p-2 bg-stone-100 shadow-xl;
 }
 
-.conversation {
+.chat {
   display: flex;
   flex-direction: column;
   @apply gap-6;

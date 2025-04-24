@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useConversationStore } from '../../stores/app-store-conversation';
+import { useChatsStore } from '../../stores/app-store-chats';
 import componentContainmentButton from '../containment/app-component-containment-button.vue';
 import {
   iconMic,
@@ -18,7 +18,7 @@ const { spaceID } = defineProps<{
 }>();
 
 const prompt = ref<string>('');
-const conversationStore = useConversationStore();
+const chatStore = useChatsStore();
 
 /**
  * Handle keydown event
@@ -41,7 +41,7 @@ async function sendMessage(): Promise<void> {
   }
   const promptValue = globalThis.structuredClone(prompt.value.trim());
   prompt.value = '';
-  await conversationStore.chat({
+  await chatStore.complete({
     prompt: promptValue,
     spaceID,
   });
@@ -78,7 +78,7 @@ async function sendMessage(): Promise<void> {
         <button
           type="submit"
           :disabled="prompt.length === 0"
-          v-if="!conversationStore.isLoading"
+          v-if="!chatStore.isLoading"
         >
           <componentContainmentButton
             size="icon-rounded"
@@ -89,10 +89,7 @@ async function sendMessage(): Promise<void> {
           </componentContainmentButton>
         </button>
 
-        <div
-          v-if="conversationStore.isLoading"
-          @click="conversationStore.abortConversation"
-        >
+        <div v-if="chatStore.isLoading" @click="chatStore.abortChatStream()">
           <componentContainmentButton size="icon-rounded" variant="destructive">
             <iconStop />
           </componentContainmentButton>

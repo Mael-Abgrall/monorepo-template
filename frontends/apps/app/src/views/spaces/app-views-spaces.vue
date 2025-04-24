@@ -9,23 +9,23 @@ import {
   dialogTitle,
   uiDialog,
 } from '../../components/ui/dialog';
-import { useSpaceStore } from '../../stores/app-store-space';
+import { useSpacesStore } from '../../stores/app-store-space';
 
 const router = useRouter();
-const spaceStore = useSpaceStore();
+const spacesStore = useSpacesStore();
 
 const visible = ref(false);
 const title = ref('');
 
 onMounted(async () => {
-  await spaceStore.listSpaces();
+  await spacesStore.listSpaces();
 });
 
 /**
  * Create a new space.
  */
 async function createSpace(): Promise<void> {
-  const spaceID = await spaceStore.createSpace({
+  const spaceID = await spacesStore.createSpace({
     title: title.value.length > 0 ? title.value.trim() : undefined,
   });
   visible.value = false;
@@ -42,7 +42,7 @@ async function createSpace(): Promise<void> {
         Spaces
       </h1>
       <div class="page-info-description">
-        <p>Spaces help you organize conversations, files and sources.</p>
+        <p>Spaces help you organize chats, files and sources.</p>
         <p>You can also share them with your team or the public.</p>
       </div>
     </div>
@@ -56,7 +56,7 @@ async function createSpace(): Promise<void> {
   <ul>
     <componentButton
       variant="link"
-      v-for="space of spaceStore.spaces"
+      v-for="space of spacesStore.spaces"
       :key="space.spaceID"
     >
       <RouterLink

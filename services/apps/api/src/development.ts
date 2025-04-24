@@ -1,4 +1,4 @@
-import { apiReference } from '@scalar/hono-api-reference';
+import { Scalar } from '@scalar/hono-api-reference';
 import { openAPISpecs } from 'hono-openapi';
 import { getContextLogger } from 'service-utils/logger';
 import { default as app } from './index.js';
@@ -43,7 +43,7 @@ Regroup all the actions around the user, such as get profile, update profile, et
         },
         {
           description: `
-The endpoints to interact with the AI, or get the history of the user's conversations
+The endpoints to interact with the AI, or get the history of the user's chats
           `,
           name: 'chat',
         },
@@ -63,8 +63,8 @@ Documents are files that can be uploaded and indexed for search. Documents are a
 );
 app.get(
   '/docs',
-  apiReference({
-    spec: { url: '/openapi' },
+  Scalar({
+    url: '/openapi',
   }),
 );
 

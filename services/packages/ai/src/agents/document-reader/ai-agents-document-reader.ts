@@ -18,9 +18,9 @@ You need to follow the prompt given by the other agent
 /**
  * Document reader agent: will read the document and extract the information requested
  * @param root named parameters
- * @param root.messages The messages of the conversation
- * @param root.traceID The trace ID associated with the conversation
- * @param root.userID The user ID associated with the conversation
+ * @param root.messages The messages history
+ * @param root.traceID The trace ID for analytics
+ * @param root.userID The user ID doing the action
  * @returns The response from the language model
  */
 export async function agentReader({

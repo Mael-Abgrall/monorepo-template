@@ -70,7 +70,7 @@ export const useDocumentStore = defineStore('document', () => {
     formData.append('spaceID', spaceID);
     documentsPending.value.set(`${spaceID}-${file.name}`, {
       spaceID,
-      status: 'pending',
+      status: 'uploading',
       title: file.name,
     });
 

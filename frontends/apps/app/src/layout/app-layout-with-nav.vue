@@ -22,5 +22,6 @@ import { navigationSidebarNavbar } from '../components/navigation/sidebar/app-na
 main {
   flex: 1;
   height: 100%;
+  overflow-y: auto;
 }
 </style>

@@ -42,6 +42,14 @@ describe.skipIf(!process.env.TEST_EVAL)(
         userID: 'test-userID',
       });
 
+      if (
+        response.responseMessage.content?.[1].toolUse?.name !== 'list_documents'
+      ) {
+        for (const message of response.responseMessage.content!) {
+          console.log(message);
+        }
+      }
+
       expect(response.stopReason).toBe('tool_use');
       expect(response.responseMessage.content).toHaveLength(2);
       expect(response.responseMessage.content?.[1].toolUse?.name).toBe(
@@ -121,6 +129,9 @@ describe.skipIf(!process.env.TEST_EVAL)(
         'finalize_answer',
       );
     });
+
+    // todo
+    // it('Should stop when the information is not available')
   },
   50_000,
 );

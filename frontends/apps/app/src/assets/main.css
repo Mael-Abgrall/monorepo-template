@@ -22,3 +22,16 @@ input {
   border: 1px solid;
   @apply gap-3 py-1 px-3 rounded-lg bg-white border-stone-300 transition-colors shadow focus:outline-none focus:border-brand-400;
 }
+
+ol,
+ul {
+  display: flex;
+  flex-direction: column;
+  @apply pl-5 gap-1;
+}
+ol {
+  @apply list-decimal;
+}
+ul {
+  @apply list-disc;
+}

@@ -28,9 +28,18 @@ const documentStore = useDocumentStore();
     <div class="title">
       {{ title }}
     </div>
-    <div class="status" v-if="status !== 'pending'">{{ status }}</div>
-    <div class="status" v-if="status === 'pending'">{{ status }}</div>
-    <iconSpinner v-if="status === 'pending'" class="status-icon" />
+    <div class="status" v-if="status === 'pending'">Pending upload</div>
+    <div class="status" v-if="status === 'uploading'">Uploading</div>
+    <div class="status" v-if="status === 'error'">Error</div>
+    <div class="status" v-if="status === 'pendingIndexing'">
+      AI has not indexed this document yet
+    </div>
+    <div class="status" v-else-if="status === 'indexed'">Ready to use</div>
+    <div class="status" v-else>{{ status }}</div>
+    <iconSpinner
+      v-if="status === 'pending' || status === 'uploading'"
+      class="status-icon"
+    />
     <iconWarning v-else-if="status === 'error'" class="status-icon" />
     <componentButton
       v-else-if="documentID"

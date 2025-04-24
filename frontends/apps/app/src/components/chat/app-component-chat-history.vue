@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useConversationStore } from '../../stores/app-store-conversation';
+import { useChatsStore } from '../../stores/app-store-chats';
 
 const { spaceID } = defineProps<{
   /**
@@ -8,80 +8,37 @@ const { spaceID } = defineProps<{
   spaceID: string | undefined;
 }>();
 
-const conversationStore = useConversationStore();
+const chatStore = useChatsStore();
 
-const selectConversation = (conversationID: string | undefined): void => {
-  conversationStore.currentConversationID = conversationID;
+const selectChat = (chatID: string | undefined): void => {
+  chatStore.currentChatID = chatID;
 };
 </script>
 
 <template>
-  <div>
-    <template
-      v-for="conversation of conversationStore.conversations"
-      :key="conversation.conversationID"
-    >
-      {{ conversation.createdAt }}
-      {{ conversation.conversationID }}
-      {{ conversation.spaceID }}
-      <div
-        :value="conversation.conversationID"
-        v-if="conversation.spaceID === spaceID"
-      >
-        {{ conversation }}
-        {{
-          Object.values(conversationStore.messages)
-            .find(
-              (message) =>
-                message.conversationID === conversation.conversationID,
-            )
-            ?.prompt.slice(0, 50)
-        }}
-      </div>
-    </template>
-  </div>
-
   <select
-    v-model="conversationStore.currentConversationID"
-    @change="selectConversation(conversationStore.currentConversationID)"
-    class="conversation-select"
+    v-model="chatStore.currentChatID"
+    @change="selectChat(chatStore.currentChatID)"
   >
-    <option value="" disabled>Select a conversation</option>
-    <option :value="undefined">New conversation</option>
+    <option value="" disabled>Select a chat</option>
+    <option :value="undefined">New chat</option>
     <template v-if="spaceID">
-      <template
-        v-for="conversation of conversationStore.conversations"
-        :key="conversation.conversationID"
-      >
+      <template v-for="[chatID, chat] of chatStore.chats" :key="chatID">
         <option
-          :value="conversation.conversationID"
-          v-if="conversation.spaceID === spaceID"
+          :value="chatID"
+          v-if="chat.spaceID === spaceID && chat.messages.length > 0"
         >
-          {{
-            Object.values(conversationStore.messages)
-              .find(
-                (message) =>
-                  message.conversationID === conversation.conversationID,
-              )
-              ?.prompt.slice(0, 50)
-          }}
+          {{ chat.messages[0].content.at(0)!.text?.slice(0, 50) }}
         </option>
       </template>
     </template>
     <template v-else>
       <option
-        v-for="conversation of conversationStore.conversations"
-        :key="conversation.conversationID"
-        :value="conversation.conversationID"
+        v-for="[chatID, chat] of chatStore.chats"
+        :key="chatID"
+        :value="chatID"
       >
-        {{
-          Object.values(conversationStore.messages)
-            .find(
-              (message) =>
-                message.conversationID === conversation.conversationID,
-            )
-            ?.prompt.slice(0, 50)
-        }}
+        {{ chat.messages[0].content.at(0)!.text?.slice(0, 50) }}
       </option>
     </template>
   </select>

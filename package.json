@@ -12,6 +12,7 @@
   "scripts": {
     "test": "vitest --coverage --coverage.skipFull --coverage.all=false",
     "test:all": "TEST_API=true vitest --coverage --coverage.skipFull --coverage.all=true",
+    "test:evals": "TEST_EVAL=true vitest",
     "w:vite": "cd $INIT_CWD && vite",
     "w:wrangler": "cd $INIT_CWD && wrangler",
     "w:wrangler-dev": "cd $INIT_CWD && wrangler dev",

@@ -3,39 +3,29 @@ import type {
   ToolResultBlock,
   ToolUseBlock,
 } from 'ai/lm';
-import type { MessageInDB } from 'database/conversation';
+import type { ChatInDB } from 'database/chat';
 import type { SSEMessage, SSEStreamingApi } from 'hono/streaming';
-import type { PostChatEvent } from 'shared/schemas/shared-schemas-chat';
+import type { ChatEvent } from 'shared/schemas/shared-schemas-chat';
 import { agentOrchestrator } from 'ai/agents/orchestrator';
-import { completeStream } from 'ai/lm';
-import {
-  addMessageToConversation,
-  getConversation,
-  initConversation,
-  updateMessageInConversation,
-} from 'database/conversation';
+import { createChat, getChat, updateMessagesInChat } from 'database/chat';
 import { getDocumentByID, getDocumentsBySpaceID } from 'database/documents';
 import { analytics } from 'service-utils/analytics';
 import { getContextLogger } from 'service-utils/logger';
 import { searchDocuments } from '../documents/core-documents';
-export {
-  deleteConversation,
-  getConversation,
-  listConversations,
-  removeMessageFromConversation,
-} from 'database/conversation';
+
+export { getChat, listChatsInSpace } from 'database/chat';
 
 const logger = getContextLogger('core-chat.ts');
 
 /**
- * Complete a conversation
+ * Complete a chat
  * @param root named parameters
  * @param root.prompt The prompt of the user
- * @param root.spaceID (optional) The space ID associated with the conversation
+ * @param root.spaceID (optional) The space ID associated with the chat
  * @param root.sseStream The SSE stream to write to
  * @param root.userID The user ID
  */
-export async function completeNewConversation({
+export async function completeNewChat({
   prompt,
   spaceID,
   sseStream,
@@ -46,124 +36,108 @@ export async function completeNewConversation({
   sseStream: SSEStreamingApi;
   userID: string;
 }): Promise<void> {
-  const conversationStart = Date.now();
+  const chatStart = Date.now();
   const initStart = Date.now();
-  const { conversation, message } = await initConversation({
-    prompt,
+  const chat = await createChat({
+    messages: [
+      {
+        content: [{ text: prompt }],
+        role: 'user',
+      },
+    ],
+    spaceID,
     userID,
   });
   const initEnd = Date.now();
+  const traceID = chat.chatID;
   analytics.capture({
     distinctId: userID,
     event: '$ai_span',
     properties: {
       $ai_latency: (initEnd - initStart) / 1000, // in seconds
-      $ai_span_name: 'create conversation',
-      $ai_trace_id: conversation.conversationID,
+      $ai_span_name: 'create chat',
+      $ai_trace_id: traceID,
     },
+  });
+
+  await updateMessagesInChat({
+    chatID: chat.chatID,
+    messages: chat.messages,
+    userID,
   });
 
   await sseStream.writeSSE(
     createEvent({
       data: {
-        conversation,
-        message,
+        chatID: chat.chatID,
+        createdAt: chat.createdAt,
+        // @ts-expect-error need to update types for ours
+        messages: chat.messages,
+        spaceID: chat.spaceID,
+        userID,
       },
-      event: 'create-conversation',
+      event: 'new-chat',
     }),
   );
 
   await completeMessage({
-    history: [],
-    message,
-    spaceID,
+    chat,
     sseStream,
+    traceID,
   });
 
-  const conversationEnd = Date.now();
+  const chatEnd = Date.now();
   analytics.capture({
     distinctId: userID,
     event: '$ai_trace',
     properties: {
-      $ai_latency: (conversationEnd - conversationStart) / 1000, // in seconds
-      $ai_span_name: 'conversation',
-      $ai_trace_id: conversation.conversationID,
+      $ai_latency: (chatEnd - chatStart) / 1000, // in seconds
+      $ai_span_name: 'chat',
+      $ai_trace_id: traceID,
     },
   });
   await sseStream.close();
 }
 
 /**
- * Complete a follow up message to an existing conversation
+ * Complete a follow up message to an existing chat
  * @param root named parameters
- * @param root.conversationID The conversation ID
  * @param root.prompt The prompt of the user
- * @param root.spaceID (optional) The space ID associated with the conversation
  * @param root.sseStream The SSE stream to write to
  * @param root.userID The user ID
+ * @param root.chatID The chat ID
  */
 export async function completeNewMessage({
-  conversationID,
+  chatID,
   prompt,
-  spaceID,
   sseStream,
   userID,
 }: {
-  conversationID: string;
+  chatID: string;
   prompt: string;
-  spaceID: string | undefined;
   sseStream: SSEStreamingApi;
   userID: string;
 }): Promise<void> {
-  const conversationAndMessages = await getConversation({
-    conversationID,
-    userID,
-  });
-  if (!conversationAndMessages) {
-    throw new Error('Conversation not found');
-  }
   const messageStart = Date.now();
-  const addMessageStart = Date.now();
-  const message = await addMessageToConversation({
-    conversationID,
-    prompt,
+  const chat = await getChat({
+    chatID,
     userID,
   });
-  const addMessageEnd = Date.now();
-  analytics.capture({
-    distinctId: userID,
-    event: '$ai_span',
-    properties: {
-      $ai_latency: (addMessageEnd - addMessageStart) / 1000, // in seconds
-      $ai_span_name: 'add message to conversation',
-      $ai_trace_id: conversationID,
+  if (!chat) {
+    throw new Error('chat not found');
+  }
+
+  const traceID = chat.chatID;
+  await addMessageToChat({
+    chat,
+    message: {
+      content: [{ text: prompt }],
+      role: 'user',
     },
+    sseStream,
   });
 
-  await sseStream.writeSSE(
-    createEvent({
-      data: message,
-      event: 'create-message',
-    }),
-  );
-  const history = conversationAndMessages.messages.flatMap(
-    (previousMessage) => {
-      const userMessage = {
-        content: [{ text: previousMessage.prompt }],
-        role: 'user',
-      } satisfies LanguageModelMessage;
-      if (previousMessage.response) {
-        const assistantMessage = {
-          content: [{ text: previousMessage.response }],
-          role: 'assistant',
-        } satisfies LanguageModelMessage;
-        return [userMessage, assistantMessage];
-      }
-      return [userMessage];
-    },
-  );
-
-  await completeMessage({ history, message, spaceID, sseStream });
+  await completeMessage({ chat, sseStream, traceID });
 
   const messageEnd = Date.now();
   analytics.capture({
@@ -171,82 +145,98 @@ export async function completeNewMessage({
     event: '$ai_trace',
     properties: {
       $ai_latency: (messageEnd - messageStart) / 1000, // in seconds
-      $ai_span_name: 'conversation',
-      $ai_trace_id: conversationID,
+      $ai_span_name: 'chat',
+      $ai_trace_id: traceID,
     },
   });
   await sseStream.close();
 }
 
 /**
- * Stream the completion of a message to the user, and gradually update it in the database
+ * Add a message to a chat, sync with the DB and stream the update to the client
  * @param root named parameters
- * @param root.message The message to stream
- * @param root.spaceID The space ID if the chat is in a space
+ * @param root.chat The chat to add the message to
+ * @param root.message The message to add
  * @param root.sseStream The SSE stream to write to
- * @param root.history The history of the conversation
  */
-async function completeMessage({
-  history,
+async function addMessageToChat({
+  chat,
   message,
-  spaceID,
   sseStream,
 }: {
-  history: LanguageModelMessage[];
-  message: MessageInDB;
-  spaceID: string | undefined;
+  chat: ChatInDB;
+  message: LanguageModelMessage;
   sseStream: SSEStreamingApi;
 }): Promise<void> {
-  await finalizeMessage({
-    history: [
-      ...history,
-      { content: [{ text: message.prompt }], role: 'user' },
-    ],
-    message,
-    sseStream,
+  chat.messages.push(message);
+  await updateMessagesInChat({
+    chatID: chat.chatID,
+    messages: chat.messages,
+    userID: chat.userID,
   });
-  return;
-  const messages: LanguageModelMessage[] = [
-    ...history,
-    {
-      content: [{ text: message.prompt }],
-      role: 'user',
-    },
-  ];
-  let process = true;
-  while (process) {
+  await sseStream.writeSSE(
+    createEvent({
+      data: {
+        chatID: chat.chatID,
+        message,
+      },
+      event: 'new-message',
+    }),
+  );
+}
+
+/**
+ * Stream the completion of a message to the user, and gradually update it in the database
+ * @param root named parameters
+ * @param root.chat The chat to complete
+ * @param root.sseStream The SSE stream to write to
+ * @param root.traceID The trace ID associated with the chat
+ */
+async function completeMessage({
+  chat,
+  sseStream,
+  traceID,
+}: {
+  chat: ChatInDB;
+  sseStream: SSEStreamingApi;
+  traceID: string;
+}): Promise<void> {
+  let continueProcessing: 'end_turn' | 'tool_use' | undefined = undefined;
+  while (continueProcessing !== 'end_turn') {
     logger.info('calling orchestrator');
     const response = await agentOrchestrator({
-      messages,
-      spaceID,
-      traceID: message.conversationID,
-      userID: message.userID,
+      messages: chat.messages,
+      spaceID: chat.spaceID,
+      traceID,
+      userID: chat.userID,
     });
-    messages.push(response.responseMessage);
+    // @ts-expect-error need to improve those types
+    continueProcessing = response.stopReason;
+
+    await addMessageToChat({
+      chat,
+      message: response.responseMessage,
+      sseStream,
+    });
 
     const toolResponses: ToolResultBlock[] = [];
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- need to improve those types
     for (const content of response.responseMessage.content!) {
-      if (content.toolUse?.name === 'finalize_answer') {
-        process = false;
-        break;
-      }
-
       if (!content.toolUse) {
         continue;
       }
 
       const toolResponse = await handleToolCall({
-        spaceID,
+        spaceID: chat.spaceID,
         tool: content.toolUse,
-        traceID: message.conversationID,
-        userID: message.userID,
+        traceID,
+        userID: chat.userID,
       });
       toolResponses.push(toolResponse);
     }
 
     if (toolResponses.length > 0) {
-      messages.push({
+      chat.messages.push({
         content: toolResponses.map((toolResponses) => {
           return {
             toolResult: toolResponses,
@@ -256,7 +246,6 @@ async function completeMessage({
       });
     }
   }
-  await finalizeMessage({ history, message, sseStream });
 }
 
 /**
@@ -266,7 +255,7 @@ async function completeMessage({
  * @param root.data the data to send
  * @returns the event to send to the client
  */
-function createEvent({ data, event }: PostChatEvent): SSEMessage {
+function createEvent({ data, event }: ChatEvent): SSEMessage {
   return {
     data: JSON.stringify(data),
     event,
@@ -274,57 +263,12 @@ function createEvent({ data, event }: PostChatEvent): SSEMessage {
 }
 
 /**
- * Do the final step in a message: request a model to answer the question with a streaming response and update the database with the result
- * @param root named parameters
- * @param root.message The message to stream
- * @param root.sseStream The SSE stream to write to
- * @param root.history The history of the conversation
- */
-async function finalizeMessage({
-  history,
-  message,
-  sseStream,
-}: {
-  history: LanguageModelMessage[];
-  message: MessageInDB;
-  sseStream: SSEStreamingApi;
-}): Promise<void> {
-  const llmStream = completeStream({
-    messages: history,
-    model: 'claude-3-7-sonnet',
-    traceID: message.conversationID,
-    userID: message.userID,
-  });
-
-  let fullResponse = '';
-  for await (const textPart of llmStream) {
-    fullResponse += textPart;
-    await sseStream.writeSSE(
-      createEvent({
-        data: {
-          completion: textPart,
-          messageID: message.messageID,
-        },
-        event: 'completion',
-      }),
-    );
-  }
-
-  await updateMessageInConversation({
-    messageID: message.messageID,
-    prompt: message.prompt,
-    response: fullResponse,
-    userID: message.userID,
-  });
-}
-
-/**
  * Handle a tool call from the orchestrator
  * @param root named parameters
- * @param root.spaceID The space ID associated with the conversation
+ * @param root.spaceID The space ID associated with the chat
  * @param root.tool The tool to call
- * @param root.traceID The trace ID associated with the conversation
- * @param root.userID The user ID associated with the conversation
+ * @param root.traceID The trace ID associated with the chat
+ * @param root.userID The user ID associated with the chat
  * @returns The result of the tool call
  */
 async function handleToolCall({
@@ -432,7 +376,6 @@ async function handleToolCall({
           toolUseId: tool.toolUseId,
         };
       }
-      // todo
       // @ts-expect-error improve those types later
       if (!tool.input || !tool.input.query) {
         const error = new Error('Query is required');

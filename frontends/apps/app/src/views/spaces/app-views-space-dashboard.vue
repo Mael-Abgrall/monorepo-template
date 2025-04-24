@@ -11,14 +11,14 @@ defineProps<{
 
 <template>
   <div>
-    <h1>Dashboard for space {{ spaceID }}</h1>
+    <h1>Dashboard</h1>
     <componentChat :spaceID="spaceID" />
     <ul>
       <li>needs to:</li>
-      <li>Create a new conversation</li>
+      <li>Create a new chat</li>
       <li>Upload files</li>
 
-      <li>Display the associated conversations, files and generated files</li>
+      <li>Display the associated chats, files and generated files</li>
       <!-- <li>Select/show "connected tools"</li> -->
       <li>Display the workspace instructions</li>
       <li>Display the visibility and shared with</li>

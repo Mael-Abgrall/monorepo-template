@@ -3,7 +3,7 @@ import type {
   ToolInputSchema as AWSBedrockToolInputSchema,
 } from '@aws-sdk/client-bedrock-runtime';
 import type { LanguageModelMessage, LanguageModelTool } from './interfaces';
-import { claude37Sonnet, claude37SonnetStream } from './ai-providers-lm-aws';
+import { bedrockComplete, bedrockCompleteStream } from './ai-providers-lm-aws';
 
 export type { LanguageModelMessage, LanguageModelTool } from './interfaces';
 export type {
@@ -14,12 +14,12 @@ export type {
 /**
  * Complete a text using the chosen language model
  * @param root named parameters
- * @param root.messages The messages of the conversation
+ * @param root.messages The messages history
  * @param root.model The language model to use
  * @param root.systemPrompt The system prompt to use
  * @param root.tools The tools to use
- * @param root.traceID The trace ID associated with the conversation
- * @param root.userID The user ID associated with the conversation
+ * @param root.traceID The trace ID for this AI generation
+ * @param root.userID The user ID doing the action
  * @returns The response from the language model
  */
 export async function complete({
@@ -41,9 +41,10 @@ export async function complete({
   stopReason: string;
 }> {
   switch (model) {
-    case 'claude-3-7-sonnet': {
-      return claude37Sonnet({
+    case 'claude-3-5-sonnet': {
+      return bedrockComplete({
         messages,
+        model: 'anthropic.claude-3-5-sonnet-20240620-v1:0',
         systemPrompt,
         tools: mapToolsToBedrock({ tools }),
         traceID,
@@ -51,57 +52,77 @@ export async function complete({
       });
     }
 
-    /* v8 ignore start -- do later */
-    case 'claude-3-5-sonnet': {
-      throw new Error('Claude 3.5 Sonnet Not implemented');
+    case 'claude-3-7-sonnet': {
+      return bedrockComplete({
+        messages,
+        model: 'eu.anthropic.claude-3-7-sonnet-20250219-v1:0',
+        systemPrompt,
+        tools: mapToolsToBedrock({ tools }),
+        traceID,
+        userID,
+      });
     }
 
     default: {
       throw new Error(`Unknown model ${String(model)}`);
     }
-    /* v8 ignore end */
   }
 }
 
 /**
- * Complete a stream of text using the chosen language model
+ * Stream the completion of a text using the chosen language model
  * @param root named parameters
- * @param root.messages The messages of the conversation
+ * @param root.messages The messages history
  * @param root.model The language model to use
- * @param root.traceID The trace ID of the conversation
- * @param root.userID The user ID
+ * @param root.systemPrompt The system prompt to use
+ * @param root.tools The tools to use
+ * @param root.traceID The trace ID for this AI generation
+ * @param root.userID The user ID doing the action
  * @yields A stream of text
  */
 export async function* completeStream({
   messages,
   model,
+  systemPrompt,
+  tools,
   traceID,
   userID,
 }: {
   messages: LanguageModelMessage[];
   model: 'claude-3-5-sonnet' | 'claude-3-7-sonnet';
+  systemPrompt: string | undefined;
+  tools: LanguageModelTool[] | undefined;
   traceID: string;
   userID: string;
 }): AsyncGenerator<string> {
   switch (model) {
-    case 'claude-3-7-sonnet': {
-      yield* claude37SonnetStream({
+    case 'claude-3-5-sonnet': {
+      yield* bedrockCompleteStream({
         messages,
+        model: 'anthropic.claude-3-5-sonnet-20240620-v1:0',
+        systemPrompt,
+        tools: mapToolsToBedrock({ tools }),
         traceID,
         userID,
       });
       return;
     }
 
-    /* v8 ignore start -- do later */
-    case 'claude-3-5-sonnet': {
-      throw new Error('Claude 3.5 Sonnet Not implemented');
+    case 'claude-3-7-sonnet': {
+      yield* bedrockCompleteStream({
+        messages,
+        model: 'eu.anthropic.claude-3-7-sonnet-20250219-v1:0',
+        systemPrompt,
+        tools: mapToolsToBedrock({ tools }),
+        traceID,
+        userID,
+      });
+      return;
     }
 
     default: {
       throw new Error(`Unknown model ${String(model)}`);
     }
-    /* v8 ignore end */
   }
 }
 

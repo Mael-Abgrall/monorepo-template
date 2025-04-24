@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import type { Message } from 'shared/schemas/shared-schemas-chat';
-
 defineProps<{
-  /** The message to display */
-  message: Message;
+  /** The text to display from the content block */
+  text: string;
 }>();
 </script>
 
 <template>
   <div class="prompt-container">
-    <div class="prompt">{{ message.prompt }}</div>
+    <div class="prompt">{{ text }}</div>
   </div>
 </template>
 

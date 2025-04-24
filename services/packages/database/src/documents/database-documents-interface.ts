@@ -28,7 +28,7 @@ export async function addDocument({
   binaryStream: Buffer;
   documentID: string;
   mimeType: string;
-  spaceID: string | undefined;
+  spaceID: string;
   title: string;
   userID: string;
 }): Promise<Document | undefined> {

@@ -1,10 +1,7 @@
 import type { Environment } from 'service-utils/environment';
 import { sql } from 'drizzle-orm';
 import { beforeAll, beforeEach, vi } from 'vitest';
-import {
-  conversationsTable,
-  messagesTable,
-} from '../src/chat/database-chat-schemas';
+import { chatTable } from '../src/chat/database-chat-schemas';
 import { initPostgreSQL, pgDatabase } from '../src/config/database-postgresql';
 import {
   documentsTable,
@@ -24,10 +21,9 @@ beforeEach(async () => {
   await pgDatabase.execute(
     sql`
 TRUNCATE TABLE 
-  ${conversationsTable}, 
+  ${chatTable}, 
   ${documentsTable}, 
   ${searchChunksTable},
-  ${messagesTable}, 
   ${spaceTable}, 
   ${usersTable}, 
   ${verificationTokensTable} 

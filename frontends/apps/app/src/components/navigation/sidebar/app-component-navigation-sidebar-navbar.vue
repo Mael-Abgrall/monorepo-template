@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { useUserStore } from '../../../stores/app-stores-user';
-import {
-  iconBox,
-  iconFolder,
-  iconHelp,
-  iconHome,
-  iconUserDefault,
-} from '../../icons';
+import { iconFolder, iconHelp, iconHome, iconUserDefault } from '../../icons';
 import {
   navigationSidebarButton,
   navigationSidebarGroup,

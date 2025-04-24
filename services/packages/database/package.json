@@ -17,7 +17,7 @@
       "types": "./src/user/database-user-interface.ts",
       "default": "./dist/user/database-user-interface.js"
     },
-    "./conversation": {
+    "./chat": {
       "workerd": "./src/chat/database-chat-interface.ts",
       "typescript": "./src/chat/database-chat-interface.ts",
       "development": "./src/chat/database-chat-interface.ts",

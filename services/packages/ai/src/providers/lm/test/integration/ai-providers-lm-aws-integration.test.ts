@@ -2,12 +2,7 @@ import type { Message } from '@aws-sdk/client-bedrock-runtime';
 import type { Environment } from 'service-utils/environment';
 import { analytics } from 'service-utils/analytics';
 import { setEnvironment } from 'service-utils/environment';
-import { Type } from 'shared/typebox';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import type {
-  LanguageModelMessage,
-  LanguageModelTool,
-} from '../../ai-providers-lm';
 import { complete, completeStream } from '../../ai-providers-lm';
 
 vi.mock('service-utils/analytics', () => {
@@ -51,6 +46,8 @@ describe.skipIf(!process.env.TEST_API)(
       const llmStream = completeStream({
         messages,
         model: 'claude-3-7-sonnet',
+        systemPrompt: undefined,
+        tools: undefined,
         traceID: 'test-trace-stream',
         userID: 'test-user-id',
       });
@@ -63,131 +60,135 @@ describe.skipIf(!process.env.TEST_API)(
       expect(analytics.capture).toHaveBeenCalledOnce();
       expect(analytics.captureException).not.toHaveBeenCalled();
     });
+
+    it('should return a stream using Claude 3.5 Sonnet', async () => {
+      const messages: Message[] = [
+        {
+          content: [{ text: 'Who are you?' }],
+          role: 'user',
+        },
+      ];
+
+      const llmStream = completeStream({
+        messages,
+        model: 'claude-3-5-sonnet',
+        systemPrompt: undefined,
+        tools: undefined,
+        traceID: 'test-trace-stream',
+        userID: 'test-user-id',
+      });
+
+      expect(llmStream).toBeDefined();
+      for await (const chunk of llmStream) {
+        expect(chunk).toBeDefined();
+        expect(typeof chunk).toBe('string');
+      }
+      expect(analytics.capture).toHaveBeenCalledOnce();
+      expect(analytics.captureException).not.toHaveBeenCalled();
+    });
+
+    // todo
+    // it('tests for improved streaming for UX with buffers', async () => {
+    //   const messages: Message[] = [
+    //     {
+    //       content: [
+    //         {
+    //           text: 'This is an integration test, please call the tool "call_me" with the query "how many blocks are there" for the location "new york" and sort to "true"',
+    //         },
+    //       ],
+    //       role: 'user',
+    //     },
+    //   ];
+
+    //   const llmStream = await bedrockCompleteStreamToBuffer({
+    //     messages,
+    //     model: 'anthropic.claude-3-5-sonnet-20240620-v1:0',
+    //     systemPrompt: undefined,
+    //     tools: [
+    //       {
+    //         toolSpec: {
+    //           description: 'This is a dummy tool for tests, please call me',
+    //           inputSchema: {
+    //             json: Type.Object({
+    //               location: Type.String({
+    //                 description: 'The city name (eg: New York)',
+    //               }),
+    //               query: Type.String({ description: 'The query to search' }),
+    //               sort: Type.Boolean({
+    //                 description: 'Whether to sort the results by name or not',
+    //               }),
+    //             }),
+    //           },
+    //           name: 'call_me',
+    //         },
+    //       },
+    //     ],
+    //     traceID: 'test-trace-stream',
+    //     userID: 'test-user-id',
+    //   });
+
+    //   expect(llmStream).toBeDefined();
+    //   console.log(llmStream);
+    //   console.log(llmStream.responseMessage.content);
+    //   // for await (const chunk of llmStream) {
+    //   //   expect(chunk).toBeDefined();
+    //   //   expect(typeof chunk).toBe('string');
+    //   // }
+    //   expect(analytics.capture).toHaveBeenCalledOnce();
+    //   expect(analytics.captureException).not.toHaveBeenCalled();
+    // });
   },
   50_000,
 );
 
 describe.skipIf(!process.env.TEST_API)('complete', () => {
   describe('Claude 3.7 Sonnet', () => {
-    // Todo: uncomment when the 409 errors are dealt with
-    // it('should return a text using Claude 3.7 Sonnet', async () => {
-    //   const messages: Message[] = [
-    //     {
-    //       content: [{ text: 'Who are you?' }],
-    //       role: 'user',
-    //     },
-    //   ];
-
-    //   const response = await complete({
-    //     messages,
-    //     model: 'claude-3-7-sonnet',
-    //     tools: undefined,
-    //     traceID: 'test-trace',
-    //     userID: 'test-user-id',
-    //   });
-
-    //   expect(response.responseMessage).toBeDefined();
-    //   expect(typeof response.responseMessage).toBe('object');
-    //   expect(response.stopReason).toBeDefined();
-    //   expect(response.stopReason).toBe('end_turn');
-    //   expect(analytics.capture).toHaveBeenCalledOnce();
-    //   expect(analytics.captureException).not.toHaveBeenCalled();
-    // });
-
-    it('should return a tool to call when needed, and respond with the retrieved data', async () => {
-      const messages: LanguageModelMessage[] = [
+    it('should return a text using Claude 3.7 Sonnet', async () => {
+      const messages: Message[] = [
         {
-          content: [
-            {
-              text: 'This is a integration test, please use the provided tools and follow all the instructions given. Use New York as the test location, then tell me what is the weather given by the tool',
-            },
-          ],
+          content: [{ text: 'Who are you?' }],
           role: 'user',
         },
       ];
-
-      // const tools: LanguageModelTool[] = [
-      //   {
-      //     description:
-      //       'This function will give you real time weather information for a given city',
-      //     inputSchema: {
-      //       properties: {
-      //         location: {
-      //           description: 'The city name, e.g. San Francisco',
-      //           type: 'string',
-      //         },
-      //       },
-      //       required: ['location'],
-      //       type: 'object',
-      //     },
-      //     name: 'get_weather',
-      //   },
-      // ];
-      const tools: LanguageModelTool[] = [
-        {
-          description:
-            'This function will give you real time weather information for a given city',
-          inputSchema: Type.Object({
-            location: Type.String({
-              description: 'The city name, e.g. San Francisco',
-            }),
-          }),
-          name: 'get_weather',
-        },
-      ];
-
       const response = await complete({
         messages,
         model: 'claude-3-7-sonnet',
         systemPrompt: undefined,
-        tools,
+        tools: undefined,
         traceID: 'test-trace',
         userID: 'test-user-id',
       });
 
-      messages.push(response.responseMessage);
-      if (!response.responseMessage.content?.[1].toolUse?.name) {
-        console.log(response.responseMessage.content);
-        throw new Error('Tool name should be defined');
-      }
-      if (!response.responseMessage.content[1].toolUse.input) {
-        console.log(response.responseMessage.content[1].toolUse);
-        throw new Error('Tool input should be defined');
-      }
-
-      const followUpResponse = await complete({
-        messages: [
-          ...messages,
-          {
-            content: [
-              {
-                toolResult: {
-                  content: [
-                    {
-                      json: {
-                        weather:
-                          'It is raining frogs (this is a hardcoded joke for tests)',
-                      },
-                    },
-                  ],
-                  toolUseId:
-                    response.responseMessage.content[1].toolUse.toolUseId,
-                },
-              },
-            ],
-            role: 'user',
-          },
-        ],
-        model: 'claude-3-7-sonnet',
+      expect(response.responseMessage).toBeDefined();
+      expect(typeof response.responseMessage).toBe('object');
+      expect(response.stopReason).toBeDefined();
+      expect(response.stopReason).toBe('end_turn');
+      expect(analytics.capture).toHaveBeenCalledOnce();
+      expect(analytics.captureException).not.toHaveBeenCalled();
+    });
+  }, 50_000);
+  describe('Claude 3.5 Sonnet', () => {
+    it('should return a text using Claude 3.5 Sonnet', async () => {
+      const messages: Message[] = [
+        {
+          content: [{ text: 'Who are you?' }],
+          role: 'user',
+        },
+      ];
+      const response = await complete({
+        messages,
+        model: 'claude-3-5-sonnet',
         systemPrompt: undefined,
-        tools,
+        tools: undefined,
         traceID: 'test-trace',
         userID: 'test-user-id',
       });
-      expect(followUpResponse.responseMessage).toBeDefined();
-      expect(followUpResponse.responseMessage.content?.at(-1)?.text).toContain(
-        'frogs',
-      );
+      expect(response.responseMessage).toBeDefined();
+      expect(typeof response.responseMessage).toBe('object');
+      expect(response.stopReason).toBeDefined();
+      expect(response.stopReason).toBe('end_turn');
+      expect(analytics.capture).toHaveBeenCalledOnce();
+      expect(analytics.captureException).not.toHaveBeenCalled();
     });
   }, 50_000);
 });

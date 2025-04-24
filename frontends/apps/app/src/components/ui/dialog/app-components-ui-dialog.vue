@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import componentButton from '@/components/containment/app-component-containment-button.vue';
-import { iconXMark } from '@/components/icons';
+import componentButton from '../../containment/app-component-containment-button.vue';
+import { iconXMark } from '../../icons';
 
 const visible = defineModel<boolean>({ required: true });
 

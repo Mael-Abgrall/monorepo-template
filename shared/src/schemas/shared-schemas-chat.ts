@@ -1,118 +1,72 @@
 import type { Static } from '@sinclair/typebox';
 import { Type } from '@sinclair/typebox';
+import type { LanguageModelMessage } from '../../../services/packages/ai/src/providers/lm/interfaces';
 
-const messageSchema = Type.Object(
+export const chatSchema = Type.Object(
   {
-    conversationID: Type.String({
-      description: 'The ID of the conversation',
+    chatID: Type.String({
+      description: 'The ID of the chat',
     }),
     createdAt: Type.Union([
       Type.Date({
-        description: 'The date and time the message was created',
+        description: 'The date and time the chat was created',
       }),
       Type.String({
-        description: 'The date and time the message was created',
+        description: 'The date and time the chat was created',
       }),
     ]),
-    initiatives: Type.Optional(
-      Type.Array(
-        Type.Object({
-          action: Type.String({
-            description:
-              'The initiative taken by the agent to answer the prompt',
+    messages: Type.Array(
+      Type.Object({
+        content: Type.Array(
+          Type.Object({
+            text: Type.Optional(Type.String()),
           }),
-        }),
-      ),
-    ),
-    messageID: Type.String({
-      description: 'The ID of the message',
-    }),
-    prompt: Type.String({
-      description: "The user's prompt",
-    }),
-    response: Type.Optional(
-      Type.String({
-        description: 'The response from the conversation',
+        ),
+        role: Type.String(),
       }),
+      {
+        description: 'The messages in the chat',
+      },
     ),
-    sources: Type.Optional(
-      Type.Array(
-        Type.Object({
-          chunk: Type.String({
-            description: 'The chunk of the source',
-          }),
-          chunkID: Type.String({
-            description: 'The ID of the chunk',
-          }),
-          documentID: Type.String({
-            description: 'The ID of the document',
-          }),
-          origin: Type.String({
-            description: 'Where the source is coming from (e.g. "Website.com")',
-          }),
-          title: Type.String({
-            description: 'The title of the source',
-          }),
-          url: Type.String({
-            description: 'The URL of the source',
-          }),
-        }),
-      ),
-    ),
-    userID: Type.String({
-      description: 'The ID of the user who created the message',
-    }),
-  },
-  {
-    additionalProperties: false,
-  },
-);
-export type Message = Static<typeof messageSchema>;
-
-export const conversationSchema = Type.Object(
-  {
-    conversationID: Type.String({
-      description: 'The ID of the conversation',
-    }),
-    createdAt: Type.Union([
-      Type.Date({
-        description: 'The date and time the conversation was created',
-      }),
-      Type.String({
-        description: 'The date and time the conversation was created',
-      }),
-    ]),
     spaceID: Type.Optional(
       Type.String({
-        description: 'The ID of the space the conversation belongs to',
+        description: 'The ID of the space the chat belongs to',
       }),
     ),
+    updatedAt: Type.Union([
+      Type.Date({
+        description: 'The date and time the chat was last updated',
+      }),
+      Type.String({
+        description: 'The date and time the chat was last updated',
+      }),
+    ]),
     userID: Type.String({
-      description: 'The ID of the user who created the conversation',
+      description: 'The ID of the user who created the chat',
     }),
   },
   {
     additionalProperties: false,
-    description: 'A conversation',
+    description: 'A chat',
   },
 );
-export type Conversation = Static<typeof conversationSchema>;
+export type Chat = Static<typeof chatSchema>;
 
 export const postChatBodySchema = Type.Object(
   {
-    conversationID: Type.Optional(
+    chatID: Type.Optional(
       Type.String({
         description:
-          'The ID of the conversation to continue. Leave empty to create a new conversation.',
+          'The ID of the chat to continue. Leave empty to create a new chat.',
       }),
     ),
     prompt: Type.String({
-      description: "The user's prompt to send to the conversation",
+      description: "The user's prompt to send to the chat",
       minLength: 1,
     }),
     spaceID: Type.Optional(
       Type.String({
-        description: 'The ID of the space the conversation belongs to',
+        description: 'The ID of the space the chat belongs to',
       }),
     ),
   },
@@ -120,90 +74,78 @@ export const postChatBodySchema = Type.Object(
     additionalProperties: false,
   },
 );
-export type PostChatBody = Static<typeof postChatBodySchema>;
-/** An event sent to indicate the conversation is finished. */
-export interface PostChatCloseEvent {
-  data: string;
-  event: 'close';
-}
-/** An event with a part of the response from the conversation, to be used for real time interface updates. */
-export interface PostChatCompletionEvent {
-  data: {
-    completion: string;
-    messageID: Message['messageID'];
-  };
-  event: 'completion';
-}
-/** An event indicating the conversation has been created. */
-export interface PostChatCreateConversationEvent {
-  data: {
-    conversation: Conversation;
-    message: Message;
-  };
-  event: 'create-conversation';
-}
-/** An event indicating the conversation has been created. */
-export interface PostChatCreateMessageEvent {
-  data: Message;
-  event: 'create-message';
-}
-/** Indicate the server had an error. */
-export interface PostChatErrorEvent {
-  data: string;
-  event: 'error';
-}
-export type PostChatEvent =
-  | PostChatCloseEvent
-  | PostChatCompletionEvent
-  | PostChatCreateConversationEvent
-  | PostChatCreateMessageEvent
-  | PostChatErrorEvent
-  | PostChatInitiativeEvent
-  | PostChatSourcesEvent;
 
-/** An event with the initiative taken by the agent to answer the prompt. */
-export interface PostChatInitiativeEvent {
-  data: {
-    initiatives: Message['initiatives'];
-    messageID: Message['messageID'];
-  };
-  event: 'initiative';
-}
-/** An event with the sources selected for the response. */
-export interface PostChatSourcesEvent {
-  data: {
-    messageID: Message['messageID'];
-    sources: Message['sources'];
-  };
-  event: 'sources';
-}
-
-export const getConversationParametersSchema = Type.Object({
-  conversationID: Type.String({
-    description: 'The ID of the conversation',
-  }),
-});
-export type GetConversationParameters = Static<
-  typeof getConversationParametersSchema
->;
-export const getConversationResponseSchema = Type.Object(
+export const getChatParametersSchema = Type.Object(
   {
-    conversation: conversationSchema,
-    messages: Type.Array(messageSchema, {
-      description: 'The messages in the conversation',
+    chatID: Type.String({
+      description: 'The ID of the chat to get',
     }),
   },
   {
     additionalProperties: false,
   },
 );
-export type GetConversationResponse = Static<
-  typeof getConversationResponseSchema
+
+export const listChatsInSpaceParametersSchema = Type.Object(
+  {
+    spaceID: Type.String({
+      description: 'The ID of the space to list the chats from',
+    }),
+  },
+  {
+    additionalProperties: false,
+  },
+);
+export type ListChatsInSpaceParameters = Static<
+  typeof listChatsInSpaceParametersSchema
+>;
+export const listChatsInSpaceResponseSchemas = Type.Array(chatSchema);
+
+export type ChatEvent =
+  | ChatCloseEvent
+  | ChatCompletionEvent
+  | ChatErrorEvent
+  | NewChatEvent
+  | NewMessageEvent;
+
+export type ListChatsInSpaceResponse = Static<
+  typeof listChatsInSpaceResponseSchemas
 >;
 
-export const listConversationsResponseSchema = Type.Array(conversationSchema, {
-  description: 'The list of conversations',
-});
-export type ListConversationsResponse = Static<
-  typeof listConversationsResponseSchema
->;
+export type PostChatBody = Static<typeof postChatBodySchema>;
+
+/** An event sent to indicate the chat is finished. */
+interface ChatCloseEvent {
+  data: string;
+  event: 'close';
+}
+
+/** An event with a part of the response from the chat, to be used for real time interface updates. */
+interface ChatCompletionEvent {
+  data: {
+    chatID: Chat['chatID'];
+    completion: string;
+  };
+  event: 'completion';
+}
+
+/** Indicate the server had an error. */
+interface ChatErrorEvent {
+  data: string;
+  event: 'error';
+}
+
+/** Indicates the creation of a new chat in the DB */
+interface NewChatEvent {
+  data: Chat;
+  event: 'new-chat';
+}
+
+/** Indicates the creation of a new message in a chat */
+interface NewMessageEvent {
+  data: {
+    chatID: Chat['chatID'];
+    message: LanguageModelMessage;
+  };
+  event: 'new-message';
+}

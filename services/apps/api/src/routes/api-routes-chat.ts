@@ -1,14 +1,14 @@
 import type { Environment } from 'service-utils/environment';
 import type {
-  GetConversationResponse,
-  ListConversationsResponse,
-  PostChatErrorEvent,
+  Chat,
+  ChatEvent,
+  ListChatsInSpaceResponse,
 } from 'shared/schemas/shared-schemas-chat';
 import {
-  completeNewConversation,
+  completeNewChat,
   completeNewMessage,
-  getConversation,
-  listConversations,
+  getChat,
+  listChatsInSpace,
 } from 'core/chat';
 import { Hono } from 'hono';
 import { describeRoute } from 'hono-openapi';
@@ -19,9 +19,10 @@ import { analytics, flushAnalytics } from 'service-utils/analytics';
 import { getContextLogger } from 'service-utils/logger';
 import { genericResponseSchema } from 'shared/schemas/shared-schemas';
 import {
-  getConversationParametersSchema,
-  getConversationResponseSchema,
-  listConversationsResponseSchema,
+  chatSchema,
+  getChatParametersSchema,
+  listChatsInSpaceParametersSchema,
+  listChatsInSpaceResponseSchemas,
   postChatBodySchema,
 } from 'shared/schemas/shared-schemas-chat';
 import type { Variables } from '../context';
@@ -47,8 +48,8 @@ The stream is done using SSE, and will send back various events defined in the s
 
 The API will behave differently depending on the input parameters:
 
-- If the conversationID is undefined, a new conversation will be created, and a "create" event will be sent.
-- If the conversationID is provided, the API will append the new message to the conversation.
+- If the chatID is undefined, a new chat will be created, and a "create" event will be sent.
+- If the chatID is provided, the API will append the new message to the chat.
 `,
     responses: {
       200: {
@@ -77,13 +78,13 @@ The API will behave differently depending on the input parameters:
   - The client could decide at any time to abort the processing (=/= an error or a close from the stream) -> require a new endpoint
 
 */
-    const { conversationID, prompt, spaceID } = context.req.valid('json');
+    const { chatID, prompt, spaceID } = context.req.valid('json');
     return streamSSE(
       context,
       async (stream) => {
         try {
-          if (!conversationID) {
-            await completeNewConversation({
+          if (!chatID) {
+            await completeNewChat({
               prompt,
               spaceID,
               sseStream: stream,
@@ -93,9 +94,8 @@ The API will behave differently depending on the input parameters:
             return;
           }
           await completeNewMessage({
-            conversationID,
+            chatID,
             prompt,
-            spaceID,
             sseStream: stream,
             userID: context.get('userID'),
           });
@@ -106,7 +106,7 @@ The API will behave differently depending on the input parameters:
           await stream.writeSSE({
             data: 'error',
             event: 'error',
-          } satisfies PostChatErrorEvent);
+          } satisfies ChatEvent);
           await flushAnalytics();
           await stream.close();
         }
@@ -117,7 +117,7 @@ The API will behave differently depending on the input parameters:
         await stream.writeSSE({
           data: 'error',
           event: 'error',
-        } satisfies PostChatErrorEvent);
+        } satisfies ChatEvent);
         await flushAnalytics();
         await stream.close();
       },
@@ -126,48 +126,52 @@ The API will behave differently depending on the input parameters:
 );
 
 chatRouter.get(
-  '/list',
+  '/list/in-space/:spaceID',
   describeRoute({
-    description: 'List all conversations for the user',
+    description: 'List all chats for the user',
     responses: {
       200: {
         content: {
           'application/json': {
-            schema: listConversationsResponseSchema,
+            schema: listChatsInSpaceResponseSchemas,
           },
         },
-        description: 'The list of conversations',
+        description: 'The list of chats',
       },
     },
     tags: ['Chat'],
     validateResponse: true,
   }),
+  validator('param', listChatsInSpaceParametersSchema),
   async (context) => {
-    const conversations = await listConversations({
+    const { spaceID } = context.req.valid('param');
+    const chats = await listChatsInSpace({
+      spaceID,
       userID: context.get('userID'),
     });
 
     return context.json(
       validateResponse({
-        response: conversations satisfies ListConversationsResponse,
-        schema: listConversationsResponseSchema,
+        // @ts-expect-error need to update types for ours
+        response: chats satisfies ListChatsInSpaceResponse,
+        schema: listChatsInSpaceResponseSchemas,
       }),
     );
   },
 );
 
 chatRouter.get(
-  '/conversation/:conversationID',
+  '/:chatID',
   describeRoute({
-    description: 'Get a conversation by ID, and the associated messages',
+    description: "Get a chat using it's ID",
     responses: {
       200: {
         content: {
           'application/json': {
-            schema: getConversationResponseSchema,
+            schema: chatSchema,
           },
         },
-        description: 'The conversation',
+        description: 'The chat',
       },
       404: {
         content: {
@@ -175,28 +179,29 @@ chatRouter.get(
             schema: genericResponseSchema,
           },
         },
-        description: 'The conversation was not found',
+        description: 'The chat was not found',
       },
     },
     tags: ['Chat'],
   }),
-  validator('param', getConversationParametersSchema),
+  validator('param', getChatParametersSchema),
   async (context) => {
-    const { conversationID } = context.req.valid('param');
-    const conversationAndMessages = await getConversation({
-      conversationID,
+    const { chatID } = context.req.valid('param');
+    const chat = await getChat({
+      chatID,
       userID: context.get('userID'),
     });
-    if (!conversationAndMessages) {
+    if (!chat) {
       throw new HTTPException(404, {
-        message: 'Conversation not found',
+        message: 'Chat not found',
       });
     }
 
     return context.json(
       validateResponse({
-        response: conversationAndMessages satisfies GetConversationResponse,
-        schema: getConversationResponseSchema,
+        // @ts-expect-error need to update types for ours
+        response: chat satisfies Chat,
+        schema: chatSchema,
       }),
     );
   },
