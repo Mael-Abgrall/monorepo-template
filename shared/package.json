@@ -38,6 +38,13 @@
       "types": "./src/schemas/*.ts",
       "default": "./dist/schemas/*.js"
     },
+    "./url-sanitizer": {
+      "workerd": "./src/shared-url-sanitizer.ts",
+      "typescript": "./src/shared-url-sanitizer.ts",
+      "development": "./src/shared-url-sanitizer.ts",
+      "types": "./src/shared-url-sanitizer.ts",
+      "default": "./dist/shared-url-sanitizer.js"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {

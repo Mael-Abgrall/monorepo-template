@@ -12,6 +12,7 @@
   "dependencies": {
     "markdown-it": "^14.1.0",
     "pinia": "^3.0.2",
+    "posthog-js": "^1.236.6",
     "shared": "workspace:^",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"

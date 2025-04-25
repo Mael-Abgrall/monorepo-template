@@ -56,6 +56,7 @@ const documentStore = useDocumentStore();
 .file-row {
   display: flex;
   align-items: center;
+  width: 100%;
   @apply gap-2 p-2;
 
   .title {

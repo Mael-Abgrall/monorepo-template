@@ -31,3 +31,20 @@ export const sleep = (ms: number): Promise<void> => {
     return setTimeout(resolve, ms);
   });
 };
+
+/**
+ * Formats a JavaScript Date object into "DD Mon YY" format.
+ * @param root named parameters
+ * @param root.date - The date object to format.
+ * @returns The formatted date string.
+ */
+export function formatDateToDDMonYY({ date }: { date: Date | string }): string {
+  const dateObject = new Date(date);
+
+  const day = dateObject.getDate();
+  // Use 'en-US' locale to ensure consistent English month abbreviations
+  const month = dateObject.toLocaleString('en-US', { month: 'short' });
+  const year = dateObject.getFullYear().toString().slice(-2); // Get the last two digits of the year
+
+  return `${day} ${month} ${year}`;
+}

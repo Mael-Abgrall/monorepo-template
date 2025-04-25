@@ -40,11 +40,15 @@ export { default as iconCollapseRight } from '~icons/tabler/layout-sidebar-right
 export { default as iconHelp } from '~icons/solar/chat-square-like-linear';
 export { default as iconBurgerMenu } from '~icons/fa6-solid/bars';
 export { default as iconOpenDown } from '~icons/fa6-solid/chevron-down';
+export { default as iconEnter } from '~icons/fluent/arrow-enter-left-24-filled';
+export { default as iconSettings } from '~icons/fa6-solid/gear';
+export { default as iconBack } from '~icons/fa6-solid/arrow-left';
 
 // other
 export { default as iconUserDefault } from '~icons/lucide/circle-user-round';
 export { default as iconSources } from '~icons/tabler/plug-connected';
 export { default as iconFolder } from '~icons/material-symbols/folder-open';
+export { default as iconEditor } from '~icons/solar/document-add-bold';
 
 // interaction
 export { default as iconMic } from '~icons/ic/baseline-mic';
@@ -52,5 +56,6 @@ export { default as iconSend } from '~icons/fa6-solid/arrow-right';
 export { default as iconStop } from '~icons/heroicons/stop-solid';
 export { default as iconPlus } from '~icons/fa6-solid/plus';
 export { default as iconUpload } from '~icons/fa6-solid/arrow-up-from-bracket';
+export { default as iconAI } from '~icons/mage/stars-b-fill';
 
 /* eslint-enable perfectionist/sort-exports -- Easier to read this way */

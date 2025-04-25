@@ -1,8 +1,14 @@
 <script setup lang="ts">
+import { formatDateToDDMonYY } from 'shared/time';
 import { onMounted, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import componentButton from '../../components/containment/app-component-containment-button.vue';
-import { iconFolder, iconPlus } from '../../components/icons';
+import {
+  iconEnter,
+  iconFolder,
+  iconPlus,
+  iconSpinner,
+} from '../../components/icons';
 import {
   dialogFooter,
   dialogHeader,
@@ -53,19 +59,29 @@ async function createSpace(): Promise<void> {
       </componentButton>
     </button>
   </div>
-  <ul>
-    <componentButton
-      variant="link"
-      v-for="space of spacesStore.spaces"
+  <div class="spaces-list" v-if="!spacesStore.isLoading">
+    <div class="spaces-header">
+      <div class="spaces-header-created">created</div>
+      <div class="spaces-header-title">Title</div>
+    </div>
+    <RouterLink
+      :to="{ name: 'space.dashboard', params: { spaceID: space.spaceID } }"
+      class="space"
+      v-for="space of spacesStore.spaces.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )"
       :key="space.spaceID"
     >
-      <RouterLink
-        :to="{ name: 'space.dashboard', params: { spaceID: space.spaceID } }"
-      >
+      <div class="space-created">
+        {{ formatDateToDDMonYY({ date: space.createdAt }) }}
+      </div>
+      <div class="space-title">
         {{ space.title }}
-      </RouterLink>
-    </componentButton>
-  </ul>
+      </div>
+    </RouterLink>
+  </div>
+  <div v-if="spacesStore.isLoading">Loading spaces... <iconSpinner /></div>
   <uiDialog v-model="visible">
     <dialogHeader>
       <dialogTitle>Create a new space</dialogTitle>
@@ -74,11 +90,12 @@ async function createSpace(): Promise<void> {
       type="text"
       placeholder="Title (optional - leave empty to create automatically)"
       v-model="title"
+      @keyup.enter="createSpace"
     />
     <dialogFooter>
       <div></div>
-      <componentButton variant="secondary" @click="createSpace">
-        Next
+      <componentButton variant="primary" @click="createSpace">
+        Create <iconEnter />
       </componentButton>
     </dialogFooter>
   </uiDialog>
@@ -89,6 +106,7 @@ async function createSpace(): Promise<void> {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .page-info {
@@ -105,6 +123,44 @@ async function createSpace(): Promise<void> {
   p {
     font-style: italic;
     @apply text-sm text-stone-500;
+  }
+}
+
+.spaces-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  .spaces-header,
+  .space {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid;
+    @apply p-2 border-stone-300 gap-2;
+  }
+
+  .spaces-header {
+    font-weight: 600;
+
+    .spaces-header-created {
+      width: 9ch;
+    }
+  }
+
+  .space {
+    &:hover {
+      @apply bg-stone-100/50;
+    }
+
+    .space-title {
+      flex: 1;
+    }
+
+    .space-created {
+      width: 9ch;
+      font-style: italic;
+      @apply text-stone-500;
+    }
   }
 }
 </style>

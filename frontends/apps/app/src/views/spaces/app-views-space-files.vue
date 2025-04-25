@@ -45,7 +45,7 @@ onMounted(async () => {
 
 <template>
   <div v-if="documentStore.isLoading">Loading...</div>
-  <div v-else>
+  <template v-else>
     <upload @files="handleFiles" />
 
     <document-row
@@ -62,24 +62,29 @@ onMounted(async () => {
       "
     />
 
-    <div>
-      <div v-if="documentStore.documents.length === 0">
-        No documents in this space
-      </div>
-      <ul v-else>
-        <document-row
-          v-for="document of documentStore.documents"
-          :key="document.documentID"
-          :documentID="document.documentID"
-          :status="document.status"
-          :title="document.title"
-        />
-      </ul>
+    <div v-if="documentStore.documents.length === 0">
+      No documents in this space
     </div>
-  </div>
+    <template v-else>
+      <document-row
+        v-for="document of documentStore.documents"
+        :key="document.documentID"
+        :documentID="document.documentID"
+        :status="document.status"
+        :title="document.title"
+      />
+    </template>
+  </template>
 </template>
 
 <style scoped>
+hr {
+  display: flex;
+  width: 100%;
+  height: 1px;
+  @apply border-stone-300;
+}
+
 .selected-files {
   margin-top: 1rem;
   padding: 1rem;
