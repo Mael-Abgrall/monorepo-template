@@ -7,10 +7,10 @@ const logger = getContextLogger('database-documents-blob.ts');
 
 /**
  * Delete a blob
- * @param root named parameters
- * @param root.documentID the document ID
- * @param root.userID the owner ID
- * @throws {Error} if the delete fails
+ * @param root - named parameters
+ * @param root.documentID - the document ID
+ * @param root.userID - the owner ID
+ * @throws if the delete fails
  */
 export async function deleteBlob({
   documentID,
@@ -21,12 +21,7 @@ export async function deleteBlob({
 }): Promise<void> {
   logger.info({ documentID }, 'Deleting blob');
 
-  const bucketClient = new AwsClient({
-    accessKeyId: environment.BLOB_ACCESS_KEY_ID,
-    region: 'auto',
-    secretAccessKey: environment.BLOB_SECRET_KEY,
-    service: 's3',
-  });
+  const bucketClient = getClient();
 
   const response = await bucketClient.fetch(
     `${environment.BLOB_URL}/${selectBucket()}/${userID}/${documentID}`,
@@ -46,10 +41,10 @@ export async function deleteBlob({
 
 /**
  * Get a blob as a stream
- * @param root named parameters
- * @param root.documentID the document ID
- * @param root.userID the owner ID
- * @throws {Error} if the download fails
+ * @param root - named parameters
+ * @param root.documentID - the document ID
+ * @param root.userID - the owner ID
+ * @throws if the download fails
  * @returns the blob as a Buffer and it's mime type, or undefined if not found
  */
 export async function downloadBlob({
@@ -60,12 +55,7 @@ export async function downloadBlob({
   userID: string;
 }): Promise<{ data: Buffer; mimeType: string }> {
   logger.info({ documentID }, 'Downloading blob');
-  const bucketClient = new AwsClient({
-    accessKeyId: environment.BLOB_ACCESS_KEY_ID,
-    region: 'auto',
-    secretAccessKey: environment.BLOB_SECRET_KEY,
-    service: 's3',
-  });
+  const bucketClient = getClient();
 
   const response = await bucketClient.fetch(
     `${environment.BLOB_URL}/${selectBucket()}/${userID}/${documentID}`,
@@ -93,12 +83,45 @@ export async function downloadBlob({
 }
 
 /**
+ * Generates a pre-signed URL for downloading a blob externally.
+ * This function does not verify the document exist.
+ *
+ * **Note _be extra careful who get this url_!**
+ * @param params The parameters for generating the signed URL.
+ * @param params.documentID The ID of the document.
+ * @param params.userID The ID of the user.
+ * @param params.expiresInSeconds The validity duration of the URL in seconds (defaults to 3600).
+ * @returns the signed URL
+ */
+export async function getSignedURL({
+  documentID,
+  expiresInSeconds = 3600,
+  userID,
+}: {
+  documentID: string;
+  expiresInSeconds: number | undefined;
+  userID: string;
+}): Promise<string> {
+  const bucketClient = getClient();
+
+  const response = await bucketClient.sign(
+    new Request(
+      `${environment.BLOB_URL}/${selectBucket()}/${userID}/${documentID}?X-Amz-Expires=${expiresInSeconds}`,
+    ),
+    {
+      aws: { signQuery: true },
+    },
+  );
+  return response.url.toString();
+}
+
+/**
  * Upload a blob
- * @param root named parameters
- * @param root.documentID the document ID
- * @param root.data the blob data
- * @param root.mimeType the blob mime type
- * @param root.userID the owner ID
+ * @param root - named parameters
+ * @param root.data - the blob data
+ * @param root.documentID - the document ID
+ * @param root.mimeType - the blob mime type
+ * @param root.userID - the owner ID
  * @returns boolean indicating if the upload was successful
  */
 export async function uploadBlob({
@@ -115,12 +138,7 @@ export async function uploadBlob({
   logger.info({ documentID }, 'Uploading blob...');
 
   try {
-    const bucketClient = new AwsClient({
-      accessKeyId: environment.BLOB_ACCESS_KEY_ID,
-      region: 'auto',
-      secretAccessKey: environment.BLOB_SECRET_KEY,
-      service: 's3',
-    });
+    const bucketClient = getClient();
 
     const response = await bucketClient.fetch(
       `${environment.BLOB_URL}/${selectBucket()}/${userID}/${documentID}`,
@@ -146,6 +164,19 @@ export async function uploadBlob({
     analytics.captureException(error, userID);
     return false;
   }
+}
+
+/**
+ * Get the client to use
+ * @returns the client
+ */
+function getClient(): AwsClient {
+  return new AwsClient({
+    accessKeyId: environment.BLOB_ACCESS_KEY_ID,
+    region: 'auto',
+    secretAccessKey: environment.BLOB_SECRET_KEY,
+    service: 's3',
+  });
 }
 
 /**

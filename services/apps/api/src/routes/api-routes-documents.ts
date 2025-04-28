@@ -6,8 +6,8 @@ import type {
 import {
   addDocument,
   deleteDocument,
+  extractAndIndexDocument,
   getDocumentsBySpaceID,
-  parseAndIndexDocument,
 } from 'core/documents';
 import { spaceExists } from 'core/space';
 import { Hono } from 'hono';
@@ -189,7 +189,7 @@ Note: do not put the headers for multipart form data, or the server will not be 
       });
     }
 
-    const updatedDocument = await parseAndIndexDocument({
+    const updatedDocument = await extractAndIndexDocument({
       documentID: savedDocument.documentID,
       userID: context.get('userID'),
     });

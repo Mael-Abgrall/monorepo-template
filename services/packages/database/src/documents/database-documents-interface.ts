@@ -80,7 +80,7 @@ export {
   getDocumentsBySpaceID,
   updateDocumentInDatabase as updateDocument,
 } from './database-documents';
-export { downloadBlob } from './database-documents-blob';
+export { downloadBlob, getSignedURL } from './database-documents-blob';
 export {
   bulkAddChunks,
   textSearch,

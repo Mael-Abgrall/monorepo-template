@@ -308,7 +308,6 @@ async function handleToolCall({
     }
 
     case 'read_document': {
-      // todo
       // @ts-expect-error improve those types later
       if (!tool.input || !tool.input.documentID) {
         const error = new Error('Document ID is required');
@@ -356,6 +355,7 @@ async function handleToolCall({
         content: [
           {
             json: {
+              // todo: call the agent here
               documentChunks: documentChunks,
             },
           },

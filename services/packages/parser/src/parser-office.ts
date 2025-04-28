@@ -53,6 +53,9 @@ function formatText(text: string): string {
 
 /**
  * This function takes an unknown source, and will recursively try to extract text from it.
+ *
+ * Doc for OOXML: http://officeopenxml.com/WPcontentOverview.php
+ * Doc for OpenDocument XML: https://docs.oasis-open.org/office/OpenDocument/v1.3/OpenDocument-v1.3-part3-schema.html & https://groups.oasis-open.org/communities/tc-community-home2?CommunityKey=4bf06d41-79ad-4c58-9e8e-018dc7d05da8
  * @param root named params
  * @param root.accumulator a string to concatenate with the result of this function.
  * @param root.source an object or a list to extract text from.

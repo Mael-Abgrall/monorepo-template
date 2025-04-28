@@ -16,6 +16,7 @@ export interface Environment {
   JWT_SECRET: string;
   MICROSOFT_CLIENT_ID: string;
   MICROSOFT_CLIENT_SECRET: string;
+  MISTRAL_KEY: string;
   NODE_ENV?: 'development' | 'production' | 'test';
   POSTHOG_KEY: string;
   POSTMARK_KEY: string;
@@ -30,7 +31,7 @@ export let environment: Environment;
 export function getFrontendUrl(): string {
   return environment.DOMAIN === 'localhost'
     ? 'http://localhost:5173'
-    : `https://${environment.DOMAIN}.com`; // todo: replace the TLD depending on the actual domain
+    : 'https://app.example.com'; // todo: replace the domain
 }
 
 /**
@@ -38,6 +39,7 @@ export function getFrontendUrl(): string {
  * @param root named parameters
  * @param root.env the environment variables
  */
+// eslint-disable-next-line sonarjs/cognitive-complexity -- this is not complex
 export function setEnvironment({ env }: { env: Environment }): void {
   if (!env.DATABASE_URL) {
     throw new Error('DATABASE_URL is not set');
@@ -83,6 +85,9 @@ export function setEnvironment({ env }: { env: Environment }): void {
   }
   if (!env.BLOB_URL) {
     throw new Error('BLOB_URL is not set');
+  }
+  if (!env.MISTRAL_KEY) {
+    throw new Error('MISTRAL_KEY is not set');
   }
   environment = env;
 }

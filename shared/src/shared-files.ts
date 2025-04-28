@@ -2,8 +2,7 @@
  * Extract the mime type from the document name
  * @param root named parameters
  * @param root.documentName the full url of the file with the file name
- * @returns the mime type
- * @throws Error if the document type is not supported
+ * @returns the mime type or undefined if the document type is not supported
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- better DX
 export async function getMimeType({ documentName }: { documentName: string }) {
@@ -40,6 +39,11 @@ export async function getMimeType({ documentName }: { documentName: string }) {
   }
   if (documentName.endsWith('.txt')) {
     return 'text/plain';
+  }
+
+  // PDF
+  if (documentName.endsWith('.pdf')) {
+    return 'application/pdf';
   }
 
   return undefined;

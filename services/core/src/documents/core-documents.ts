@@ -4,6 +4,7 @@ import { chunkDocument } from 'ai/utils/chunking';
 import {
   bulkAddChunks,
   downloadBlob,
+  getSignedURL,
   textSearch,
   updateDocument,
   vectorSearch,
@@ -19,6 +20,8 @@ export {
   getDocumentsBySpaceID,
 } from 'database/documents';
 
+import { runOCR } from 'ai/OCR';
+
 /**
  * Parse and index a document
  * @param root named parameters
@@ -26,43 +29,20 @@ export {
  * @param root.userID the user ID
  * @returns the updated document
  */
-export async function parseAndIndexDocument({
+export async function extractAndIndexDocument({
   documentID,
   userID,
 }: {
   documentID: string;
   userID: string;
 }): Promise<Awaited<ReturnType<typeof updateDocument>>> {
+  const extractAndIndexStart = Date.now();
   const traceID = crypto.randomUUID();
 
-  const downloadBlobStart = Date.now();
-  const { data, mimeType } = await downloadBlob({ documentID, userID });
-  const downloadBlobEnd = Date.now();
-  analytics.capture({
-    distinctId: userID,
-    event: '$ai_span',
-    properties: {
-      $ai_latency: (downloadBlobEnd - downloadBlobStart) / 1000, // in seconds
-      $ai_span_name: 'download blob',
-      $ai_trace_id: traceID,
-    },
-  });
-
-  const parseDocumentStart = Date.now();
-  const text = await parseDocument({
-    binaryStream: data,
-    mimeType,
-  });
-  const parseDocumentEnd = Date.now();
-  analytics.capture({
-    distinctId: userID,
-    event: '$ai_span',
-    properties: {
-      $ai_latency: (parseDocumentEnd - parseDocumentStart) / 1000, // in seconds
-      $ai_span_name: 'parse document',
-      $ai_trace_id: traceID,
-      mimeType,
-    },
+  const text = await extractDocument({
+    documentID,
+    traceID,
+    userID,
   });
 
   const chunkDocumentStart = Date.now();
@@ -77,7 +57,6 @@ export async function parseAndIndexDocument({
       $ai_latency: (chunkDocumentEnd - chunkDocumentStart) / 1000, // in seconds
       $ai_span_name: 'chunk document',
       $ai_trace_id: traceID,
-      mimeType,
     },
   });
 
@@ -109,7 +88,6 @@ export async function parseAndIndexDocument({
       $ai_latency: (bulkAddChunksEnd - bulkAddChunksStart) / 1000, // in seconds
       $ai_span_name: 'bulk add chunks',
       $ai_trace_id: traceID,
-      mimeType,
     },
   });
 
@@ -127,7 +105,6 @@ export async function parseAndIndexDocument({
       $ai_latency: (updateDocumentEnd - updateDocumentStart) / 1000, // in seconds
       $ai_span_name: 'update document',
       $ai_trace_id: traceID,
-      mimeType,
     },
   });
 
@@ -135,10 +112,9 @@ export async function parseAndIndexDocument({
     distinctId: userID,
     event: '$ai_trace',
     properties: {
-      $ai_latency: (updateDocumentEnd - downloadBlobStart) / 1000, // in seconds
+      $ai_latency: (updateDocumentEnd - extractAndIndexStart) / 1000, // in seconds
       $ai_span_name: 'parse and index document',
       $ai_trace_id: traceID,
-      mimeType,
     },
   });
   return updatedDocument;
@@ -244,4 +220,62 @@ export async function searchDocuments({
     },
   });
   return reranked;
+}
+
+/**
+ * Extract the text from a document
+ * @param root named parameters
+ * @param root.documentID the ID of the document to extract
+ * @param root.userID the ID of the user
+ * @param root.traceID the trace ID
+ * @returns the extracted text
+ */
+async function extractDocument({
+  documentID,
+  traceID,
+  userID,
+}: {
+  documentID: string;
+  traceID: string;
+  userID: string;
+}): Promise<string> {
+  const { data, mimeType } = await downloadBlob({ documentID, userID });
+
+  if (mimeType === 'application/pdf') {
+    const documentURL = await getSignedURL({
+      documentID,
+      expiresInSeconds: undefined,
+      userID,
+    });
+    const ocrResult = await runOCR({
+      documentURL,
+      model: 'mistral-ocr',
+      traceID,
+      userID,
+    });
+
+    return ocrResult.text
+      .map((text) => {
+        return text.content;
+      })
+      .join('\n');
+  } else {
+    const parseDocumentStart = Date.now();
+    const text = await parseDocument({
+      binaryStream: data,
+      mimeType,
+    });
+    const parseDocumentEnd = Date.now();
+    analytics.capture({
+      distinctId: userID,
+      event: '$ai_span',
+      properties: {
+        $ai_latency: (parseDocumentEnd - parseDocumentStart) / 1000, // in seconds
+        $ai_span_name: 'parse document',
+        $ai_trace_id: traceID,
+        mimeType,
+      },
+    });
+    return text;
+  }
 }
