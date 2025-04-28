@@ -1,15 +1,18 @@
 import { eq } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
+import type { Chunk } from '../../database-documents-schemas';
 import { pgDatabase } from '../../../config/database-postgresql';
 import { createSpace } from '../../../space/database-space';
 import {
   deleteDocumentInDatabase,
   getDocumentByID,
   getDocumentsBySpaceID,
+  getDocumentWithContent,
   insertDocumentInDatabase,
   updateDocumentInDatabase,
 } from '../../database-documents';
 import { documentsTable } from '../../database-documents-schemas';
+import { bulkAddChunks } from '../../database-documents-search';
 
 const document = {
   documentID: crypto.randomUUID(),
@@ -347,5 +350,91 @@ describe('updateDocument', () => {
         userID: document.userID,
       }),
     ).rejects.toThrow();
+  });
+});
+
+describe('getDocumentWithContent', () => {
+  it('should return the document and the chunks', async () => {
+    const space = await createSpace({ title: 'test', userID: document.userID });
+    await insertDocumentInDatabase({ ...document, spaceID: space.spaceID });
+
+    const mockDocument1: Chunk = {
+      chunkContent: 'Document one',
+      chunkID: crypto.randomUUID(),
+      documentID: document.documentID,
+      embedding: Array.from({ length: 1024 }, () => {
+        return 0.9;
+      }),
+      spaceID: space.spaceID,
+      userID: document.userID,
+    };
+
+    const mockDocument2: Chunk = {
+      chunkContent: 'document two',
+      chunkID: crypto.randomUUID(),
+      documentID: document.documentID,
+      embedding: Array.from({ length: 1024 }, () => {
+        return 0.8;
+      }),
+      spaceID: space.spaceID,
+      userID: document.userID,
+    };
+
+    const mockDocument3: Chunk = {
+      chunkContent: 'three',
+      chunkID: crypto.randomUUID(),
+      documentID: document.documentID,
+      embedding: Array.from({ length: 1024 }, () => {
+        return -0.1;
+      }),
+      spaceID: space.spaceID,
+      userID: document.userID,
+    };
+
+    await bulkAddChunks({
+      chunks: [mockDocument1, mockDocument2, mockDocument3],
+    });
+
+    const record = await getDocumentWithContent({
+      documentID: document.documentID,
+      userID: document.userID,
+    });
+
+    expect(record?.documentID).toBe(document.documentID);
+    expect(record?.title).toBe(document.title);
+    expect(record?.status).toBe('uploading');
+    expect(record?.content).toBeDefined();
+    expect(record?.content).toHaveLength(3);
+    expect(record?.content).toEqual([
+      mockDocument1.chunkContent,
+      mockDocument2.chunkContent,
+      mockDocument3.chunkContent,
+    ]);
+  });
+
+  it('should return undefined if the document does not exist', async () => {
+    const record = await getDocumentWithContent({
+      documentID: crypto.randomUUID(),
+      userID: document.userID,
+    });
+    expect(record).toBeUndefined();
+  });
+
+  it('should not return the document of other users', async () => {
+    const space = await createSpace({ title: 'test', userID: document.userID });
+    await insertDocumentInDatabase({ ...document, spaceID: space.spaceID });
+    const record = await getDocumentWithContent({
+      documentID: document.documentID,
+      userID: crypto.randomUUID(),
+    });
+    expect(record).toBeUndefined();
+  });
+
+  it('should return undefined if the space does not exist', async () => {
+    const record = await getDocumentWithContent({
+      documentID: document.documentID,
+      userID: document.userID,
+    });
+    expect(record).toBeUndefined();
   });
 });

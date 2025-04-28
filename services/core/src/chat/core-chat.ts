@@ -6,9 +6,13 @@ import type {
 import type { ChatInDB } from 'database/chat';
 import type { SSEMessage, SSEStreamingApi } from 'hono/streaming';
 import type { ChatEvent } from 'shared/schemas/shared-schemas-chat';
+import { agentReader } from 'ai/agents/document-reader';
 import { agentOrchestrator } from 'ai/agents/orchestrator';
 import { createChat, getChat, updateMessagesInChat } from 'database/chat';
-import { getDocumentByID, getDocumentsBySpaceID } from 'database/documents';
+import {
+  getDocumentsBySpaceID,
+  getDocumentWithContent,
+} from 'database/documents';
 import { analytics } from 'service-utils/analytics';
 import { getContextLogger } from 'service-utils/logger';
 import { searchDocuments } from '../documents/core-documents';
@@ -326,15 +330,15 @@ async function handleToolCall({
         };
       }
 
-      logger.info('Calling "getDocumentByID"');
-      const documentChunks = await getDocumentByID({
+      logger.info('Calling "getDocumentWithContent"');
+      const document = await getDocumentWithContent({
         // @ts-expect-error improve those types later
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- todo
         documentID: tool.input.documentID,
         userID,
       });
 
-      if (!documentChunks) {
+      if (!document) {
         const error = new Error('Document not found');
         analytics.captureException(error, userID, {
           toolInputs: tool.input,
@@ -351,17 +355,40 @@ async function handleToolCall({
         };
       }
 
-      return {
-        content: [
-          {
-            json: {
-              // todo: call the agent here
-              documentChunks: documentChunks,
+      try {
+        const agentResponse = await agentReader({
+          text: document.content.join('\n'),
+          traceID,
+          userID,
+        });
+        return {
+          content: [
+            {
+              json: {
+                response: agentResponse,
+              },
             },
-          },
-        ],
-        toolUseId: tool.toolUseId,
-      };
+          ],
+          toolUseId: tool.toolUseId,
+        };
+      } catch (error) {
+        analytics.captureException(error, userID, {
+          toolInputs: tool.input,
+          toolName: tool.name,
+        });
+        return {
+          content: [
+            {
+              text:
+                error instanceof Error && error.message
+                  ? error.message
+                  : 'Redacted error',
+            },
+          ],
+          status: 'error',
+          toolUseId: tool.toolUseId,
+        };
+      }
     }
 
     case 'search_space': {
@@ -379,7 +406,6 @@ async function handleToolCall({
       // @ts-expect-error improve those types later
       if (!tool.input || !tool.input.query) {
         const error = new Error('Query is required');
-        // todo better analytics
         analytics.captureException(error, userID, {
           toolInputs: tool.input,
           toolName: tool.name,

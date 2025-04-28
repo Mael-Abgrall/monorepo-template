@@ -20,6 +20,9 @@ export const documentsTable = pgTable('documents', {
   userID: uuid('user_id').notNull(),
 });
 export type Document = NullToUndefined<typeof documentsTable.$inferSelect>;
+export type DocumentWithContent = Document & {
+  content: string[];
+};
 
 export const searchChunksTable = pgTable(
   'search_chunks',

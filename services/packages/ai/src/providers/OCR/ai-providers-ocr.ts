@@ -134,12 +134,11 @@ export async function runOCR({
 
   analytics.capture({
     distinctId: userID,
-    event: '$ai_ocr',
+    event: '$ai_generation',
     properties: {
-      $ai_document_size: usage_info.doc_size_bytes,
       $ai_latency: (Date.now() - start) / 1000, // in seconds
       $ai_model: ocrModel,
-      $ai_pages_processed: usage_info.pages_processed,
+      $ai_output_tokens: usage_info.pages_processed,
       $ai_provider: 'mistral',
       $ai_trace_id: traceID,
     },

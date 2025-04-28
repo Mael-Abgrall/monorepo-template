@@ -78,6 +78,7 @@ export async function deleteDocument({
 export {
   getDocumentByID,
   getDocumentsBySpaceID,
+  getDocumentWithContent,
   updateDocumentInDatabase as updateDocument,
 } from './database-documents';
 export { downloadBlob, getSignedURL } from './database-documents-blob';

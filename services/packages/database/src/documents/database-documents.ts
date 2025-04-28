@@ -1,7 +1,13 @@
 import { and, eq } from 'drizzle-orm';
-import type { Document } from './database-documents-schemas';
+import type {
+  Document,
+  DocumentWithContent,
+} from './database-documents-schemas';
 import { pgDatabase } from '../config/database-postgresql.js';
-import { documentsTable } from './database-documents-schemas';
+import {
+  documentsTable,
+  searchChunksTable,
+} from './database-documents-schemas';
 
 /**
  * delete a document by ID
@@ -82,6 +88,46 @@ export async function getDocumentsBySpaceID({
     );
 
   return records as Document[]; // all spaceIDs are defined in this query
+}
+
+/**
+ * get a document and it's extracted content
+ * @param root named parameters
+ * @param root.documentID the document ID
+ * @param root.userID the user ID
+ * @returns the document or undefined if it does not exist
+ */
+export async function getDocumentWithContent({
+  documentID,
+  userID,
+}: {
+  documentID: string;
+  userID: string;
+}): Promise<DocumentWithContent | undefined> {
+  const records = await pgDatabase
+    .select()
+    .from(documentsTable)
+    .innerJoin(
+      searchChunksTable,
+      eq(searchChunksTable.documentID, documentsTable.documentID),
+    )
+    .where(
+      and(
+        eq(documentsTable.documentID, documentID),
+        eq(documentsTable.userID, userID),
+      ),
+    );
+
+  if (records.length === 0) {
+    return undefined;
+  }
+
+  const document = records[0].documents;
+  const content = records.map((record) => {
+    return record.search_chunks.chunkContent;
+  });
+
+  return { ...document, content };
 }
 
 /**
