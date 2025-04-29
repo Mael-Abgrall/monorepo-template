@@ -20,7 +20,7 @@ jobs:
   deploy:
     name: Transpile
     runs-on: ubuntu-latest
-    container: node:20-slim
+    container: node:20
     environment: production
     steps:
       - name: Checkout
