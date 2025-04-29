@@ -62,7 +62,6 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     container: node:20-slim
-    environment: cicd
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -79,7 +78,6 @@ jobs:
         run: yarn test
         env:
           # any variable with secret has little to no impact on the tests
-          MONGO_PERSISTENT_DB: ${{ secrets.MONGO_PERSISTENT_DB }}
           # For all services
           NODE_ENV: test
           DATABASE_URL: secret
