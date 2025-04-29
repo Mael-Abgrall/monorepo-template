@@ -29,7 +29,11 @@ jobs:
       - name: Prepare
         uses: ./.github/actions/prepare
 
-      - name: Transpile & deploy
+      - name: Build
+        run: yarn turbo build --filter=app
+        shell: bash
+
+      - name: Deploy
         run: yarn workspace app deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
