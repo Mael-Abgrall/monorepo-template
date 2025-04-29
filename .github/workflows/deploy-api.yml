@@ -1,0 +1,46 @@
+run-name: Deploy api
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/apps/api/**'
+      - 'services/core/**'
+      - 'services/packages/**'
+      - 'shared/**'
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Transpile
+    runs-on: ubuntu-latest
+    container: node:20-slim
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare
+        uses: ./.github/actions/prepare
+
+      - name: Transpile & deploy
+        run: yarn workspace api deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+
+      - name: Upload source maps
+        run: |
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/PostHog/posthog/releases/download/posthog-cli-v0.0.5/posthog-cli-installer.sh | sh
+          posthog-cli-update
+          posthog-cli --host https://eu.posthog.com sourcemap inject --directory ./services/apps/api/dist
+        env:
+          POSTHOG_CLI_ENV_ID: ${{ secrets.POSTHOG_CLI_ENV_ID }}
+          POSTHOG_CLI_TOKEN: ${{ secrets.POSTHOG_CLI_TOKEN }}
