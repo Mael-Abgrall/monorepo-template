@@ -24,11 +24,37 @@
       "types": "./src/core-user.ts",
       "default": "./dist/core-user.js"
     },
+    "./chat": {
+      "workerd": "./src/chat/core-chat.ts",
+      "typescript": "./src/chat/core-chat.ts",
+      "development": "./src/chat/core-chat.ts",
+      "types": "./src/chat/core-chat.ts",
+      "default": "./dist/chat/core-chat.js"
+    },
+    "./space": {
+      "workerd": "./src/space/core-space.ts",
+      "typescript": "./src/space/core-space.ts",
+      "development": "./src/space/core-space.ts",
+      "types": "./src/space/core-space.ts",
+      "default": "./dist/space/core-space.js"
+    },
+    "./documents": {
+      "workerd": "./src/documents/core-documents.ts",
+      "typescript": "./src/documents/core-documents.ts",
+      "development": "./src/documents/core-documents.ts",
+      "types": "./src/documents/core-documents.ts",
+      "default": "./dist/documents/core-documents.js"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {
+    "ai": "workspace:^",
     "database": "workspace:^",
     "oauth": "workspace:^",
+    "parser": "workspace:^",
     "service-utils": "workspace:^"
+  },
+  "devDependencies": {
+    "hono": "^4.7.7"
   }
 }

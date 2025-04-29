@@ -13,7 +13,7 @@ export const environmentMiddleware = createMiddleware(
       initAnalyticsClient({ env: context.env as Environment });
     }
     await next();
-    if (context.env) {
+    if (context.env && context.req.path !== '/chat') {
       await flushAnalytics();
     }
   },

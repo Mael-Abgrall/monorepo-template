@@ -1,13 +1,20 @@
 import type { GetMeResponse } from 'shared/schemas/shared-user-schemas';
-import { defineStore } from 'pinia';
+import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref, watch } from 'vue';
-import { logger } from 'web-utils/reporting';
-import { apiFetch } from '../fetch';
+import { usePostHog } from '../composables/app-composables-analytics';
+import { apiFetch } from '../helpers/app-helpers-fetch';
+import { logger } from '../helpers/app-helpers-reporting';
+
+const { posthog } = usePostHog();
 
 const userFromLocalStorage = localStorage.getItem('user');
 const userFromLocalStorageParsed = userFromLocalStorage
   ? (JSON.parse(userFromLocalStorage) as GetMeResponse | undefined)
   : undefined;
+
+if (userFromLocalStorageParsed) {
+  posthog.identify(userFromLocalStorageParsed.id);
+}
 
 export const useUserStore = defineStore('user', () => {
   const user = ref<GetMeResponse | undefined>(userFromLocalStorageParsed);
@@ -17,8 +24,10 @@ export const useUserStore = defineStore('user', () => {
   watch(user, (updatedValue) => {
     if (updatedValue) {
       localStorage.setItem('user', JSON.stringify(updatedValue));
+      posthog.identify(updatedValue.id);
     } else {
       localStorage.removeItem('user');
+      posthog.reset();
     }
   });
 
@@ -59,3 +68,7 @@ export const useUserStore = defineStore('user', () => {
     userLoading,
   };
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useUserStore, import.meta.hot));
+}

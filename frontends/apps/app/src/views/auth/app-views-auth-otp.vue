@@ -7,10 +7,10 @@ import type {
 import type { GenericResponse } from 'shared/schemas/shared-schemas';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { logger } from 'web-utils/reporting';
 import containmentAlert from '../../components/containment/app-component-containment-alert.vue';
 import containmentButton from '../../components/containment/app-component-containment-button.vue';
-import { apiFetch } from '../../fetch';
+import { apiFetch } from '../../helpers/app-helpers-fetch';
+import { logger } from '../../helpers/app-helpers-reporting';
 import { useAuthStore } from '../../stores/app-stores-auth';
 
 const { email } = defineProps<{
@@ -109,11 +109,10 @@ async function verifyOTP(): Promise<void> {
 
   input {
     max-width: 10ch;
-    outline: 1px solid;
     display: flex;
     align-items: center;
     justify-content: center;
-    @apply outline-brand-500;
+    text-align: center;
   }
 }
 </style>

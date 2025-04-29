@@ -1,0 +1,60 @@
+{
+  "name": "ai",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.787.0"
+  },
+  "exports": {
+    "./lm": {
+      "workerd": "./src/providers/lm/ai-providers-lm.ts",
+      "typescript": "./src/providers/lm/ai-providers-lm.ts",
+      "development": "./src/providers/lm/ai-providers-lm.ts",
+      "types": "./src/providers/lm/ai-providers-lm.ts",
+      "default": "./dist/providers/lm/ai-providers-lm.js"
+    },
+    "./embeddings": {
+      "workerd": "./src/providers/embeddings/ai-providers-embeddings.ts",
+      "typescript": "./src/providers/embeddings/ai-providers-embeddings.ts",
+      "development": "./src/providers/embeddings/ai-providers-embeddings.ts",
+      "types": "./src/providers/embeddings/ai-providers-embeddings.ts",
+      "default": "./dist/providers/embeddings/ai-providers-embeddings.js"
+    },
+    "./rerank": {
+      "workerd": "./src/providers/rerank/ai-providers-rerank.ts",
+      "typescript": "./src/providers/rerank/ai-providers-rerank.ts",
+      "development": "./src/providers/rerank/ai-providers-rerank.ts",
+      "types": "./src/providers/rerank/ai-providers-rerank.ts",
+      "default": "./dist/providers/rerank/ai-providers-rerank.js"
+    },
+    "./OCR": {
+      "workerd": "./src/providers/OCR/ai-providers-ocr.ts",
+      "typescript": "./src/providers/OCR/ai-providers-ocr.ts",
+      "development": "./src/providers/OCR/ai-providers-ocr.ts",
+      "types": "./src/providers/OCR/ai-providers-ocr.ts",
+      "default": "./dist/providers/OCR/ai-providers-ocr.js"
+    },
+    "./utils/chunking": {
+      "workerd": "./src/utils/ai-utils-chunking.ts",
+      "typescript": "./src/utils/ai-utils-chunking.ts",
+      "development": "./src/utils/ai-utils-chunking.ts",
+      "types": "./src/utils/ai-utils-chunking.ts",
+      "default": "./dist/utils/ai-utils-chunking.js"
+    },
+    "./agents/orchestrator": {
+      "workerd": "./src/agents/orchestrator/ai-agents-orchestrator.ts",
+      "typescript": "./src/agents/orchestrator/ai-agents-orchestrator.ts",
+      "development": "./src/agents/orchestrator/ai-agents-orchestrator.ts",
+      "types": "./src/agents/orchestrator/ai-agents-orchestrator.ts",
+      "default": "./dist/agents/orchestrator/ai-agents-orchestrator.js"
+    },
+    "./agents/document-reader": {
+      "workerd": "./src/agents/document-reader/ai-agents-document-reader.ts",
+      "typescript": "./src/agents/document-reader/ai-agents-document-reader.ts",
+      "development": "./src/agents/document-reader/ai-agents-document-reader.ts",
+      "types": "./src/agents/document-reader/ai-agents-document-reader.ts",
+      "default": "./dist/agents/document-reader/ai-agents-document-reader.js"
+    },
+    "./package.json": "./package.json"
+  }
+}

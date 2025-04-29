@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useUserStore } from '../../../stores/app-stores-user';
-import { iconHelp, iconHome, iconUserDefault } from '../../icons';
+import { iconFolder, iconHelp, iconHome, iconUserDefault } from '../../icons';
 import {
   navigationSidebarButton,
   navigationSidebarGroup,
@@ -22,17 +22,11 @@ const userStore = useUserStore();
           </template>
           Home
         </navigationSidebarButton>
-        <navigationSidebarButton toName="auth.login">
+        <navigationSidebarButton toName="spaces">
           <template #icon>
-            <iconHome />
+            <iconFolder />
           </template>
-          Another button
-        </navigationSidebarButton>
-        <navigationSidebarButton toName="auth.login">
-          <template #icon>
-            <iconHome />
-          </template>
-          Connect
+          Spaces
         </navigationSidebarButton>
       </navigationSidebarGroup>
 

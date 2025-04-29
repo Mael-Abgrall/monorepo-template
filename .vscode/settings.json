@@ -24,19 +24,28 @@
   ],
   "cSpell.words": [
     "Autocapture",
+    "frontends",
     "Iconify",
     "neondatabase",
     "Nuxt",
     "ofetch",
+    "pageleave",
+    "pinia",
     "posthog",
+    "rerank",
+    "reranked",
+    "reranker",
+    "reranking",
+    "schemaname",
     "sonarjs",
+    "tablename",
     "tabler",
     "typebox",
     "unplugin"
   ],
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
-    "package.json": "environment.d.ts, .windsurfrules, postcss.config*, tailwind.config*, env.d.ts, .editorconfig*, .gitattributes*, .gitignore*, .prettierrc*, eslint.config*, LICENSE, .yarn*, tsconfig*, tsup.config*, turbo.json, yarn.lock, drizzle-dev.config*, drizzle.config*, vite.config*"
+    "package.json": ".prettierignore, environment.d.ts, .windsurfrules, postcss.config*, tailwind.config*, env.d.ts, .editorconfig*, .gitattributes*, .gitignore*, .prettierrc*, eslint.config*, LICENSE, .yarn*, tsconfig*, tsup.config*, turbo.json, yarn.lock, drizzle-dev.config*, drizzle.config*, vite.config*"
   },
   "files.exclude": {
     "**/node_modules/": true,

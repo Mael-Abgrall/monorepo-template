@@ -17,11 +17,34 @@
       "types": "./src/user/database-user-interface.ts",
       "default": "./dist/user/database-user-interface.js"
     },
+    "./chat": {
+      "workerd": "./src/chat/database-chat-interface.ts",
+      "typescript": "./src/chat/database-chat-interface.ts",
+      "development": "./src/chat/database-chat-interface.ts",
+      "types": "./src/chat/database-chat-interface.ts",
+      "default": "./dist/chat/database-chat-interface.js"
+    },
+    "./space": {
+      "workerd": "./src/space/database-space-interface.ts",
+      "typescript": "./src/space/database-space-interface.ts",
+      "development": "./src/space/database-space-interface.ts",
+      "types": "./src/space/database-space-interface.ts",
+      "default": "./dist/space/database-space-interface.js"
+    },
+    "./documents": {
+      "workerd": "./src/documents/database-documents-interface.ts",
+      "typescript": "./src/documents/database-documents-interface.ts",
+      "development": "./src/documents/database-documents-interface.ts",
+      "types": "./src/documents/database-documents-interface.ts",
+      "default": "./dist/documents/database-documents-interface.js"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
-    "drizzle-orm": "^0.39.3",
-    "service-utils": "workspace:^"
+    "aws4fetch": "^1.0.20",
+    "drizzle-orm": "^0.42.0",
+    "service-utils": "workspace:^",
+    "unstorage": "^1.15.0"
   }
 }

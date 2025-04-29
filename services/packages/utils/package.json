@@ -55,9 +55,9 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "fast-jwt": "^5.0.6",
+    "fast-jwt": "^6.0.1",
     "pino": "^9.6.0",
-    "posthog-node": "^4.10.1",
+    "posthog-node": "^4.11.6",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

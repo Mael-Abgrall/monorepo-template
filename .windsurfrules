@@ -1,5 +1,1 @@
-1. Write typescript functions with named parameters and types: async function myFunction({myParam}: {myParam: string}): Promise<string> {}
-2. I'm using yarn instead of npm.
-3. I'm using vitest for tests, and when I ask to create a test, you do not need to run it.
-4. avoid null, use undefined instead
-5. use two spaces for indentation
+/home/mael/Documents/monorepo-template/.cursor/rules/Typescript.mdc

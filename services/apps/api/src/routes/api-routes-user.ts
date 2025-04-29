@@ -6,6 +6,7 @@ import { describeRoute } from 'hono-openapi';
 import { HTTPException } from 'hono/http-exception';
 import { getMeResponseSchema } from 'shared/schemas/shared-user-schemas';
 import type { Variables } from '../context';
+import { validateResponse } from '../helpers/api-helpers-response-validator';
 import { authMiddleware } from '../middleware/api-middleware-auth';
 
 const userRouter = new Hono<{
@@ -39,7 +40,12 @@ userRouter.get(
     if (!user) {
       throw new HTTPException(404, { message: 'User not found' });
     }
-    return context.json(user satisfies GetMeResponse);
+    return context.json(
+      validateResponse({
+        response: user satisfies GetMeResponse,
+        schema: getMeResponseSchema,
+      }),
+    );
   },
 );
 

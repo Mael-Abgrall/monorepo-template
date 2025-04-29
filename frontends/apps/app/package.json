@@ -3,25 +3,29 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "yarn w:vite-dev",
-    "build": "run-p type-check \"build-only {@}\" --",
-    "preview": "vite preview",
-    "build-only": "vite build",
-    "type-check": "vue-tsc --build"
+    "dev": "yarn w:vite",
+    "build": "yarn w:vite build",
+    "preview": "yarn w:vite preview",
+    "type-check": "vue-tsc --build",
+    "deploy": "yarn w:wrangler pages deploy ./dist --project-name app"
   },
   "dependencies": {
-    "pinia": "^3.0.0",
+    "markdown-it": "^14.1.0",
+    "pinia": "^3.0.2",
+    "posthog-js": "^1.236.6",
     "shared": "workspace:^",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0",
-    "web-utils": "workspace:^"
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
-    "@iconify/json": "^2.2.319",
+    "@iconify/json": "^2.2.328",
+    "@tailwindcss/typography": "^0.5.16",
+    "@types/markdown-it": "^14.1.2",
     "@vue/compiler-sfc": "^3.5.13",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.5.2",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
     "tailwindcss": "3.4.17",
-    "unplugin-icons": "^22.1.0"
+    "unplugin-icons": "^22.1.0",
+    "vite-plugin-vue-devtools": "^7.7.6"
   }
 }

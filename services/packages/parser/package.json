@@ -1,0 +1,18 @@
+{
+  "name": "parser",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "workerd": "./src/parser.ts",
+      "typescript": "./src/parser.ts",
+      "development": "./src/parser.ts",
+      "types": "./src/parser.ts",
+      "default": "./dist/parser.js"
+    }
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.2.0",
+    "fflate": "^0.8.2"
+  }
+}

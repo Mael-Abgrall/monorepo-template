@@ -2,10 +2,10 @@
   <div
     class="button"
     :class="[
-      variant ? `variant-${variant}` : 'variant-primary',
+      `variant-${variant}`,
       size ? `size-${size}` : 'size-default',
+      disabled ? 'disabled' : '',
     ]"
-    :disabled="disabled"
   >
     <slot />
   </div>
@@ -22,12 +22,13 @@ const {
   /**
    * The size of the button
    * - `icon` for a button with only an icon
+   * - `icon-rounded` to use exclusively with "send" buttons
    * - `lg` for a large button
    * - `sm` for a small button
    * - `xs` for a very small button
    * - `max` for a button that takes the full width of the container
    */
-  size?: 'icon' | 'lg' | 'max' | 'sm' | 'xs';
+  size?: 'icon' | 'icon-rounded' | 'lg' | 'max' | 'sm' | 'xs';
   /**
    *
    * The visual style variant of the button
@@ -56,7 +57,12 @@ const {
   gap: 0.5rem;
   white-space: nowrap;
   font-weight: 500;
+  cursor: pointer;
   @apply rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-950 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0;
+
+  &.disabled {
+    cursor: not-allowed;
+  }
 
   &.variant-primary {
     border: 1px solid;
@@ -64,6 +70,10 @@ const {
 
     &:hover {
       @apply bg-brand-600 border-brand-600;
+    }
+
+    &.disabled {
+      @apply bg-stone-300 border-stone-300 text-stone-500;
     }
   }
 
@@ -75,6 +85,10 @@ const {
     &:hover {
       @apply bg-brand-100 text-brand-900 border-brand-400;
     }
+
+    &.disabled {
+      @apply bg-stone-100 border-stone-300 text-stone-500;
+    }
   }
 
   &.variant-outline {
@@ -84,6 +98,10 @@ const {
 
     &:hover {
       @apply bg-gray-100 text-gray-900 border-gray-400;
+    }
+
+    &.disabled {
+      @apply bg-stone-100 border-stone-300 text-stone-500;
     }
   }
 
@@ -95,10 +113,14 @@ const {
 
   &.variant-destructive {
     border: 1px solid;
-    @apply border-red-400 text-red-500 shadow-sm;
+    @apply border-red-400 text-red-500 shadow;
 
     &:hover {
       @apply bg-red-500 text-white;
+    }
+
+    &.disabled {
+      @apply border-red-200 text-red-300 bg-stone-200 shadow;
     }
   }
 
@@ -110,8 +132,12 @@ const {
     @apply h-9 px-4 py-2;
   }
 
+  &.size-icon-rounded {
+    @apply h-9 w-9 rounded-full text-base;
+  }
+
   &.size-icon {
-    @apply h-9 w-9;
+    @apply h-9 w-9 text-xl;
   }
 
   &.size-lg {

@@ -1,9 +1,9 @@
 import type { GenericResponse } from 'shared/schemas/shared-schemas';
-import { defineStore } from 'pinia';
+import { acceptHMRUpdate, defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { logger } from 'web-utils/reporting';
-import { apiFetch } from '../fetch';
+import { apiFetch } from '../helpers/app-helpers-fetch';
+import { logger } from '../helpers/app-helpers-reporting';
 import { useUserStore } from './app-stores-user';
 
 const initialIsAuth = JSON.parse(
@@ -53,18 +53,22 @@ export const useAuthStore = defineStore('auth', () => {
 
   /**
    * Request a new cookie/token from the server
+   * @returns true if the user is logged in, false if the user is kicked out
    */
-  async function refreshToken(): Promise<void> {
+  async function refreshToken(): Promise<boolean> {
     try {
-      await apiFetch<GenericResponse>('/api/auth/refresh', {
+      await apiFetch<GenericResponse>('/auth/refresh', {
         method: 'POST',
+        retry: false,
       });
+      return true;
     } catch (error) {
       logger.error(error);
       isAuth.value = false;
       await userStore.removeUser();
       authError.value = 'Failed you have been logged out';
       await router.push({ name: 'auth.login' });
+      return false;
     }
   }
 
@@ -77,3 +81,7 @@ export const useAuthStore = defineStore('auth', () => {
     saveLogin,
   };
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useAuthStore, import.meta.hot));
+}

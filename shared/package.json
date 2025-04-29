@@ -10,6 +10,20 @@
       "types": "./src/shared-fetch.ts",
       "default": "./dist/shared-fetch.js"
     },
+    "./files": {
+      "workerd": "./src/shared-files.ts",
+      "typescript": "./src/shared-files.ts",
+      "development": "./src/shared-files.ts",
+      "types": "./src/shared-files.ts",
+      "default": "./dist/shared-files.js"
+    },
+    "./time": {
+      "workerd": "./src/shared-time.ts",
+      "typescript": "./src/shared-time.ts",
+      "development": "./src/shared-time.ts",
+      "types": "./src/shared-time.ts",
+      "default": "./dist/shared-time.js"
+    },
     "./typebox": {
       "workerd": "./src/shared-typebox.ts",
       "typescript": "./src/shared-typebox.ts",
@@ -24,10 +38,20 @@
       "types": "./src/schemas/*.ts",
       "default": "./dist/schemas/*.js"
     },
+    "./url-sanitizer": {
+      "workerd": "./src/shared-url-sanitizer.ts",
+      "typescript": "./src/shared-url-sanitizer.ts",
+      "development": "./src/shared-url-sanitizer.ts",
+      "types": "./src/shared-url-sanitizer.ts",
+      "default": "./dist/shared-url-sanitizer.js"
+    },
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.34.16",
+    "@sinclair/typebox": "^0.34.33",
     "ofetch": "^1.4.1"
+  },
+  "scripts": {
+    "build": "yarn w:build-lib"
   }
 }

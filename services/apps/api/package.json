@@ -3,17 +3,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "yarn w:wrangler-dev src/development.ts"
+    "dev": "yarn w:wrangler-dev src/development.ts",
+    "build": "yarn w:wrangler deploy --outdir ./dist --dry-run",
+    "deploy": "yarn w:wrangler deploy --outdir ./dist"
   },
   "dependencies": {
-    "@hono/typebox-validator": "^0.3.2",
+    "@hono/typebox-validator": "^0.3.3",
     "core": "workspace:^",
-    "hono": "^4.7.0",
-    "hono-openapi": "^0.4.4",
+    "hono": "^4.7.7",
+    "hono-openapi": "^0.4.6",
     "service-utils": "workspace:^",
     "shared": "workspace:^"
   },
   "devDependencies": {
-    "@scalar/hono-api-reference": "^0.5.172"
+    "@scalar/hono-api-reference": "^0.8.1"
   }
 }

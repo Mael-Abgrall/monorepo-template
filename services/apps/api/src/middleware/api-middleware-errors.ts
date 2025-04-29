@@ -1,6 +1,9 @@
 import type { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { analytics } from 'service-utils/analytics';
+import { getContextLogger } from 'service-utils/logger';
+
+const logger = getContextLogger('api-middleware-errors.ts');
 
 export const errorHandler = (
   error: Error | HTTPException,
@@ -10,6 +13,7 @@ export const errorHandler = (
   if (error instanceof HTTPException) {
     return context.text(error.message, error.status);
   }
+  logger.error(error);
   analytics.captureException(error, 'anonymous', {
     url: context.req.url,
   });

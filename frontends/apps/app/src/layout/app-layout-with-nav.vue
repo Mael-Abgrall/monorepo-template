@@ -22,5 +22,11 @@ import { navigationSidebarNavbar } from '../components/navigation/sidebar/app-na
 main {
   flex: 1;
   height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  @apply container mx-auto py-5 gap-2;
 }
 </style>
