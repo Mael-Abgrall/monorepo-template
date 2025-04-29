@@ -133,4 +133,9 @@ dist
 
 # wrangler
 .wrangler
+
+# turbo
+.turbo
+
+# qodo
 .qodo
