@@ -50,5 +50,8 @@
   "dependencies": {
     "@sinclair/typebox": "^0.34.33",
     "ofetch": "^1.4.1"
+  },
+  "scripts": {
+    "build": "yarn w:build-lib"
   }
 }

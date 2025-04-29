@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/prepare
 
       - name: Transpile
-        run: yarn turbo build
+        run: yarn workspaces foreach -p -t -A run build
         shell: bash
 
   license-check:

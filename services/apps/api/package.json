@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "yarn w:wrangler-dev src/development.ts",
-    "deploy": "yarn w:wrangler deploy"
+    "build": "yarn w:wrangler deploy --outdir ./dist --dry-run",
+    "deploy": "yarn w:wrangler deploy --outdir ./dist"
   },
   "dependencies": {
     "@hono/typebox-validator": "^0.3.3",
