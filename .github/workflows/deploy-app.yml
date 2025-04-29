@@ -1,4 +1,4 @@
-run-name: Deploy api
+run-name: Deploy app
 
 on:
   push:

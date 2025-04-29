@@ -7,7 +7,7 @@
     "build": "yarn w:vite build",
     "preview": "yarn w:vite preview",
     "type-check": "vue-tsc --build",
-    "deploy": "yarn w:wrangler pages deploy ./dist --project-name app"
+    "deploy": "yarn build && yarn w:wrangler pages deploy ./dist --project-name app"
   },
   "dependencies": {
     "markdown-it": "^14.1.0",
