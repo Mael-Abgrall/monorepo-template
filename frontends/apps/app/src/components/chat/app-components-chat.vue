@@ -13,6 +13,7 @@ import componentChatHistory from './app-component-chat-history.vue';
 import componentChatInput from './app-components-chat-input.vue';
 import componentChatPrompt from './app-components-chat-prompt.vue';
 import componentChatResponse from './app-components-chat-response.vue';
+import componentChatUnknownContent from './app-components-chat-unknown-content.vue';
 
 const { spaceID } = defineProps<{
   /**
@@ -38,10 +39,7 @@ const chatStore = useChatsStore();
             v-else-if="message.role === 'assistant' && content.text"
             :text="content.text"
           />
-          <div v-else>
-            unknown content block
-            {{ content }}
-          </div>
+          <componentChatUnknownContent v-else :content="content" />
         </template>
       </div>
       <div class="loading" v-if="chatStore.isLoading">
@@ -59,7 +57,8 @@ const chatStore = useChatsStore();
 .chat-container {
   display: flex;
   flex-direction: column;
-  border: 1px solid;
+  min-width: 100%;
+  max-width: 120ch;
   @apply p-2 bg-stone-100 shadow-xl;
 }
 

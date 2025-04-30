@@ -16,32 +16,48 @@ const selectChat = (chatID: string | undefined): void => {
 </script>
 
 <template>
-  <select
-    v-model="chatStore.currentChatID"
-    @change="selectChat(chatStore.currentChatID)"
-  >
-    <option value="" disabled>Select a chat</option>
-    <option :value="undefined">New chat</option>
-    <template v-if="spaceID">
-      <template v-for="[chatID, chat] of chatStore.chats" :key="chatID">
+  <div class="history">
+    History:
+    <select
+      v-model="chatStore.currentChatID"
+      @change="selectChat(chatStore.currentChatID)"
+    >
+      <option value="" disabled>Select a chat</option>
+      <option :value="undefined">New chat</option>
+      <template v-if="spaceID">
+        <template v-for="[chatID, chat] of chatStore.chats" :key="chatID">
+          <option
+            :value="chatID"
+            v-if="chat.spaceID === spaceID && chat.messages.length > 0"
+          >
+            {{ chat.messages[0].content.at(0)!.text }}
+          </option>
+        </template>
+      </template>
+      <template v-else>
         <option
+          v-for="[chatID, chat] of chatStore.chats"
+          :key="chatID"
           :value="chatID"
-          v-if="chat.spaceID === spaceID && chat.messages.length > 0"
         >
-          {{ chat.messages[0].content.at(0)!.text?.slice(0, 50) }}
+          {{ chat.messages[0].content.at(0)!.text }}
         </option>
       </template>
-    </template>
-    <template v-else>
-      <option
-        v-for="[chatID, chat] of chatStore.chats"
-        :key="chatID"
-        :value="chatID"
-      >
-        {{ chat.messages[0].content.at(0)!.text?.slice(0, 50) }}
-      </option>
-    </template>
-  </select>
+    </select>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.history {
+  display: flex;
+  align-items: center;
+
+  @apply gap-1 pb-4;
+
+  select {
+    flex: 1;
+    overflow-y: hidden;
+    @apply bg-stone-200 rounded p-1;
+  }
+}
+</style>
