@@ -154,7 +154,7 @@ describe('generateInitUrlMicrosoft', () => {
     const parsedUrl = new URL(url);
 
     expect(parsedUrl.searchParams.get('redirect_uri')).toBe(
-      'https://example.com/auth/callback/microsoft',
+      'https://app.example.com/auth/callback/microsoft',
     );
   });
 });
