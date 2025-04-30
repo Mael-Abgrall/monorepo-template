@@ -23,13 +23,14 @@ The architecture is as follow:
 
 The frontends and services folders are further split in two:
 
-- `apps` is for the applications, they have both the interface exposed to consumers (API or UI), and the cores.
-- `packages` is for the individual packages. Those packages usually expose only the functions to be used and nothing more. There are exceptions when the packages have a lot of exposed files and functions.
+- `apps` is for the applications, they have both the interface exposed to consumers (API or UI). The apps do not have access to the packages, only the core exposes functions to the apps.
+- `core` for the core functions; in a traditionally MVC architecture, this would be the controllers. It is split into business logic and data access.
+- `packages` is for the individual packages. Those packages usually expose only the functions to be used and nothing more through `package.json` exports. There are exceptions when the packages have a lot of exposed files and functions.
 
 ## conventions
 
 - Files are named based on the package they live in for easy search
-- Whenever possible, the code uses functional programming, and named parameters for functions.
+- Whenever possible, the code uses functional programming, and named parameters for functions. Although, don't forget that code readability >> functional programming.
 - Tests are written next to the original file, and the folder is split into 2: one for unit tests, and one for integration tests.
 
 ## Starting the project
@@ -37,4 +38,42 @@ The frontends and services folders are further split in two:
 ```bash
 yarn workspace app dev
 yarn workspace api dev
+```
+
+## Create a private fork & sync your project with the template
+
+### Create a private fork
+
+```bash
+git clone --bare git@github.com:Mael-Abgrall/monorepo-template.git
+```
+
+- Create a new repository on github; then push the template to it
+
+```bash
+cd monorepo-template
+git push --mirror <your-repo>
+```
+
+- Add the required secrets from the CICD pipelines to github
+- Remove and replace the monorepo-template by your project
+
+```bash
+rm -rf monorepo-template
+git clone <your-repo>
+```
+
+- Add the monorepo as an upstream remote & disable push (optional if you want to sync any updates)
+
+```bash
+git remote add monorepo-template https://github.com/maelvls/monorepo-template.git
+git remote set-url --push monorepo-template disabled
+```
+
+### Sync your project with the template
+
+```bash
+git fetch monorepo-template
+git checkout <your-branch>
+git merge monorepo-template/main
 ```
