@@ -56,6 +56,8 @@ function formatText(text: string): string {
  *
  * Doc for OOXML: http://officeopenxml.com/WPcontentOverview.php
  * Doc for OpenDocument XML: https://docs.oasis-open.org/office/OpenDocument/v1.3/OpenDocument-v1.3-part3-schema.html & https://groups.oasis-open.org/communities/tc-community-home2?CommunityKey=4bf06d41-79ad-4c58-9e8e-018dc7d05da8
+ *
+ * - for Word, It is extremely difficult to find where the pages break (https://stackoverflow.com/a/43702774/9020761)
  * @param root named params
  * @param root.accumulator a string to concatenate with the result of this function.
  * @param root.source an object or a list to extract text from.

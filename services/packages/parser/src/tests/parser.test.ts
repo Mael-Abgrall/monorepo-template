@@ -1,6 +1,5 @@
 // libs
 import { describe, expect, test } from 'vitest';
-
 // functions to test
 import { parseDocument } from '../parser.js';
 

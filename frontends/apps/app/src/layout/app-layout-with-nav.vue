@@ -27,6 +27,6 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  @apply container mx-auto py-5 gap-2;
+  @apply container mx-auto py-5 gap-2 px-2;
 }
 </style>

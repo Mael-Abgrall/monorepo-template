@@ -1,5 +1,8 @@
 import type { Unzipped } from 'fflate';
-import { unzip } from 'fflate';
+import { unzip, unzipSync } from 'fflate/browser';
+import { getContextLogger } from 'service-utils/logger';
+
+const logger = getContextLogger('parser-unzip.ts');
 
 /**
  * Unzip and Extract document files from an Office document buffer
@@ -13,28 +16,46 @@ export async function unzipDocument(
   filterList: string[],
   documentType: string,
 ): Promise<{ [key: string]: Uint8Array }> {
-  const zipFiles: Unzipped = await new Promise((resolve, reject) => {
-    unzip(new Uint8Array(buffer), (error, files) => {
-      // todo: test this
-      /* v8 ignore start -- do later */
-      if (error) {
-        reject(error);
-      } else {
-        resolve(files);
-      }
-      /* v8 ignore end */
+  try {
+    const zipFiles: Unzipped = await new Promise((resolve, reject) => {
+      unzip(new Uint8Array(buffer), (error, files) => {
+        // todo: test this
+        /* v8 ignore start -- do later */
+        if (error) {
+          reject(error);
+        } else {
+          resolve(files);
+        }
+        /* v8 ignore end */
+      });
     });
-  });
 
-  const matchedFiles = filterFiles(zipFiles, filterList);
+    const matchedFiles = filterFiles(zipFiles, filterList);
 
-  if (Object.keys(matchedFiles).length === 0) {
-    throw new Error(
-      `Unable to extract ${documentType} document from the stream`,
+    if (Object.keys(matchedFiles).length === 0) {
+      throw new Error(
+        `Unable to extract ${documentType} document from the stream`,
+      );
+    }
+
+    return matchedFiles;
+  } catch {
+    logger.warn(
+      'Unable to unzip document using async method, falling back to sync method',
     );
-  }
+    // in very rare instances, the async unzip fails due to Worker being not available on cloudflare workers (see https://github.com/101arrowz/fflate#browser-support)
+    const zipFiles = unzipSync(new Uint8Array(buffer));
 
-  return matchedFiles;
+    const matchedFiles = filterFiles(zipFiles, filterList);
+
+    if (Object.keys(matchedFiles).length === 0) {
+      throw new Error(
+        `Unable to extract ${documentType} document from the stream`,
+      );
+    }
+
+    return matchedFiles;
+  }
 }
 
 /**

@@ -28,6 +28,11 @@ jobs:
       - name: Prepare
         uses: ./.github/actions/prepare
 
+      - name: Run migrations
+        run: yarn db:push
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Transpile & deploy
         run: yarn workspace api deploy
         env:

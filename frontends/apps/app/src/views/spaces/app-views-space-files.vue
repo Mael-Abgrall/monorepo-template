@@ -32,10 +32,10 @@ async function handleFiles(files: File[]): Promise<void> {
     }
   }
 
-  // request upload
-  for (const file of files) {
-    await documentStore.uploadDocument({ file, spaceID });
-  }
+  const promises = files.map((file) => {
+    return documentStore.uploadDocument({ file, spaceID });
+  });
+  await Promise.all(promises);
 }
 
 onMounted(async () => {
